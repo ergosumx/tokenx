@@ -7,6 +7,9 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+
+    <!-- Suppress analyzer warnings that are too strict for tests -->
+    <NoWarn>$(NoWarn);IDISP005;MA0032;MA0045;CA2000</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +25,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="TestData\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

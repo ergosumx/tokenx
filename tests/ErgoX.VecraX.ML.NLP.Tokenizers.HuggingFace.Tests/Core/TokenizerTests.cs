@@ -8,10 +8,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using ErgoX.VecraX.ML.Tokenizers;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 using Xunit;
 
-namespace ErgoX.VecraX.ML.Tokenizers.Tests;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 
 public sealed class TokenizerTests
 {

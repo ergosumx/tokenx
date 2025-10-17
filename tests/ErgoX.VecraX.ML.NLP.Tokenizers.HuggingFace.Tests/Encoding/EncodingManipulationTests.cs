@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ErgoX.VecraX.ML.Tokenizers;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 using Xunit;
 
-namespace ErgoX.VecraX.ML.Tokenizers.Tests.Encoding;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
 
 /// <summary>
 /// Tests for encoding manipulation methods (Merge, Pad, Truncate).

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using ErgoX.VecraX.ML.Tokenizers.Models;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Models;
 using Xunit;
 
-namespace ErgoX.VecraX.ML.Tokenizers.Tests.Models;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Models;
 
 /// <summary>
 /// Tests for the BPE (Byte-Pair Encoding) model implementation.

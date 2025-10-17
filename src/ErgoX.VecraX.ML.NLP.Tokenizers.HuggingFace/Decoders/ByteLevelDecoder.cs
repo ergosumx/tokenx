@@ -7,7 +7,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 /// ByteLevel decoder for converting byte-level tokens back to text.
 /// </summary>
 /// <remarks>
-/// This decoder is to be used in tandem with the <see cref="PreTokenizers.ByteLevelPreTokenizer"/>.
+/// This decoder is to be used in tandem with byte-level pre-tokenizers.
 /// It reverses the byte-level encoding by mapping bytes back to their original Unicode characters.
 /// </remarks>
 public sealed class ByteLevelDecoder : IDisposable

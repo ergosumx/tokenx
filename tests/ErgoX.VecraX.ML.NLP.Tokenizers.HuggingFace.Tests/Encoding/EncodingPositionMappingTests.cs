@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using ErgoX.VecraX.ML.Tokenizers;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using Xunit;
 
-namespace ErgoX.VecraX.ML.Tokenizers.Tests.Encoding;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
 
 /// <summary>
 /// Tests for encoding position mapping methods (word/token/char conversions).

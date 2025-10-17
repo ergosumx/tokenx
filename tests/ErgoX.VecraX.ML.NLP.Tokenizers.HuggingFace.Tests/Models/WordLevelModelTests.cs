@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using ErgoX.VecraX.ML.Tokenizers.Models;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Models;
 using Xunit;
 
-namespace ErgoX.VecraX.ML.Tokenizers.Tests.Models;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Models;
 
 /// <summary>
 /// Tests for WordLevel model using simple character-level vocabulary.
