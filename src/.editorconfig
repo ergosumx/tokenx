@@ -1,0 +1,117 @@
+root = true
+
+# ===== ALL FILES =====
+[*]
+charset = utf-8-bom
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# ===== CODE FILES =====
+[*.{cs,csx,vb,vbx}]
+indent_size = 4
+tab_width = 4
+
+# ===== XML/CONFIG FILES =====
+[*.{xml,config,props,targets,csproj,ruleset,vsixmanifest,vsct}]
+indent_size = 2
+
+# ===== JSON FILES =====
+[*.{json,json5}]
+indent_size = 2
+
+# ============================================================================
+# ErgoX.Vecrax – Minimal, Production-Focused .editorconfig (PROGRAMMING ONLY)
+# Scope: C# analyzers that materially impact security, thread-safety, resiliency,
+#        resource management, and runtime correctness. No formatting/style.
+# Gates:
+#   - error   => BLOCK BUILD
+#   - warning => GATE PR (must be addressed or explicitly waived)
+# Default: disable noise; opt-in critical rules below.
+# ============================================================================
+
+[*.cs]
+# Disable everything by default; opt-in only what matters
+dotnet_analyzer_diagnostic.severity = none
+
+# ---------------------------------------------------------------------------
+# SECURITY – BLOCK BUILD
+# ---------------------------------------------------------------------------
+# Hardcoded secrets / IPs
+dotnet_diagnostic.S2068.severity = error        # Credentials should not be hard-coded (Sonar)
+dotnet_diagnostic.S1313.severity = error        # IP addresses should not be hardcoded (Sonar)
+
+# Injection & XSS
+dotnet_diagnostic.SCS0001.severity = error      # Command injection (SecurityCodeScan)
+dotnet_diagnostic.SCS0002.severity = error      # XSS (SecurityCodeScan)
+dotnet_diagnostic.CA2100.severity = error       # Review SQL queries for security vulnerabilities (.NET CA)
+
+# Insecure XML / Deserialization
+dotnet_diagnostic.CA3075.severity = error       # Insecure DTD/XML settings (.NET CA)
+
+# Crypto & protocols
+dotnet_diagnostic.CA5350.severity = error       # Do not use weak cryptographic algorithms (.NET CA)
+dotnet_diagnostic.CA5351.severity = error       # Do not use weak hashing algorithms (.NET CA)
+dotnet_diagnostic.S4423.severity = error        # Weak SSL/TLS protocols should not be used (Sonar)
+dotnet_diagnostic.S4426.severity = error        # Cryptographic keys should be robust (Sonar)
+dotnet_diagnostic.S5332.severity = error        # Using clear-text protocols is security-sensitive (Sonar)
+dotnet_diagnostic.S5445.severity = error        # Cipher algorithms should be robust (Sonar)
+
+# Auth/session
+dotnet_diagnostic.S5659.severity = error        # JWT should be signed and verified (Sonar)
+dotnet_diagnostic.S3330.severity = error        # Cookies must be HttpOnly (Sonar)
+
+# Supply-chain / packaging / prod safety
+dotnet_diagnostic.S4507.severity = error        # Debug features activated in production (Sonar)
+dotnet_diagnostic.S5042.severity = error        # Uncontrolled archive expansion (Zip-bomb risk) (Sonar)
+
+# ---------------------------------------------------------------------------
+# THREAD-SAFETY & ASYNC CORRECTNESS – BLOCK BUILD
+# ---------------------------------------------------------------------------
+dotnet_diagnostic.S3168.severity = error        # async methods must not return void (Sonar)
+dotnet_diagnostic.MA0004.severity = error       # Use Task.ConfigureAwait in libraries (Meziantou)
+dotnet_diagnostic.MA0045.severity = error       # No blocking calls in async methods (Meziantou)
+dotnet_diagnostic.VSTHRD103.severity = error    # Call async methods where possible (VS Threading)
+dotnet_diagnostic.VSTHRD110.severity = error    # Observe JTF guidance (VS Threading)
+
+# Locking hazards
+dotnet_diagnostic.S3998.severity = error        # Do not lock on objects with weak identity (Sonar)
+dotnet_diagnostic.MA0065.severity = error       # Avoid locking on publicly accessible instance (Meziantou)
+
+# ---------------------------------------------------------------------------
+# RESOURCE MANAGEMENT – BLOCK BUILD
+# ---------------------------------------------------------------------------
+# Dispose correctness (IDisposableAnalyzers)
+dotnet_diagnostic.IDISP001.severity = error     # Dispose created
+dotnet_diagnostic.IDISP002.severity = error     # Dispose member
+dotnet_diagnostic.IDISP003.severity = error     # Dispose previous before re-assigning
+dotnet_diagnostic.IDISP004.severity = error     # Don't ignore created IDisposable
+dotnet_diagnostic.IDISP005.severity = error     # Return type should indicate disposable
+
+# .NET CA equivalents
+dotnet_diagnostic.CA2000.severity = error       # Dispose objects before losing scope (.NET CA)
+
+# Double-dispose & misuse
+dotnet_diagnostic.S3966.severity = error        # Objects should not be disposed more than once (Sonar)
+dotnet_diagnostic.S3967.severity = error        # Don't use disposed objects (Sonar)
+
+# Streams/IO correctness
+dotnet_diagnostic.S2674.severity = error        # Check length returned from Stream.Read (Sonar)
+
+# ---------------------------------------------------------------------------
+# RUNTIME CORRECTNESS & RESILIENCE – BLOCK BUILD or PR-GATE
+# ---------------------------------------------------------------------------
+# Hard failures
+dotnet_diagnostic.S2259.severity = error        # Null pointer dereference (Sonar)
+
+# PR-gated (fix or justify)
+dotnet_diagnostic.CA1062.severity = warning     # Validate public method arguments for null (.NET CA)
+dotnet_diagnostic.CA1031.severity = warning     # Do not catch general exception types (.NET CA)
+dotnet_diagnostic.MA0032.severity = warning     # Use overload with CancellationToken (Meziantou)
+dotnet_diagnostic.MA0040.severity = warning     # Forward the CancellationToken parameter (Meziantou)
+dotnet_diagnostic.MA0080.severity = warning     # Use cancellation token via WithCancellation (Meziantou)
+dotnet_diagnostic.VSTHRD200.severity = warning  # Additional VS threading suggestions (VS Threading)
+dotnet_diagnostic.S3216.severity = warning      # ConfigureAwait(false) should be used (Sonar – backup when Meziantou not present)
+dotnet_diagnostic.S3990.severity = warning      # Exception created but not thrown (Sonar)
