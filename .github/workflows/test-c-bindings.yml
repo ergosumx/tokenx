@@ -1,0 +1,167 @@
+name: C Bindings Test & Coverage
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'bindings/c/**'
+      - '.github/workflows/test-c-bindings.yml'
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - 'bindings/c/**'
+      - '.github/workflows/test-c-bindings.yml'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: Test C Bindings
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Run tests
+        working-directory: bindings/c
+        run: cargo test --release --verbose
+
+      - name: Run clippy
+        working-directory: bindings/c
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        continue-on-error: true
+
+  coverage:
+    name: Test Coverage (Linux)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: llvm-tools-preview
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-coverage-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-coverage-
+
+      - name: Install cargo-tarpaulin
+        run: |
+          cargo install cargo-tarpaulin || true
+
+      - name: Generate coverage
+        working-directory: bindings/c
+        run: |
+          cargo tarpaulin --out Xml --out Html --output-dir coverage --timeout 120 --all-features
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: bindings/c/coverage/cobertura.xml
+          flags: c-bindings
+          name: c-bindings-coverage
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: bindings/c/coverage/
+          retention-days: 30
+
+      - name: Comment coverage summary on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coveragePath = 'bindings/c/coverage/cobertura.xml';
+            
+            if (fs.existsSync(coveragePath)) {
+              const coverage = fs.readFileSync(coveragePath, 'utf8');
+              const lineRate = coverage.match(/line-rate="([0-9.]+)"/)?.[1];
+              const branchRate = coverage.match(/branch-rate="([0-9.]+)"/)?.[1];
+              
+              if (lineRate) {
+                const linePercent = (parseFloat(lineRate) * 100).toFixed(2);
+                const branchPercent = branchRate ? (parseFloat(branchRate) * 100).toFixed(2) : 'N/A';
+                
+                const comment = `## 📊 C Bindings Test Coverage\n\n` +
+                  `- **Line Coverage**: ${linePercent}%\n` +
+                  `- **Branch Coverage**: ${branchPercent}%\n\n` +
+                  `[View detailed HTML report in artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              }
+            }
+
+  test-summary:
+    name: Test Summary
+    needs: [test, coverage]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "❌ Tests failed on one or more platforms"
+            exit 1
+          fi
+          
+          if [ "${{ needs.coverage.result }}" != "success" ]; then
+            echo "⚠️ Coverage generation had issues (non-blocking)"
+          fi
+          
+          echo "✅ All tests passed successfully!"
