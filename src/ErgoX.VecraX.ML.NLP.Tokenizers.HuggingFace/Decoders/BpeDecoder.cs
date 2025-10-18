@@ -1,5 +1,6 @@
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 using System;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 
@@ -10,7 +11,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 /// This decoder is used to decode byte-pair encoding tokens by replacing
 /// the specified suffix (typically "&lt;/w&gt;") with whitespace during decoding.
 /// </remarks>
-public sealed class BpeDecoder : IDisposable
+public sealed class BpeDecoder : IDecoder
 {
     private IntPtr _handle;
     private bool _disposed;
@@ -55,7 +56,7 @@ public sealed class BpeDecoder : IDisposable
     /// <summary>
     /// Gets the native handle for this decoder.
     /// </summary>
-    internal IntPtr Handle
+    public IntPtr Handle
     {
         get
         {

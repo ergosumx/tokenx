@@ -1,5 +1,6 @@
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 using System;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 
@@ -10,7 +11,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 /// This decoder is to be used in tandem with byte-level pre-tokenizers.
 /// It reverses the byte-level encoding by mapping bytes back to their original Unicode characters.
 /// </remarks>
-public sealed class ByteLevelDecoder : IDisposable
+public sealed class ByteLevelDecoder : IDecoder
 {
     private IntPtr _handle;
     private bool _disposed;
@@ -33,7 +34,7 @@ public sealed class ByteLevelDecoder : IDisposable
     /// <summary>
     /// Gets the native handle for this decoder.
     /// </summary>
-    internal IntPtr Handle
+    public IntPtr Handle
     {
         get
         {

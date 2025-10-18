@@ -9,11 +9,12 @@
 ## Features
 
 ✅ **Cross-platform** - Linux, Windows, macOS (x64 & ARM64)  
-✅ **180 comprehensive tests** - 179 passing, 1 skipped  
+✅ **185 comprehensive tests** - 184 passing, 1 skipped  
 ✅ **Rust FFI bindings** - High-performance C bindings layer  
 ✅ **CI/CD integration** - Automated testing and releases  
 ✅ **Test reports** - Published with every release  
 ✅ **Code coverage** - Tracked via Codecov  
+✅ **Sequence decoder combinator** - Compose native decoders from .NET  
 
 ## Quick Start
 
@@ -79,15 +80,15 @@ dotnet build --configuration Release
 ### Testing
 
 ```bash
-# Run Rust tests (16 tests)
+# Run Rust tests (20 tests)
 cd .ext/tokenizers/bindings/c
 cargo test --release
 
-# Run .NET tests (180 tests)
+# Run .NET tests (185 tests)
 dotnet test --configuration Release
 ```
 
-**Expected Results**: 179 passed, 1 skipped, 0 failed
+**Expected Results**: 184 passed, 1 skipped, 0 failed
 
 See [TESTING-CHECKLIST.md](.github/TESTING-CHECKLIST.md) for detailed instructions.
 
@@ -97,8 +98,8 @@ See [TESTING-CHECKLIST.md](.github/TESTING-CHECKLIST.md) for detailed instructio
 
 Every push and pull request triggers:
 
-1. **Rust C Bindings Tests** - 16 FFI layer tests on Linux, Windows, macOS
-2. **.NET Integration Tests** - 180 end-to-end tests on all platforms
+1. **Rust C Bindings Tests** - 20 FFI layer tests on Linux, Windows, macOS
+2. **.NET Integration Tests** - 185 end-to-end tests on all platforms
 3. **Coverage Reports** - Uploaded to Codecov
 
 ### Releases
@@ -113,7 +114,7 @@ git push origin c-v0.22.2
 The release workflow will:
 
 1. ✅ Build binaries for 7 platforms
-2. ✅ Run full test suite (180 tests)
+2. ✅ Run full test suite (205 tests)
 3. ✅ Package test reports
 4. ✅ Create GitHub Release with:
    - Multi-platform binaries
@@ -140,7 +141,7 @@ ErgoX.VecraX.ML.NLP.Tokenizers/
 ├── .ext/tokenizers/              # HuggingFace tokenizers submodule
 │   └── bindings/c/               # Rust FFI bindings
 │       ├── src/                  # Rust source code
-│       └── tests/                # 16 Rust decoder tests
+│       └── tests/                # 20 Rust decoder tests
 ├── .github/
 │   ├── workflows/                # CI/CD workflows
 │   │   ├── test-c-bindings.yml   # Rust tests + coverage
@@ -154,16 +155,16 @@ ErgoX.VecraX.ML.NLP.Tokenizers/
     │   ├── NativeMethods.cs      # P/Invoke declarations
     │   └── runtimes/             # Native libraries
     └── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
-        └── TokenizerTests.cs     # 180 integration tests
+   └── TokenizerTests.cs     # 185 integration tests
 ```
 
 ## Test Coverage
 
 | Component | Tests | Pass Rate | Coverage |
 |-----------|-------|-----------|----------|
-| Rust FFI Layer | 16 | 100% ✅ | ~75% |
-| .NET Integration | 180 | 99.4% ✅ | ~80% |
-| **Total** | **196** | **99.5%** | **~78%** |
+| Rust FFI Layer | 20 | 100% ✅ | ~75% |
+| .NET Integration | 185 | 99.5% ✅ | ~80% |
+| **Total** | **205** | **99.6%** | **~78%** |
 
 **Known Limitation**: 1 test skipped due to Rust library limitation with complex normalizer pipelines.
 

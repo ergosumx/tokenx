@@ -62,6 +62,12 @@ internal static partial class NativeMethods
     internal static partial void EncodingGetTokens(IntPtr encoding, IntPtr[] buffer, nuint length);
 
     /// <summary>
+    /// Gets the encoding tokens serialized as a JSON array.
+    /// </summary>
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_encoding_get_tokens_json")]
+    internal static partial IntPtr EncodingGetTokensJson(IntPtr encoding, out int status);
+
+    /// <summary>
     /// Gets the character offsets for each token.
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_encoding_get_offsets")]
@@ -446,6 +452,22 @@ internal static partial class NativeMethods
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_replace_decoder_free")]
     internal static partial void ReplaceDecoderFree(IntPtr decoder);
+
+    // Sequence Decoder
+    /// <summary>
+    /// Creates a new Sequence decoder.
+    /// </summary>
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_sequence_decoder_new")]
+    internal static partial IntPtr SequenceDecoderNew(
+        [In] IntPtr[] decoders,
+        nuint length,
+        out int status);
+
+    /// <summary>
+    /// Frees a Sequence decoder handle.
+    /// </summary>
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_sequence_decoder_free")]
+    internal static partial void SequenceDecoderFree(IntPtr decoder);
 
     // Strip Decoder
     /// <summary>

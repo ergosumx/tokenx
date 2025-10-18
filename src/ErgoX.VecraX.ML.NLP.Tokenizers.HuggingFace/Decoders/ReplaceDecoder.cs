@@ -1,5 +1,6 @@
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 using System;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 
@@ -10,7 +11,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 /// This decoder is to be used in tandem with the Replace pre-tokenizer.
 /// It replaces occurrences of a pattern with specified content.
 /// </remarks>
-public sealed class ReplaceDecoder : IDisposable
+public sealed class ReplaceDecoder : IDecoder
 {
     private IntPtr _handle;
     private bool _disposed;
@@ -52,7 +53,7 @@ public sealed class ReplaceDecoder : IDisposable
     /// <summary>
     /// Gets the native handle for this decoder.
     /// </summary>
-    internal IntPtr Handle
+    public IntPtr Handle
     {
         get
         {

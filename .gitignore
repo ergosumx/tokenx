@@ -81,3 +81,4 @@ Tests/**/*.settings.local.json
 scripts/local/**
 
 .env
+BenchmarkDotNet.Artifacts/results

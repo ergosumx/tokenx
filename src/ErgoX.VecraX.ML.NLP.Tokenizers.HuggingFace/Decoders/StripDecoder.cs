@@ -1,5 +1,6 @@
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 using System;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 
@@ -10,7 +11,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 /// This decoder strips a specified number of characters from either side of each token.
 /// Useful for removing padding or special characters added during tokenization.
 /// </remarks>
-public sealed class StripDecoder : IDisposable
+public sealed class StripDecoder : IDecoder
 {
     private IntPtr _handle;
     private bool _disposed;
@@ -66,7 +67,7 @@ public sealed class StripDecoder : IDisposable
     /// <summary>
     /// Gets the native handle for this decoder.
     /// </summary>
-    internal IntPtr Handle
+    public IntPtr Handle
     {
         get
         {

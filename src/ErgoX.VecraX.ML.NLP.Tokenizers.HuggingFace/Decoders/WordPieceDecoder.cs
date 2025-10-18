@@ -1,5 +1,6 @@
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 using System;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 
@@ -10,7 +11,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 /// This decoder removes the subword prefix (typically "##") from tokens and optionally
 /// cleans up tokenization artifacts like spaces before punctuation.
 /// </remarks>
-public sealed class WordPieceDecoder : IDisposable
+public sealed class WordPieceDecoder : IDecoder
 {
     private IntPtr _handle;
     private bool _disposed;
@@ -62,7 +63,7 @@ public sealed class WordPieceDecoder : IDisposable
     /// <summary>
     /// Gets the native handle for this decoder.
     /// </summary>
-    internal IntPtr Handle
+    public IntPtr Handle
     {
         get
         {

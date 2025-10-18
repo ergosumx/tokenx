@@ -1,5 +1,6 @@
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 using System;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 
@@ -10,7 +11,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Decoders;
 /// This decoder fuses every token into a single string. This is typically the last step
 /// of decoding, and this decoder exists only if there is need to add other decoders after fusion.
 /// </remarks>
-public sealed class FuseDecoder : IDisposable
+public sealed class FuseDecoder : IDecoder
 {
     private IntPtr _handle;
     private bool _disposed;
@@ -33,7 +34,7 @@ public sealed class FuseDecoder : IDisposable
     /// <summary>
     /// Gets the native handle for this decoder.
     /// </summary>
-    internal IntPtr Handle
+    public IntPtr Handle
     {
         get
         {
