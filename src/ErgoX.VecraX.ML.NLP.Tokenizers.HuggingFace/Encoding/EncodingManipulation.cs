@@ -36,47 +36,46 @@ public sealed partial class EncodingResult
             return encodingsList[0];
         }
 
-        var totalLength = encodingsList.Sum(e => e.Length);
-        var ids = new List<int>(totalLength);
-        var tokens = new List<string>(totalLength);
-        var offsets = new List<(int, int)>(totalLength);
-        var typeIds = new List<uint>(totalLength);
-        var attentionMask = new List<uint>(totalLength);
-        var specialTokensMask = new List<uint>(totalLength);
-        var wordIds = new List<int?>(totalLength);
-        var sequenceIds = new List<int?>(totalLength);
+        var totalLength = encodingsList.Sum(static e => e.Length);
+        var ids = new int[totalLength];
+        var tokens = new string[totalLength];
+        var offsets = new (int, int)[totalLength];
+        var typeIds = new uint[totalLength];
+        var attentionMask = new uint[totalLength];
+        var specialTokensMask = new uint[totalLength];
+        var wordIds = new int?[totalLength];
+        var sequenceIds = new int?[totalLength];
 
         var currentOffset = 0;
+        var position = 0;
 
         foreach (var encoding in encodingsList)
         {
-            ids.AddRange(encoding.Ids);
-            tokens.AddRange(encoding.Tokens);
-
-            if (growingOffsets && currentOffset > 0)
+            var segmentLength = encoding.Length;
+            for (var i = 0; i < segmentLength; i++)
             {
-                // Adjust offsets to account for the growing text
-                foreach (var (start, end) in encoding.Offsets)
-                {
-                    offsets.Add((start + currentOffset, end + currentOffset));
-                }
+                var targetIndex = position + i;
+                ids[targetIndex] = encoding.Ids[i];
+                tokens[targetIndex] = encoding.Tokens[i];
+                typeIds[targetIndex] = encoding.TypeIds[i];
+                attentionMask[targetIndex] = encoding.AttentionMask[i];
+                specialTokensMask[targetIndex] = encoding.SpecialTokensMask[i];
+                wordIds[targetIndex] = encoding.WordIds[i];
+                sequenceIds[targetIndex] = encoding.SequenceIds[i];
 
-                if (encoding.Offsets.Count > 0)
-                {
-                    var lastOffset = encoding.Offsets[encoding.Offsets.Count - 1];
-                    currentOffset += lastOffset.End;
-                }
-            }
-            else
-            {
-                offsets.AddRange(encoding.Offsets);
+                var offset = encoding.Offsets[i];
+                offsets[targetIndex] = growingOffsets && currentOffset > 0
+                    ? (offset.Start + currentOffset, offset.End + currentOffset)
+                    : offset;
             }
 
-            typeIds.AddRange(encoding.TypeIds);
-            attentionMask.AddRange(encoding.AttentionMask);
-            specialTokensMask.AddRange(encoding.SpecialTokensMask);
-            wordIds.AddRange(encoding.WordIds);
-            sequenceIds.AddRange(encoding.SequenceIds);
+            if (growingOffsets && encoding.Offsets.Count > 0)
+            {
+                var lastOffset = encoding.Offsets[encoding.Offsets.Count - 1];
+                currentOffset += lastOffset.End;
+            }
+
+            position += segmentLength;
         }
 
         return new EncodingResult(
@@ -119,63 +118,68 @@ public sealed partial class EncodingResult
         }
 
         var padLength = targetLength - Length;
-        var paddedIds = new List<int>(targetLength);
-        var paddedTokens = new List<string>(targetLength);
-        var paddedOffsets = new List<(int, int)>(targetLength);
-        var paddedTypeIds = new List<uint>(targetLength);
-        var paddedAttentionMask = new List<uint>(targetLength);
-        var paddedSpecialTokensMask = new List<uint>(targetLength);
-        var paddedWordIds = new List<int?>(targetLength);
-        var paddedSequenceIds = new List<int?>(targetLength);
+        var paddedIds = new int[targetLength];
+        var paddedTokens = new string[targetLength];
+        var paddedOffsets = new (int, int)[targetLength];
+        var paddedTypeIds = new uint[targetLength];
+        var paddedAttentionMask = new uint[targetLength];
+        var paddedSpecialTokensMask = new uint[targetLength];
+        var paddedWordIds = new int?[targetLength];
+        var paddedSequenceIds = new int?[targetLength];
 
         if (direction == PaddingDirection.Left)
         {
-            // Add padding at the beginning
             for (var i = 0; i < padLength; i++)
             {
-                paddedIds.Add(padId);
-                paddedTokens.Add(padToken);
-                paddedOffsets.Add((0, 0));
-                paddedTypeIds.Add(padTypeId);
-                paddedAttentionMask.Add(0); // 0 for padding tokens
-                paddedSpecialTokensMask.Add(1); // Padding tokens are treated as special
-                paddedWordIds.Add(null);
-                paddedSequenceIds.Add(null);
+                paddedIds[i] = padId;
+                paddedTokens[i] = padToken;
+                paddedOffsets[i] = (0, 0);
+                paddedTypeIds[i] = padTypeId;
+                paddedAttentionMask[i] = 0;
+                paddedSpecialTokensMask[i] = 1;
+                paddedWordIds[i] = null;
+                paddedSequenceIds[i] = null;
             }
 
-            // Add original content
-            paddedIds.AddRange(Ids);
-            paddedTokens.AddRange(Tokens);
-            paddedOffsets.AddRange(Offsets);
-            paddedTypeIds.AddRange(TypeIds);
-            paddedAttentionMask.AddRange(AttentionMask);
-            paddedSpecialTokensMask.AddRange(SpecialTokensMask);
-            paddedWordIds.AddRange(WordIds);
-            paddedSequenceIds.AddRange(SequenceIds);
+            for (var i = 0; i < Length; i++)
+            {
+                var targetIndex = i + padLength;
+                paddedIds[targetIndex] = Ids[i];
+                paddedTokens[targetIndex] = Tokens[i];
+                paddedOffsets[targetIndex] = Offsets[i];
+                paddedTypeIds[targetIndex] = TypeIds[i];
+                paddedAttentionMask[targetIndex] = AttentionMask[i];
+                paddedSpecialTokensMask[targetIndex] = SpecialTokensMask[i];
+                paddedWordIds[targetIndex] = WordIds[i];
+                paddedSequenceIds[targetIndex] = SequenceIds[i];
+            }
         }
-        else // PaddingDirection.Right
+        else
         {
-            // Add original content
-            paddedIds.AddRange(Ids);
-            paddedTokens.AddRange(Tokens);
-            paddedOffsets.AddRange(Offsets);
-            paddedTypeIds.AddRange(TypeIds);
-            paddedAttentionMask.AddRange(AttentionMask);
-            paddedSpecialTokensMask.AddRange(SpecialTokensMask);
-            paddedWordIds.AddRange(WordIds);
-            paddedSequenceIds.AddRange(SequenceIds);
+            for (var i = 0; i < Length; i++)
+            {
+                paddedIds[i] = Ids[i];
+                paddedTokens[i] = Tokens[i];
+                paddedOffsets[i] = Offsets[i];
+                paddedTypeIds[i] = TypeIds[i];
+                paddedAttentionMask[i] = AttentionMask[i];
+                paddedSpecialTokensMask[i] = SpecialTokensMask[i];
+                paddedWordIds[i] = WordIds[i];
+                paddedSequenceIds[i] = SequenceIds[i];
+            }
 
-            // Add padding at the end
+            var startIndex = Length;
             for (var i = 0; i < padLength; i++)
             {
-                paddedIds.Add(padId);
-                paddedTokens.Add(padToken);
-                paddedOffsets.Add((0, 0));
-                paddedTypeIds.Add(padTypeId);
-                paddedAttentionMask.Add(0);
-                paddedSpecialTokensMask.Add(1);
-                paddedWordIds.Add(null);
-                paddedSequenceIds.Add(null);
+                var targetIndex = startIndex + i;
+                paddedIds[targetIndex] = padId;
+                paddedTokens[targetIndex] = padToken;
+                paddedOffsets[targetIndex] = (0, 0);
+                paddedTypeIds[targetIndex] = padTypeId;
+                paddedAttentionMask[targetIndex] = 0;
+                paddedSpecialTokensMask[targetIndex] = 1;
+                paddedWordIds[targetIndex] = null;
+                paddedSequenceIds[targetIndex] = null;
             }
         }
 
@@ -332,15 +336,37 @@ public sealed partial class EncodingResult
     /// <returns>A new <see cref="EncodingResult"/> containing the specified slice.</returns>
     private EncodingResult Slice(int start, int length)
     {
+        var ids = new int[length];
+        var tokens = new string[length];
+        var offsets = new (int, int)[length];
+        var typeIds = new uint[length];
+        var attentionMask = new uint[length];
+        var specialTokensMask = new uint[length];
+        var wordIds = new int?[length];
+        var sequenceIds = new int?[length];
+
+        for (var i = 0; i < length; i++)
+        {
+            var sourceIndex = start + i;
+            ids[i] = Ids[sourceIndex];
+            tokens[i] = Tokens[sourceIndex];
+            offsets[i] = Offsets[sourceIndex];
+            typeIds[i] = TypeIds[sourceIndex];
+            attentionMask[i] = AttentionMask[sourceIndex];
+            specialTokensMask[i] = SpecialTokensMask[sourceIndex];
+            wordIds[i] = WordIds[sourceIndex];
+            sequenceIds[i] = SequenceIds[sourceIndex];
+        }
+
         return new EncodingResult(
-            Ids.Skip(start).Take(length).ToList(),
-            Tokens.Skip(start).Take(length).ToList(),
-            Offsets.Skip(start).Take(length).ToList(),
-            TypeIds.Skip(start).Take(length).ToList(),
-            AttentionMask.Skip(start).Take(length).ToList(),
-            SpecialTokensMask.Skip(start).Take(length).ToList(),
-            WordIds.Skip(start).Take(length).ToList(),
-            SequenceIds.Skip(start).Take(length).ToList(),
+            ids,
+            tokens,
+            offsets,
+            typeIds,
+            attentionMask,
+            specialTokensMask,
+            wordIds,
+            sequenceIds,
             Array.Empty<EncodingResult>());
     }
 }

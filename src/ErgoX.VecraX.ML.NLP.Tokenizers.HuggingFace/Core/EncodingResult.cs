@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -73,15 +74,15 @@ public sealed partial class EncodingResult
     /// <param name="offsets">The character offsets.</param>
     public EncodingResult(IReadOnlyList<int> ids, IReadOnlyList<string> tokens, IReadOnlyList<(int Start, int End)> offsets)
     {
-        Ids = new ReadOnlyCollection<int>(ids.ToArray());
-        Tokens = new ReadOnlyCollection<string>(tokens.ToArray());
-        Offsets = new ReadOnlyCollection<(int Start, int End)>(offsets.ToArray());
-        TypeIds = new ReadOnlyCollection<uint>(Array.Empty<uint>());
-        AttentionMask = new ReadOnlyCollection<uint>(Array.Empty<uint>());
-        SpecialTokensMask = new ReadOnlyCollection<uint>(Array.Empty<uint>());
-        WordIds = new ReadOnlyCollection<int?>(Array.Empty<int?>());
-        SequenceIds = new ReadOnlyCollection<int?>(Array.Empty<int?>());
-        Overflowing = new ReadOnlyCollection<EncodingResult>(Array.Empty<EncodingResult>());
+        Ids = WrapReadOnly(ids);
+        Tokens = WrapReadOnly(tokens);
+        Offsets = WrapReadOnly(offsets);
+        TypeIds = WrapReadOnly(Array.Empty<uint>());
+        AttentionMask = WrapReadOnly(Array.Empty<uint>());
+        SpecialTokensMask = WrapReadOnly(Array.Empty<uint>());
+        WordIds = WrapReadOnly(Array.Empty<int?>());
+        SequenceIds = WrapReadOnly(Array.Empty<int?>());
+        Overflowing = WrapReadOnly(Array.Empty<EncodingResult>());
     }
 
     /// <summary>
@@ -98,15 +99,15 @@ public sealed partial class EncodingResult
         IReadOnlyList<int?> sequenceIds,
         IReadOnlyList<EncodingResult> overflowing)
     {
-        Ids = new ReadOnlyCollection<int>(ids.ToArray());
-        Tokens = new ReadOnlyCollection<string>(tokens.ToArray());
-        Offsets = new ReadOnlyCollection<(int Start, int End)>(offsets.ToArray());
-        TypeIds = new ReadOnlyCollection<uint>(typeIds.ToArray());
-        AttentionMask = new ReadOnlyCollection<uint>(attentionMask.ToArray());
-        SpecialTokensMask = new ReadOnlyCollection<uint>(specialTokensMask.ToArray());
-        WordIds = new ReadOnlyCollection<int?>(wordIds.ToArray());
-        SequenceIds = new ReadOnlyCollection<int?>(sequenceIds.ToArray());
-        Overflowing = new ReadOnlyCollection<EncodingResult>(overflowing.ToArray());
+        Ids = WrapReadOnly(ids);
+        Tokens = WrapReadOnly(tokens);
+        Offsets = WrapReadOnly(offsets);
+        TypeIds = WrapReadOnly(typeIds);
+        AttentionMask = WrapReadOnly(attentionMask);
+        SpecialTokensMask = WrapReadOnly(specialTokensMask);
+        WordIds = WrapReadOnly(wordIds);
+        SequenceIds = WrapReadOnly(sequenceIds);
+        Overflowing = WrapReadOnly(overflowing);
     }
 
     public EncodingResult WithPadding(int targetLength, int padId, string padToken)
@@ -154,5 +155,25 @@ public sealed partial class EncodingResult
         paddedOffsets.AddRange(Offsets);
 
         return new EncodingResult(paddedIds, paddedTokens, paddedOffsets);
+    }
+
+    private static IReadOnlyList<T> WrapReadOnly<T>(IReadOnlyList<T> source)
+    {
+        if (source is ReadOnlyCollection<T> readOnlyCollection)
+        {
+            return readOnlyCollection;
+        }
+
+        if (source is T[] array)
+        {
+            return Array.AsReadOnly(array);
+        }
+
+        if (source is List<T> list)
+        {
+            return list.AsReadOnly();
+        }
+
+        return new ReadOnlyCollection<T>(source.ToArray());
     }
 }

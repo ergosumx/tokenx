@@ -104,6 +104,16 @@ internal static partial class NativeMethods
     internal static partial void EncodingGetSequenceIds(IntPtr encoding, [Out] int[] buffer, nuint length);
 
     /// <summary>
+    /// Copies all numeric encoding buffers in a single native call.
+    /// </summary>
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_encoding_copy_numeric")]
+    internal static partial int EncodingCopyNumeric(
+        IntPtr encoding,
+        ref EncodingNumericDest destination,
+        nuint destinationLength,
+        out int status);
+
+    /// <summary>
     /// Gets the count of overflowing encodings.
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_encoding_get_overflowing_count")]
@@ -146,6 +156,19 @@ internal static partial class NativeMethods
         uint[] ids,
         nuint length,
         [MarshalAs(UnmanagedType.Bool)] bool skipSpecialTokens,
+        out int status);
+
+    /// <summary>
+    /// Decodes a batch of token ID sequences into strings.
+    /// </summary>
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_decode_batch_into")]
+    internal static unsafe partial int TokenizerDecodeBatch(
+        IntPtr handle,
+        IntPtr* sequences,
+        nuint* lengths,
+        nuint count,
+        [MarshalAs(UnmanagedType.Bool)] bool skipSpecialTokens,
+        IntPtr* output,
         out int status);
 
     /// <summary>
@@ -501,6 +524,29 @@ internal static partial class NativeMethods
     /// </summary>
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_wordpiece_decoder_free")]
     internal static partial void WordPieceDecoderFree(IntPtr decoder);
+
+    #endregion
+
+    #region Helpers
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct EncodingOffsetNative
+    {
+        public uint Start;
+        public uint End;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct EncodingNumericDest
+    {
+        public IntPtr Ids;
+        public IntPtr TypeIds;
+        public IntPtr AttentionMask;
+        public IntPtr SpecialTokensMask;
+        public IntPtr Offsets;
+        public IntPtr WordIds;
+        public IntPtr SequenceIds;
+    }
 
     #endregion
 
