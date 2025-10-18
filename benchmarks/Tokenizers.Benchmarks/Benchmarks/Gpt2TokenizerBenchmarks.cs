@@ -73,13 +73,8 @@ public class Gpt2TokenizerBenchmarks : IDisposable
     [Benchmark]
     public int HuggingFace_DecodeBatch()
     {
-        var total = 0;
-        foreach (var tokens in _huggingFaceBatchTokens)
-        {
-            total += _huggingFaceTokenizer.Decode(tokens, skipSpecialTokens: true).Length;
-        }
-
-        return total;
+        var decoded = _huggingFaceTokenizer.DecodeBatch(_huggingFaceBatchTokens, skipSpecialTokens: true);
+        return decoded.Sum(text => text.Length);
     }
 
     [Benchmark]

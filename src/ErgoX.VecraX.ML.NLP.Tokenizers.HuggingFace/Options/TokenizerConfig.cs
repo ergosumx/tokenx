@@ -22,6 +22,33 @@ public sealed class TokenizerConfig
     [JsonPropertyName("truncation")]
     public SerializedTruncation? Truncation { get; set; }
 
+    [JsonPropertyName("bos_token")]
+    public string? BosToken { get; set; }
+
+    [JsonPropertyName("eos_token")]
+    public string? EosToken { get; set; }
+
+    [JsonPropertyName("bos_token_id")]
+    public int? BosTokenId { get; set; }
+
+    [JsonPropertyName("eos_token_id")]
+    public int? EosTokenId { get; set; }
+
+    [JsonPropertyName("pad_token")]
+    public string? PadToken { get; set; }
+
+    [JsonPropertyName("pad_token_id")]
+    public int? PadTokenId { get; set; }
+
+    [JsonPropertyName("model_max_length")]
+    public int? ModelMaxLength { get; set; }
+
+    [JsonPropertyName("chat_template")]
+    public string? ChatTemplate { get; set; }
+
+    [JsonPropertyName("chat_template_roles")]
+    public Dictionary<string, string>? ChatTemplateRoles { get; set; }
+
     [JsonIgnore]
     public Dictionary<string, int> Vocab
     {

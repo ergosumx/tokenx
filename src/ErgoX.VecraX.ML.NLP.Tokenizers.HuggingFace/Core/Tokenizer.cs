@@ -1,25 +1,21 @@
 using System;
-using System.Collections.Generic;
 using System.Buffers;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Diagnostics.CodeAnalysis;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 
-public sealed class Tokenizer : IDisposable
+public sealed class Tokenizer : ITokenizer
 {
     private readonly NativeTokenizerHandle _handle;
     private readonly object _syncRoot = new();
@@ -29,20 +25,6 @@ public sealed class Tokenizer : IDisposable
         NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
-    private static readonly JsonSerializerOptions AddedTokenSerializerOptions = new()
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
-    private static readonly JsonSerializerOptions AddedTokenDecoderJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
-    private static readonly Uri HuggingFaceBaseUri = new("https://huggingface.co/");
-
-    private static readonly Lazy<HttpClient> SharedHttpClient = new(CreateSharedHttpClient);
-
     public Tokenizer(string jsonConfig)
     {
         if (string.IsNullOrWhiteSpace(jsonConfig))
@@ -51,10 +33,7 @@ public sealed class Tokenizer : IDisposable
         }
 
         _handle = NativeTokenizerHandle.Create(jsonConfig);
-        Config = TokenizerConfig.FromJson(jsonConfig);
     }
-
-    public TokenizerConfig Config { get; private set; }
 
     /// <summary>
     /// Creates a tokenizer from a tokenizer.json file stored on disk.
@@ -92,85 +71,12 @@ public sealed class Tokenizer : IDisposable
         return new Tokenizer(json);
     }
 
-    /// <summary>
-    /// Downloads a pretrained tokenizer configuration from Hugging Face synchronously.
-    /// </summary>
-    /// <param name="identifier">The Hugging Face model identifier (e.g. "distilbert/distilbert-base-uncased").</param>
-    /// <param name="options">Optional download customizations such as revision, auth token, or custom client.</param>
-    /// <returns>A <see cref="Tokenizer"/> initialized from the downloaded configuration.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="identifier"/> is null or whitespace.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the download request returns a non-success status.</exception>
-    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Tokenizer ownership is transferred to the caller.")]
-    public static Tokenizer FromPretrained(string identifier, PretrainedTokenizerOptions? options = null)
-        => FromPretrainedAsync(identifier, options, CancellationToken.None).GetAwaiter().GetResult();
-
-    /// <summary>
-    /// Downloads a pretrained tokenizer configuration from Hugging Face asynchronously.
-    /// </summary>
-    /// <param name="identifier">The Hugging Face model identifier (e.g. "distilbert/distilbert-base-uncased").</param>
-    /// <param name="options">Optional download customizations such as revision, auth token, or custom client.</param>
-    /// <param name="cancellationToken">Token used to observe cancellation requests.</param>
-    /// <returns>A task that produces a <see cref="Tokenizer"/> initialized from the downloaded configuration.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="identifier"/> is null or whitespace.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the download request returns a non-success status.</exception>
-    public static async Task<Tokenizer> FromPretrainedAsync(
-        string identifier,
-        PretrainedTokenizerOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(identifier))
-        {
-            throw new ArgumentException("Model identifier must be provided.", nameof(identifier));
-        }
-
-        options ??= new PretrainedTokenizerOptions();
-        options.Validate();
-
-        var requestUri = BuildPretrainedUri(identifier, options.Revision);
-        var client = options.HttpClient ?? SharedHttpClient.Value;
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        if (!string.IsNullOrEmpty(options.AuthToken))
-        {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", options.AuthToken);
-        }
-
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-        {
-            var detail = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            throw new InvalidOperationException($"Tokenizer download failed ({(int)response.StatusCode} {response.ReasonPhrase}): {detail}");
-        }
-
-        var payload = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-        return new Tokenizer(payload);
-    }
-
-    /// <summary>
-    /// Persists the tokenizer configuration to disk synchronously.
-    /// </summary>
-    /// <param name="path">Destination path for the tokenizer.json payload.</param>
-    /// <param name="pretty">True to format the JSON payload with indentation.</param>
     public void Save(string path, bool pretty = false)
-        => Save(path, pretty, cancellationToken: CancellationToken.None);
-
-    /// <summary>
-    /// Persists the tokenizer configuration to disk while honoring cancellation.
-    /// </summary>
-    /// <param name="path">Destination path for the tokenizer.json payload.</param>
-    /// <param name="pretty">True to format the JSON payload with indentation.</param>
-    /// <param name="cancellationToken">Token used to observe cancellation requests.</param>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or whitespace.</exception>
-    public void Save(string path, bool pretty, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
             throw new ArgumentException("Output path must be provided.", nameof(path));
         }
-
-        cancellationToken.ThrowIfCancellationRequested();
 
         var directory = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(directory))
@@ -179,234 +85,7 @@ public sealed class Tokenizer : IDisposable
         }
 
         var json = ToJson(pretty);
-        File.WriteAllTextAsync(path, json, cancellationToken).GetAwaiter().GetResult();
-    }
-
-    /// <summary>
-    /// Retrieves the vocabulary from the underlying tokenizer.
-    /// </summary>
-    /// <param name="includeAddedTokens">True to combine runtime-added tokens with the base vocabulary.</param>
-    /// <returns>A read-only dictionary mapping token strings to token identifiers.</returns>
-    public IReadOnlyDictionary<string, int> GetVocab(bool includeAddedTokens = false)
-    {
-        lock (_syncRoot)
-        {
-            return _handle.InvokeWithHandle(handlePtr =>
-            {
-                var nativePtr = NativeMethods.TokenizerGetVocab(handlePtr, includeAddedTokens, out var status);
-                if (nativePtr == IntPtr.Zero || status != 0)
-                {
-                    throw CreateNativeException("Tokenizer vocab retrieval failed.");
-                }
-
-                try
-                {
-                    var json = Marshal.PtrToStringUTF8(nativePtr) ?? "{}";
-                    var parsed = JsonSerializer.Deserialize<Dictionary<string, int>>(json, JsonOptions) ?? new Dictionary<string, int>();
-                    var managed = new Dictionary<string, int>(parsed, StringComparer.Ordinal);
-
-                    if (!includeAddedTokens)
-                    {
-                        Config.Vocab = new Dictionary<string, int>(managed, StringComparer.Ordinal);
-                    }
-
-                    return new ReadOnlyDictionary<string, int>(managed);
-                }
-                finally
-                {
-                    NativeMethods.FreeString(nativePtr);
-                }
-            });
-        }
-    }
-
-    /// <summary>
-    /// Adds standard tokens to the tokenizer vocabulary.
-    /// </summary>
-    /// <param name="tokens">Collection of token strings to add.</param>
-    /// <returns>The number of tokens successfully registered.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="tokens"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when the collection contains null entries.</exception>
-    public int AddTokens(IEnumerable<string> tokens)
-    {
-        ArgumentNullException.ThrowIfNull(tokens);
-
-        var prepared = new List<AddedToken>();
-        foreach (var token in tokens)
-        {
-            if (token is null)
-            {
-                throw new ArgumentException("Token collection cannot contain null entries.", nameof(tokens));
-            }
-
-            prepared.Add(new AddedToken(token));
-        }
-
-        return AddTokensInternal(prepared, treatAsSpecial: false, "Tokenizer add tokens failed.");
-    }
-
-    /// <summary>
-    /// Adds fully-specified token descriptors to the tokenizer vocabulary.
-    /// </summary>
-    /// <param name="tokens">Collection of token descriptors to add.</param>
-    /// <returns>The number of tokens successfully registered.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="tokens"/> is null.</exception>
-    public int AddTokens(IEnumerable<AddedToken> tokens)
-    {
-        ArgumentNullException.ThrowIfNull(tokens);
-        return AddTokensInternal(tokens, treatAsSpecial: false, "Tokenizer add tokens failed.");
-    }
-
-    /// <summary>
-    /// Adds special tokens to the tokenizer vocabulary.
-    /// </summary>
-    /// <param name="tokens">Collection of token strings that should be treated as special.</param>
-    /// <returns>The number of tokens successfully registered.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="tokens"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when the collection contains null entries.</exception>
-    public int AddSpecialTokens(IEnumerable<string> tokens)
-    {
-        ArgumentNullException.ThrowIfNull(tokens);
-
-        var prepared = new List<AddedToken>();
-        foreach (var token in tokens)
-        {
-            if (token is null)
-            {
-                throw new ArgumentException("Token collection cannot contain null entries.", nameof(tokens));
-            }
-
-            prepared.Add(new AddedToken(token, isSpecial: true, normalized: false));
-        }
-
-        return AddTokensInternal(prepared, treatAsSpecial: true, "Tokenizer add special tokens failed.");
-    }
-
-    /// <summary>
-    /// Adds fully-specified special token descriptors to the tokenizer vocabulary.
-    /// </summary>
-    /// <param name="tokens">Collection of token descriptors that should be treated as special.</param>
-    /// <returns>The number of tokens successfully registered.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="tokens"/> is null.</exception>
-    public int AddSpecialTokens(IEnumerable<AddedToken> tokens)
-    {
-        ArgumentNullException.ThrowIfNull(tokens);
-        return AddTokensInternal(tokens, treatAsSpecial: true, "Tokenizer add special tokens failed.");
-    }
-
-    /// <summary>
-    /// Retrieves the decoder metadata for runtime-added tokens.
-    /// </summary>
-    /// <returns>A read-only dictionary keyed by token identifier with <see cref="AddedToken"/> descriptors.</returns>
-    public IReadOnlyDictionary<int, AddedToken> GetAddedTokensDecoder()
-    {
-        lock (_syncRoot)
-        {
-            return _handle.InvokeWithHandle(handlePtr =>
-            {
-                var nativePtr = NativeMethods.TokenizerGetAddedTokensDecoder(handlePtr, out var status);
-                if (status != 0)
-                {
-                    if (nativePtr != IntPtr.Zero)
-                    {
-                        NativeMethods.FreeString(nativePtr);
-                    }
-
-                    throw CreateNativeException("Tokenizer added tokens decoder retrieval failed.");
-                }
-
-                if (nativePtr == IntPtr.Zero)
-                {
-                    return new ReadOnlyDictionary<int, AddedToken>(new Dictionary<int, AddedToken>());
-                }
-
-                try
-                {
-                    var json = Marshal.PtrToStringUTF8(nativePtr);
-                    if (string.IsNullOrWhiteSpace(json))
-                    {
-                        return new ReadOnlyDictionary<int, AddedToken>(new Dictionary<int, AddedToken>());
-                    }
-
-                    var entries = JsonSerializer.Deserialize<List<AddedTokenDecoderEntry>>(json!, AddedTokenDecoderJsonOptions)
-                        ?? new List<AddedTokenDecoderEntry>();
-
-                    var map = new Dictionary<int, AddedToken>(entries.Count);
-                    foreach (var entry in entries)
-                    {
-                        map[entry.Id] = new AddedToken(entry.Content, entry.Special, entry.SingleWord, entry.LeftStrip, entry.RightStrip, entry.Normalized);
-                    }
-
-                    return new ReadOnlyDictionary<int, AddedToken>(map);
-                }
-                finally
-                {
-                    NativeMethods.FreeString(nativePtr);
-                }
-            });
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether encode operations include special tokens by default.
-    /// </summary>
-    public bool EncodeSpecialTokens
-    {
-        get
-        {
-            lock (_syncRoot)
-            {
-                return _handle.InvokeWithHandle(handlePtr =>
-                {
-                    var result = NativeMethods.TokenizerGetEncodeSpecialTokens(handlePtr, out var status);
-                    if (status != 0)
-                    {
-                        throw CreateNativeException("Tokenizer encode special tokens retrieval failed.");
-                    }
-
-                    return result;
-                });
-            }
-        }
-        set
-        {
-            lock (_syncRoot)
-            {
-                _handle.InvokeWithHandle(handlePtr =>
-                {
-                    var outcome = NativeMethods.TokenizerSetEncodeSpecialTokens(handlePtr, value, out var status);
-                    if (outcome == 0 || status != 0)
-                    {
-                        throw CreateNativeException("Tokenizer encode special tokens update failed.");
-                    }
-
-                    RefreshConfigUnsafe(handlePtr);
-                    return 0;
-                });
-            }
-        }
-    }
-
-    /// <summary>
-    /// Calculates how many special tokens the post-processor would add for a given sequence shape.
-    /// </summary>
-    /// <param name="isPairSequence">True when evaluating pair sequences, false for single sequences.</param>
-    /// <returns>The number of special tokens that would be appended.</returns>
-    public int NumSpecialTokensToAdd(bool isPairSequence = false)
-    {
-        lock (_syncRoot)
-        {
-            return _handle.InvokeWithHandle(handlePtr =>
-            {
-                var count = NativeMethods.TokenizerNumSpecialTokensToAdd(handlePtr, isPairSequence, out var status);
-                if (status != 0)
-                {
-                    throw CreateNativeException("Tokenizer special token count retrieval failed.");
-                }
-
-                return count;
-            });
-        }
+        File.WriteAllText(path, json);
     }
 
     public void EnablePadding(PaddingOptions options)
@@ -437,7 +116,6 @@ public sealed class Tokenizer : IDisposable
                     throw CreateNativeException("Tokenizer enable padding failed.");
                 }
 
-                UpdatePaddingConfig(options);
                 return 0;
             });
         }
@@ -455,7 +133,6 @@ public sealed class Tokenizer : IDisposable
                     throw CreateNativeException("Tokenizer disable padding failed.");
                 }
 
-                Config.Padding = null;
                 return 0;
             });
         }
@@ -480,7 +157,6 @@ public sealed class Tokenizer : IDisposable
 
                 if (nativePtr == IntPtr.Zero)
                 {
-                    Config.Padding = null;
                     return null;
                 }
 
@@ -489,21 +165,10 @@ public sealed class Tokenizer : IDisposable
                     var json = Marshal.PtrToStringUTF8(nativePtr);
                     if (string.IsNullOrWhiteSpace(json))
                     {
-                        Config.Padding = null;
                         return null;
                     }
 
-                    var options = DeserializePaddingOptions(json);
-                    if (options is not null)
-                    {
-                        UpdatePaddingConfig(options);
-                    }
-                    else
-                    {
-                        Config.Padding = null;
-                    }
-
-                    return options;
+                    return DeserializePaddingOptions(json);
                 }
                 finally
                 {
@@ -537,7 +202,6 @@ public sealed class Tokenizer : IDisposable
                     throw CreateNativeException("Tokenizer enable truncation failed.");
                 }
 
-                UpdateTruncationConfig(options);
                 return 0;
             });
         }
@@ -555,7 +219,6 @@ public sealed class Tokenizer : IDisposable
                     throw CreateNativeException("Tokenizer disable truncation failed.");
                 }
 
-                Config.Truncation = null;
                 return 0;
             });
         }
@@ -580,7 +243,6 @@ public sealed class Tokenizer : IDisposable
 
                 if (nativePtr == IntPtr.Zero)
                 {
-                    Config.Truncation = null;
                     return null;
                 }
 
@@ -589,21 +251,10 @@ public sealed class Tokenizer : IDisposable
                     var json = Marshal.PtrToStringUTF8(nativePtr);
                     if (string.IsNullOrWhiteSpace(json))
                     {
-                        Config.Truncation = null;
                         return null;
                     }
 
-                    var options = DeserializeTruncationOptions(json);
-                    if (options is not null)
-                    {
-                        UpdateTruncationConfig(options);
-                    }
-                    else
-                    {
-                        Config.Truncation = null;
-                    }
-
-                    return options;
+                    return DeserializeTruncationOptions(json);
                 }
                 finally
                 {
@@ -613,7 +264,10 @@ public sealed class Tokenizer : IDisposable
         }
     }
 
-    public EncodingResult Encode(string sequence, string? pair = null, bool addSpecialTokens = true)
+    public EncodingResult Encode(string sequence, bool addSpecialTokens = true)
+        => Encode(sequence, null, addSpecialTokens);
+
+    public EncodingResult Encode(string sequence, string? pair, bool addSpecialTokens = true)
     {
         if (sequence is null)
         {
@@ -696,18 +350,6 @@ public sealed class Tokenizer : IDisposable
         return results;
     }
 
-    [SuppressMessage("Design", "MA0045:Provide an asynchronous alternative", Justification = "Native encoder is synchronous; wrapper emulates async via Task.Run.")]
-    public Task<EncodingResult> EncodeAsync(string sequence, string? pair = null, bool addSpecialTokens = true, CancellationToken cancellationToken = default)
-        => Task.Run(() => Encode(sequence, pair, addSpecialTokens), cancellationToken);
-
-    [SuppressMessage("Design", "MA0045:Provide an asynchronous alternative", Justification = "Native encoder is synchronous; wrapper emulates async via Task.Run.")]
-    public Task<IReadOnlyList<EncodingResult>> EncodeBatchAsync(IEnumerable<string> sequences, bool addSpecialTokens = true, CancellationToken cancellationToken = default)
-        => Task.Run(() => EncodeBatch(sequences, addSpecialTokens), cancellationToken);
-
-    [SuppressMessage("Design", "MA0045:Provide an asynchronous alternative", Justification = "Native encoder is synchronous; wrapper emulates async via Task.Run.")]
-    public Task<IReadOnlyList<EncodingResult>> EncodeBatchAsync(IEnumerable<(string First, string? Second)> sequences, bool addSpecialTokens = true, CancellationToken cancellationToken = default)
-        => Task.Run(() => EncodeBatch(sequences, addSpecialTokens), cancellationToken);
-
     public string Decode(IReadOnlyList<int> ids, bool skipSpecialTokens = true)
     {
         if (ids is null)
@@ -771,138 +413,107 @@ public sealed class Tokenizer : IDisposable
         }
 
         var count = inputs.Length;
+        var lengths = new nuint[count];
+        nuint totalLength = 0;
+
+        for (var i = 0; i < count; i++)
+        {
+            var sequence = inputs[i];
+            if (sequence is null)
+            {
+                throw new ArgumentException("Encoding collection cannot contain null entries.", nameof(encodings));
+            }
+
+            lengths[i] = (nuint)sequence.Count;
+            totalLength += lengths[i];
+        }
+
+        if (totalLength == 0)
+        {
+            return Enumerable.Repeat(string.Empty, count).ToArray();
+        }
+
+        if (totalLength > int.MaxValue)
+        {
+            throw new InvalidOperationException("Total token count exceeds supported bounds.");
+        }
+
+        var flattened = new uint[(int)totalLength];
+        var offset = 0;
+        for (var i = 0; i < count; i++)
+        {
+            var sequence = inputs[i];
+            for (var j = 0; j < sequence.Count; j++)
+            {
+                flattened[offset++] = checked((uint)sequence[j]);
+            }
+        }
+
+        var outputPointers = new IntPtr[count];
         var results = new string[count];
 
-        var sequencePointers = ArrayPool<IntPtr>.Shared.Rent(count);
-        var lengthBuffer = ArrayPool<nuint>.Shared.Rent(count);
-        var outputPointers = ArrayPool<IntPtr>.Shared.Rent(count);
-        var pinnedHandles = new GCHandle[count];
-        var rentedBuffers = new uint[count][];
-
-        try
+        lock (_syncRoot)
         {
-            // Pin each sequence so the native batch decoder can consume a single pointer table.
-            for (var i = 0; i < count; i++)
+            _handle.InvokeWithHandle(handlePtr =>
             {
-                var sequence = inputs[i];
-                if (sequence is null)
+                unsafe
                 {
-                    throw new ArgumentException("Encoding collection cannot contain null entries.", nameof(encodings));
-                }
-
-                var length = sequence.Count;
-                lengthBuffer[i] = (nuint)length;
-
-                if (length == 0)
-                {
-                    sequencePointers[i] = IntPtr.Zero;
-                    continue;
-                }
-
-                var buffer = ArrayPool<uint>.Shared.Rent(length);
-                var target = buffer.AsSpan(0, length);
-                for (var j = 0; j < length; j++)
-                {
-                    target[j] = checked((uint)sequence[j]);
-                }
-
-                var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                pinnedHandles[i] = handle;
-                rentedBuffers[i] = buffer;
-                sequencePointers[i] = handle.AddrOfPinnedObject();
-            }
-
-            Array.Clear(outputPointers, 0, count);
-
-            lock (_syncRoot)
-            {
-                _handle.InvokeWithHandle(handlePtr =>
-                {
-                    unsafe
+                    fixed (uint* tokensPtr = flattened)
+                    fixed (nuint* lengthsPtr = lengths)
+                    fixed (IntPtr* outputsPtr = outputPointers)
                     {
-                        fixed (IntPtr* sequencesPtr = sequencePointers)
-                        fixed (nuint* lengthsPtr = lengthBuffer)
-                        fixed (IntPtr* outputsPtr = outputPointers)
+                        var decodedCount = NativeMethods.TokenizerDecodeBatchFlat(
+                            handlePtr,
+                            tokensPtr,
+                            (nuint)totalLength,
+                            lengthsPtr,
+                            (nuint)count,
+                            skipSpecialTokens,
+                            outputsPtr,
+                            out var status);
+
+                        if (status != 0 || decodedCount != count)
                         {
-                            var decodedCount = NativeMethods.TokenizerDecodeBatch(
-                                handlePtr,
-                                sequencesPtr,
-                                lengthsPtr,
-                                (nuint)count,
-                                skipSpecialTokens,
-                                outputsPtr,
-                                out var status);
-
-                            if (status != 0 || decodedCount != count)
-                            {
-                                for (var index = 0; index < count; index++)
-                                {
-                                    if (outputPointers[index] != IntPtr.Zero)
-                                    {
-                                        NativeMethods.FreeString(outputPointers[index]);
-                                        outputPointers[index] = IntPtr.Zero;
-                                    }
-                                }
-
-                                throw CreateNativeException("Tokenizer batch decode failed.");
-                            }
-
                             for (var index = 0; index < count; index++)
                             {
-                                var nativePtr = outputPointers[index];
-                                if (nativePtr == IntPtr.Zero)
+                                if (outputsPtr[index] != IntPtr.Zero)
                                 {
-                                    results[index] = string.Empty;
-                                    continue;
-                                }
-
-                                try
-                                {
-                                    results[index] = Marshal.PtrToStringUTF8(nativePtr) ?? string.Empty;
-                                }
-                                finally
-                                {
-                                    NativeMethods.FreeString(nativePtr);
-                                    outputPointers[index] = IntPtr.Zero;
+                                    NativeMethods.FreeString(outputsPtr[index]);
+                                    outputsPtr[index] = IntPtr.Zero;
                                 }
                             }
+
+                            throw CreateNativeException("Tokenizer batch decode failed.");
                         }
                     }
-
-                    return 0;
-                });
-            }
-
-            return results;
-        }
-        finally
-        {
-            for (var i = 0; i < count; i++)
-            {
-                if (pinnedHandles[i].IsAllocated)
-                {
-                    pinnedHandles[i].Free();
                 }
 
-                if (rentedBuffers[i] is not null)
+                for (var i = 0; i < count; i++)
                 {
-                    ArrayPool<uint>.Shared.Return(rentedBuffers[i], clearArray: true);
-                }
-            }
+                    var nativePtr = outputPointers[i];
+                    if (nativePtr == IntPtr.Zero)
+                    {
+                        results[i] = string.Empty;
+                        continue;
+                    }
 
-            ArrayPool<IntPtr>.Shared.Return(sequencePointers, clearArray: true);
-            ArrayPool<nuint>.Shared.Return(lengthBuffer, clearArray: true);
-            ArrayPool<IntPtr>.Shared.Return(outputPointers, clearArray: true);
+                    try
+                    {
+                        results[i] = Marshal.PtrToStringUTF8(nativePtr) ?? string.Empty;
+                    }
+                    finally
+                    {
+                        NativeMethods.FreeString(nativePtr);
+                        outputPointers[i] = IntPtr.Zero;
+                    }
+                }
+
+                return 0;
+            });
         }
+
+        return results;
     }
-
-    [SuppressMessage("Design", "MA0045:Provide an asynchronous alternative", Justification = "Native decoder is synchronous; wrapper emulates async via Task.Run.")]
-    public Task<string> DecodeAsync(IReadOnlyList<int> ids, bool skipSpecialTokens = true, CancellationToken cancellationToken = default)
-        => Task.Run(() => Decode(ids, skipSpecialTokens), cancellationToken);
-
-    [SuppressMessage("Design", "MA0045:Provide an asynchronous alternative", Justification = "Native decoder is synchronous; wrapper emulates async via Task.Run.")]
-    public Task<IReadOnlyList<string>> DecodeBatchAsync(IEnumerable<IReadOnlyList<int>> encodings, bool skipSpecialTokens = true, CancellationToken cancellationToken = default)
-        => Task.Run(() => DecodeBatch(encodings, skipSpecialTokens), cancellationToken);
 
     public int? TokenToId(string token)
     {
@@ -965,71 +576,6 @@ public sealed class Tokenizer : IDisposable
     }
 
     /// <summary>
-    /// Serializes token descriptors and invokes the corresponding native add-tokens routine.
-    /// </summary>
-    /// <param name="tokens">Tokens to serialize and send to the native tokenizer.</param>
-    /// <param name="treatAsSpecial">True to route the operation through <c>add_special_tokens</c>.</param>
-    /// <param name="errorContext">Contextual message used when surface exceptions.</param>
-    /// <returns>The number of tokens registered by the native tokenizer.</returns>
-    /// <exception cref="ArgumentException">Thrown when the token list contains null entries.</exception>
-    private int AddTokensInternal(IEnumerable<AddedToken> tokens, bool treatAsSpecial, string errorContext)
-    {
-        var descriptors = new List<AddedTokenDescriptor>();
-        foreach (var token in tokens)
-        {
-            if (token is null)
-            {
-                throw new ArgumentException("Token collection cannot contain null entries.", nameof(tokens));
-            }
-
-            var special = treatAsSpecial || token.IsSpecial;
-            descriptors.Add(new AddedTokenDescriptor(
-                token.Content,
-                token.SingleWord,
-                token.LeftStrip,
-                token.RightStrip,
-                token.Normalized,
-                special));
-        }
-
-        if (descriptors.Count == 0)
-        {
-            return 0;
-        }
-
-        var payload = JsonSerializer.Serialize(descriptors, AddedTokenSerializerOptions);
-
-        lock (_syncRoot)
-        {
-            return _handle.InvokeWithHandle(handlePtr =>
-            {
-                int status;
-                var count = treatAsSpecial
-                    ? NativeMethods.TokenizerAddSpecialTokens(handlePtr, payload, out status)
-                    : NativeMethods.TokenizerAddTokens(handlePtr, payload, out status);
-
-                if (status != 0)
-                {
-                    throw CreateNativeException(errorContext);
-                }
-
-                RefreshConfigUnsafe(handlePtr);
-                return count;
-            });
-        }
-    }
-
-    /// <summary>
-    /// Pulls the latest tokenizer config JSON from the native handle and updates <see cref="Config"/>.
-    /// </summary>
-    /// <param name="handlePtr">Native tokenizer pointer.</param>
-    private void RefreshConfigUnsafe(IntPtr handlePtr)
-    {
-        var json = GetConfigJsonUnsafe(handlePtr, pretty: false);
-        Config = TokenizerConfig.FromJson(json);
-    }
-
-    /// <summary>
     /// Retrieves the tokenizer configuration JSON from the native layer.
     /// </summary>
     /// <param name="handlePtr">Native tokenizer pointer.</param>
@@ -1051,47 +597,6 @@ public sealed class Tokenizer : IDisposable
         {
             NativeMethods.FreeString(nativePtr);
         }
-    }
-
-    private static HttpClient CreateSharedHttpClient()
-    {
-        var client = new HttpClient();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("ErgoX.Tokenizers.NET/1.0");
-        return client;
-    }
-
-    private static Uri BuildPretrainedUri(string identifier, string revision)
-    {
-        var segments = identifier.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (segments.Length == 0)
-        {
-            throw new ArgumentException("Model identifier must contain at least one non-empty segment.", nameof(identifier));
-        }
-
-        var builder = new StringBuilder();
-        foreach (var segment in segments)
-        {
-            if (segment.Length == 0)
-            {
-                continue;
-            }
-
-            if (builder.Length > 0)
-            {
-                builder.Append('/');
-            }
-
-            builder.Append(Uri.EscapeDataString(segment));
-        }
-
-        if (builder.Length == 0)
-        {
-            throw new ArgumentException("Model identifier must contain valid characters.", nameof(identifier));
-        }
-
-        var effectiveRevision = string.IsNullOrWhiteSpace(revision) ? "main" : revision;
-        var path = $"{builder}/resolve/{Uri.EscapeDataString(effectiveRevision)}/tokenizer.json";
-        return new Uri(HuggingFaceBaseUri, path);
     }
 
     private static EncodingResult MarshalEncoding(IntPtr encodingPtr, nuint length)
@@ -1295,30 +800,6 @@ public sealed class Tokenizer : IDisposable
         }
     }
 
-    private void UpdatePaddingConfig(PaddingOptions options)
-    {
-        Config.Padding = new TokenizerConfig.SerializedPadding
-        {
-            Direction = SerializePaddingDirection(options.Direction),
-            PadId = options.PadId,
-            PadTypeId = options.PadTypeId,
-            PadToken = options.PadToken,
-            Length = options.Length,
-            PadToMultipleOf = options.PadToMultipleOf
-        };
-    }
-
-    private void UpdateTruncationConfig(TruncationOptions options)
-    {
-        Config.Truncation = new TokenizerConfig.SerializedTruncation
-        {
-            Direction = SerializeTruncationDirection(options.Direction),
-            MaxLength = options.MaxLength,
-            Stride = options.Stride,
-            Strategy = SerializeTruncationStrategy(options.Strategy)
-        };
-    }
-
     private static PaddingDirection ParsePaddingDirection(string? value)
         => string.Equals(value, "left", StringComparison.OrdinalIgnoreCase)
             ? PaddingDirection.Left
@@ -1359,23 +840,6 @@ public sealed class Tokenizer : IDisposable
             TruncationStrategy.OnlySecond => "only_second",
             _ => "longest_first"
         };
-
-    private sealed record AddedTokenDescriptor(
-        [property: JsonPropertyName("content")] string Content,
-        [property: JsonPropertyName("single_word")] bool SingleWord,
-        [property: JsonPropertyName("lstrip")] bool LeftStrip,
-        [property: JsonPropertyName("rstrip")] bool RightStrip,
-        [property: JsonPropertyName("normalized")] bool Normalized,
-        [property: JsonPropertyName("special")] bool Special);
-
-    private sealed record AddedTokenDecoderEntry(
-        [property: JsonPropertyName("id")] int Id,
-        [property: JsonPropertyName("content")] string Content,
-        [property: JsonPropertyName("single_word")] bool SingleWord,
-        [property: JsonPropertyName("lstrip")] bool LeftStrip,
-        [property: JsonPropertyName("rstrip")] bool RightStrip,
-        [property: JsonPropertyName("normalized")] bool Normalized,
-        [property: JsonPropertyName("special")] bool Special);
 
     private sealed class NativePaddingPayload
     {
