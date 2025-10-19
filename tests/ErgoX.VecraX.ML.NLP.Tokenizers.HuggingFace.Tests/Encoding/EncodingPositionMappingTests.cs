@@ -222,7 +222,8 @@ public class EncodingPositionMappingTests : IDisposable
         if (specialTokenIndex.HasValue)
         {
             var result = encoding.TokenToWord(specialTokenIndex.Value);
-            Assert.False(result.HasValue, "Special tokens should not be associated with word indices.");
+            Assert.True(result.HasValue, "TokenToWord should return a result for valid token indices.");
+            Assert.False(result.Value.WordIndex.HasValue, "Special tokens should not be associated with word indices.");
         }
         else
         {
