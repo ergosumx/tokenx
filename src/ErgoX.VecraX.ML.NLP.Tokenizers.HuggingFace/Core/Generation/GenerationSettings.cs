@@ -12,10 +12,17 @@ using System.Text.Json.Nodes;
 public sealed class GenerationSettings
 {
     private readonly JsonObject _values;
+    private readonly IReadOnlyList<LogitsBinding> _logitsBindings;
+    private readonly IReadOnlyList<StoppingCriterion> _stoppingCriteria;
 
-    internal GenerationSettings(JsonObject values)
+    internal GenerationSettings(
+        JsonObject values,
+        IReadOnlyList<LogitsBinding> logitsBindings,
+        IReadOnlyList<StoppingCriterion> stoppingCriteria)
     {
         _values = values ?? throw new ArgumentNullException(nameof(values));
+        _logitsBindings = logitsBindings ?? throw new ArgumentNullException(nameof(logitsBindings));
+        _stoppingCriteria = stoppingCriteria ?? throw new ArgumentNullException(nameof(stoppingCriteria));
     }
 
     /// <summary>
@@ -62,6 +69,21 @@ public sealed class GenerationSettings
     /// Gets the configured stop sequences if present.
     /// </summary>
     public IReadOnlyList<string>? StopSequences => GetStringList(_values, "stop_sequences", "stop");
+
+    /// <summary>
+    /// Gets the derived logits processor and warper bindings for this configuration.
+    /// </summary>
+    public IReadOnlyList<LogitsBinding> LogitsBindings => _logitsBindings;
+
+    /// <summary>
+    /// Gets the derived stopping criteria.
+    /// </summary>
+    public IReadOnlyList<StoppingCriterion> StoppingCriteria => _stoppingCriteria;
+
+    /// <summary>
+    /// Gets whether streamed results should skip special tokens by default, if specified.
+    /// </summary>
+    public bool? SkipSpecialTokens => GetBool(_values, "skip_special_tokens");
 
     /// <summary>
     /// Returns a deep-cloned JSON object representing the settings.

@@ -91,7 +91,7 @@ pub fn render_chat_template(
 
     environment
         .render_str(normalized_template.as_ref(), &root_value)
-        .map_err(|err| ChatTemplateError::Template(format!(
-            "failed to render chat template: {err}"
-        )))
+        .map_err(|err| {
+            ChatTemplateError::Template(format!("failed to render chat template: {err}"))
+        })
 }

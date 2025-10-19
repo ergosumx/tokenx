@@ -118,6 +118,66 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    internal static string PlanLogitsProcessors(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new ArgumentException("Generation configuration JSON must be provided.", nameof(json));
+        }
+
+        var nativeResult = NativeMethods.TokenizersPlanLogitsProcessors(json, out var status);
+        try
+        {
+            if (nativeResult == IntPtr.Zero || status != 0)
+            {
+                var details = NativeMethods.GetLastErrorMessage();
+                var message = details is null
+                    ? "Logits processor planning failed."
+                    : $"Logits processor planning failed: {details}";
+                throw new InvalidOperationException(message);
+            }
+
+            return Marshal.PtrToStringUTF8(nativeResult) ?? string.Empty;
+        }
+        finally
+        {
+            if (nativeResult != IntPtr.Zero)
+            {
+                NativeMethods.FreeString(nativeResult);
+            }
+        }
+    }
+
+    internal static string PlanStoppingCriteria(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new ArgumentException("Generation configuration JSON must be provided.", nameof(json));
+        }
+
+        var nativeResult = NativeMethods.TokenizersPlanStoppingCriteria(json, out var status);
+        try
+        {
+            if (nativeResult == IntPtr.Zero || status != 0)
+            {
+                var details = NativeMethods.GetLastErrorMessage();
+                var message = details is null
+                    ? "Stopping criteria planning failed."
+                    : $"Stopping criteria planning failed: {details}";
+                throw new InvalidOperationException(message);
+            }
+
+            return Marshal.PtrToStringUTF8(nativeResult) ?? string.Empty;
+        }
+        finally
+        {
+            if (nativeResult != IntPtr.Zero)
+            {
+                NativeMethods.FreeString(nativeResult);
+            }
+        }
+    }
+
     public void Save(string path, bool pretty = false)
     {
         if (string.IsNullOrWhiteSpace(path))

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
@@ -152,6 +153,35 @@ public sealed class AutoTokenizer : IDisposable
         var prompt = RenderChatTemplate(resolvedMessages, resolvedChatOptions);
         var settings = ResolveGenerationSettings(generationOptions);
         return new GenerationRequest(prompt, settings, resolvedMessages);
+    }
+
+    public StreamingGenerationRequest GenerateStream(
+        string prompt,
+        GenerationOptions? generationOptions = null,
+        StreamGenerationOptions? streamOptions = null)
+    {
+        if (prompt is null)
+        {
+            throw new ArgumentNullException(nameof(prompt));
+        }
+
+        var settings = ResolveGenerationSettings(generationOptions);
+        var skipSpecialTokens = ResolveSkipSpecialTokens(streamOptions, settings);
+        return new StreamingGenerationRequest(prompt, settings, null, skipSpecialTokens);
+    }
+
+    public StreamingGenerationRequest GenerateStream(
+        IEnumerable<ChatMessage> messages,
+        ChatTemplateOptions? chatOptions = null,
+        GenerationOptions? generationOptions = null,
+        StreamGenerationOptions? streamOptions = null)
+    {
+        var resolvedMessages = MaterializeMessages(messages);
+        var resolvedChatOptions = chatOptions ?? new ChatTemplateOptions();
+        var prompt = RenderChatTemplate(resolvedMessages, resolvedChatOptions);
+        var settings = ResolveGenerationSettings(generationOptions);
+        var skipSpecialTokens = ResolveSkipSpecialTokens(streamOptions, settings);
+        return new StreamingGenerationRequest(prompt, settings, resolvedMessages, skipSpecialTokens);
     }
 
     private static async Task<TokenizerConfig?> TryLoadTokenizerConfigAsync(string baseDirectory, CancellationToken cancellationToken)
@@ -353,6 +383,60 @@ public sealed class AutoTokenizer : IDisposable
         }
 
         return snapshot;
+    }
+
+    private static bool ResolveSkipSpecialTokens(StreamGenerationOptions? streamOptions, GenerationSettings settings)
+    {
+        if (streamOptions?.SkipSpecialTokens is bool explicitValue)
+        {
+            return explicitValue;
+        }
+
+        if (settings.SkipSpecialTokens is bool configured)
+        {
+            return configured;
+        }
+
+        if (settings.TryGetRawParameter("skip_special_tokens", out var rawNode) && rawNode is not null)
+        {
+            if (TryConvertToBoolean(rawNode, out var parsed))
+            {
+                return parsed;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryConvertToBoolean(JsonNode node, out bool value)
+    {
+        value = false;
+
+        if (node is JsonValue jsonValue)
+        {
+            if (jsonValue.TryGetValue<bool>(out var direct))
+            {
+                value = direct;
+                return true;
+            }
+
+            if (jsonValue.TryGetValue<string>(out var text) && bool.TryParse(text, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            if (jsonValue.TryGetValue<double>(out var numeric))
+            {
+                if (!double.IsNaN(numeric) && !double.IsInfinity(numeric))
+                {
+                    value = Math.Abs(numeric) >= double.Epsilon;
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 

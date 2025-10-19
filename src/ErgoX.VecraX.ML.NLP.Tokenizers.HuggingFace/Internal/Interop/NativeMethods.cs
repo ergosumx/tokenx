@@ -115,6 +115,12 @@ internal static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_normalize_generation_config", StringMarshalling = StringMarshalling.Utf8)]
     internal static partial IntPtr TokenizersNormalizeGenerationConfig(string source, out int status);
 
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_plan_logits_processors", StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial IntPtr TokenizersPlanLogitsProcessors(string source, out int status);
+
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_plan_stopping_criteria", StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial IntPtr TokenizersPlanStoppingCriteria(string source, out int status);
+
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_free_string")]
     internal static partial void FreeString(IntPtr str);
 
