@@ -11,8 +11,8 @@ public enum PaddingDirection
 public sealed class PaddingOptions
 {
     public PaddingDirection Direction { get; }
-    public int PadId { get; }
-    public int PadTypeId { get; }
+    public uint PadId { get; }
+    public uint PadTypeId { get; }
     public string PadToken { get; }
     public int? Length { get; }
     public int? PadToMultipleOf { get; }
@@ -46,8 +46,8 @@ public sealed class PaddingOptions
         }
 
         Direction = direction;
-        PadId = padId;
-        PadTypeId = padTypeId;
+    PadId = (uint)padId;
+    PadTypeId = (uint)padTypeId;
         PadToken = padToken;
         Length = length;
         PadToMultipleOf = padToMultipleOf;

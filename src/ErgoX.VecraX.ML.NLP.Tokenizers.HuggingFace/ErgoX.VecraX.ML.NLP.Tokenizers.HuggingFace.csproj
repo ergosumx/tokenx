@@ -23,11 +23,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="runtimes\win-x64\native\tokenizers.dll">
+    <None Include="runtimes\win-x64\native\tokenx_bridge.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes/win-x64/native</PackagePath>
-      <Link>runtimes\win-x64\native\tokenizers.dll</Link>
+      <Link>runtimes\win-x64\native\tokenx_bridge.dll</Link>
     </None>
   </ItemGroup>
 

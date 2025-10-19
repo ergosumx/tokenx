@@ -14,7 +14,7 @@ internal static class NativeLibraryLoader
 
     private static IntPtr Resolve(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
-        if (libraryName != "tokenizers")
+        if (libraryName != "tokenx_bridge")
         {
             return IntPtr.Zero;
         }
@@ -22,9 +22,9 @@ internal static class NativeLibraryLoader
         var rid = GetRuntimeIdentifier();
         var paths = new[]
         {
-            Path.Combine(AppContext.BaseDirectory, "runtimes", rid, "native", "tokenizers.dll"),
-            Path.Combine(AppContext.BaseDirectory, "tokenizers.dll"),
-            Path.Combine(Path.GetDirectoryName(assembly.Location) ?? string.Empty, "runtimes", rid, "native", "tokenizers.dll")
+            Path.Combine(AppContext.BaseDirectory, "runtimes", rid, "native", "tokenx_bridge.dll"),
+            Path.Combine(AppContext.BaseDirectory, "tokenx_bridge.dll"),
+            Path.Combine(Path.GetDirectoryName(assembly.Location) ?? string.Empty, "runtimes", rid, "native", "tokenx_bridge.dll")
         };
 
         foreach (var path in paths)

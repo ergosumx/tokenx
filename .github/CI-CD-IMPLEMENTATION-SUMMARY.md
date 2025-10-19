@@ -75,7 +75,7 @@ test-before-release:
           lib-name: libtokenizers.so
         - os: windows-latest
           artifact: tokenizers-c-win-x64
-          lib-name: tokenizers.dll
+          lib-name: tokenx_bridge.dll
         - os: macos-latest
           artifact: tokenizers-c-osx-x64
           lib-name: libtokenizers.dylib

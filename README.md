@@ -31,9 +31,9 @@ Extract the native library to your project's runtime folder:
 
 ```
 runtimes/
-  win-x64/native/tokenizers.dll
-  linux-x64/native/libtokenizers.so
-  osx-x64/native/libtokenizers.dylib
+   win-x64/native/tokenx_bridge.dll
+   linux-x64/native/libtokenx_bridge.so
+   osx-x64/native/libtokenx_bridge.dylib
 ```
 
 ### Usage
@@ -66,11 +66,11 @@ Console.WriteLine($"Decoded: {decoded}");
 
 ```bash
 # Build Rust library
-cd .ext/tokenizers/bindings/c
+cd src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
 cargo build --release
 
 # Copy to .NET runtime folder
-Copy-Item target/release/tokenizers.dll ../../src/.../runtimes/win-x64/native/ -Force
+Copy-Item target/release/tokenx_bridge.dll ../ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/ -Force
 
 # Build .NET project
 cd ../../../..
@@ -80,15 +80,23 @@ dotnet build --configuration Release
 ### Testing
 
 ```bash
-# Run Rust tests (20 tests)
-cd .ext/tokenizers/bindings/c
+# Run Rust tests
+cd src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
 cargo test --release
 
-# Run .NET tests (185 tests)
+# Run .NET tests
 dotnet test --configuration Release
+
+# Refresh Python parity fixtures (required when tokenizer assets change)
+# Downloads fixtures for 20 reference models spanning GPT-2, BERT, RoBERTa, T5, CLIP, DeBERTa, LayoutLM, Pegasus, and more.
+.\.venv\Scripts\python.exe tests\Py\Huggingface\generate_benchmarks.py
+
+> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, and `huggingface_hub` packages so the generator can materialize tokenizer pipelines directly from each model's `tokenizer_config.json`.
 ```
 
-**Expected Results**: 184 passed, 1 skipped, 0 failed
+Running the .NET parity suite now also emits `dotnet-benchmark.json` alongside the Python fixtures in `tests/_TestData/<model>` so you can inspect the full decoded tokens produced by the managed implementation.
+
+**Expected Results**: 37 passed, 0 skipped, 0 failed
 
 See [TESTING-CHECKLIST.md](.github/TESTING-CHECKLIST.md) for detailed instructions.
 
@@ -150,21 +158,23 @@ ErgoX.VecraX.ML.NLP.Tokenizers/
 │   ├── CI-CD-WORKFLOWS.md        # CI/CD documentation
 │   └── TESTING-CHECKLIST.md      # Quick reference
 └── src/
-    ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/
-    │   ├── Tokenizer.cs          # Main tokenizer class
-    │   ├── NativeMethods.cs      # P/Invoke declarations
-    │   └── runtimes/             # Native libraries
-    └── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
-   └── TokenizerTests.cs     # 185 integration tests
+   ├── ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/  # Native bridge crate (Rust)
+   │   ├── Cargo.toml
+   │   └── src/lib.rs
+   ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/
+   │   ├── Tokenizer.cs          # Main tokenizer class
+   │   ├── NativeMethods.cs      # P/Invoke declarations
+   │   └── runtimes/             # Native libraries
+   └── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
+      └── Encoding/             # Integration tests
 ```
 
 ## Test Coverage
 
-| Component | Tests | Pass Rate | Coverage |
-|-----------|-------|-----------|----------|
-| Rust FFI Layer | 20 | 100% ✅ | ~75% |
-| .NET Integration | 185 | 99.5% ✅ | ~80% |
-| **Total** | **205** | **99.6%** | **~78%** |
+| Component | Tests | Pass Rate |
+|-----------|-------|-----------|
+| Rust Bridge (tokenx_bridge) | TBD | – |
+| .NET Integration | 37 | 100% ✅ |
 
 **Known Limitation**: 1 test skipped due to Rust library limitation with complex normalizer pipelines.
 
@@ -216,12 +226,12 @@ See [TESTING-CHECKLIST.md](.github/TESTING-CHECKLIST.md) for pre-commit checklis
 
 2. **Verify DLL is in runtime folder**:
    ```powershell
-   Test-Path "src/.../runtimes/win-x64/native/tokenizers.dll"
+   Test-Path "src/.../runtimes/win-x64/native/tokenx_bridge.dll"
    ```
 
 3. **Check DLL size** (should be ~4.3 MB):
    ```powershell
-   (Get-Item ".ext/tokenizers/bindings/c/target/release/tokenizers.dll").Length / 1MB
+   (Get-Item "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll").Length / 1MB
    ```
 
 ### CI Failures

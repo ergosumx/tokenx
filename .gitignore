@@ -82,3 +82,4 @@ scripts/local/**
 
 .env
 BenchmarkDotNet.Artifacts/results
+_TestData

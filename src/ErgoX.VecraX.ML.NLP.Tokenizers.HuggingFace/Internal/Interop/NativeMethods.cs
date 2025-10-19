@@ -8,13 +8,16 @@ using System.Runtime.InteropServices;
 /// </summary>
 internal static partial class NativeMethods
 {
-    private const string LibraryName = "tokenizers";
+    private const string LibraryName = "tokenx_bridge";
 
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_get_last_error")]
     internal static partial IntPtr TokenizerGetLastError();
 
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_create", StringMarshalling = StringMarshalling.Utf8)]
     internal static partial IntPtr TokenizerCreateFromJson(string json, out int status);
+
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_from_pretrained", StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial IntPtr TokenizerCreateFromPretrained(string identifier, string? revision, string? authToken, out int status);
 
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_free")]
     internal static partial void TokenizerFree(IntPtr handle);
@@ -98,6 +101,15 @@ internal static partial class NativeMethods
         nuint count,
         [MarshalAs(UnmanagedType.Bool)] bool skipSpecialTokens,
         IntPtr* output,
+        out int status);
+
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_apply_chat_template", StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial IntPtr TokenizerApplyChatTemplate(
+        IntPtr handle,
+        string template,
+        string messagesJson,
+        string? variablesJson,
+        [MarshalAs(UnmanagedType.Bool)] bool addGenerationPrompt,
         out int status);
 
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_free_string")]

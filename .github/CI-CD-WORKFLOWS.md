@@ -199,7 +199,7 @@ cd .ext/tokenizers/bindings/c
 cargo build --release
 
 # Copy DLL to runtime folder
-$srcPath = ".ext/tokenizers/bindings/c/target/release/tokenizers.dll"
+$srcPath = "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll"
 $destDir = "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native"
 New-Item -ItemType Directory -Force -Path $destDir
 Copy-Item $srcPath $destDir -Force

@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
@@ -32,6 +36,8 @@ public sealed class AutoTokenizer : IDisposable
     public string BasePath { get; }
 
     public AutoTokenizerLoadOptions Options { get; }
+
+    public bool SupportsChatTemplate => !string.IsNullOrEmpty(TokenizerConfig?.ChatTemplate);
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Factory method returns the disposable instance to the caller.")]
     public static AutoTokenizer Load(string location, AutoTokenizerLoadOptions? options = null)
@@ -93,6 +99,24 @@ public sealed class AutoTokenizer : IDisposable
         Tokenizer.Dispose();
         GC.SuppressFinalize(this);
     }
+
+    public string ApplyChatTemplate(IEnumerable<ChatMessage> messages, ChatTemplateOptions? options = null)
+    {
+        var resolvedMessages = MaterializeMessages(messages);
+        var resolvedOptions = options ?? new ChatTemplateOptions();
+        return RenderChatTemplate(resolvedMessages, resolvedOptions);
+    }
+
+    public EncodingResult ApplyChatTemplateAsEncoding(IEnumerable<ChatMessage> messages, ChatTemplateOptions? options = null)
+    {
+        var resolvedMessages = MaterializeMessages(messages);
+        var resolvedOptions = options ?? new ChatTemplateOptions();
+        var prompt = RenderChatTemplate(resolvedMessages, resolvedOptions);
+        return Tokenizer.Encode(prompt, addSpecialTokens: false);
+    }
+
+    public IReadOnlyList<int> ApplyChatTemplateAsTokenIds(IEnumerable<ChatMessage> messages, ChatTemplateOptions? options = null)
+        => ApplyChatTemplateAsEncoding(messages, options).Ids;
 
     private static async Task<TokenizerConfig?> TryLoadTokenizerConfigAsync(string baseDirectory, CancellationToken cancellationToken)
     {
@@ -178,6 +202,71 @@ public sealed class AutoTokenizer : IDisposable
                 throw new InvalidOperationException("Failed to apply truncation configuration to tokenizer.", ex);
             }
         }
+    }
+
+    private static IReadOnlyList<ChatMessage> MaterializeMessages(IEnumerable<ChatMessage> messages)
+    {
+        ArgumentNullException.ThrowIfNull(messages);
+        var resolved = messages as ChatMessage[] ?? messages.ToArray();
+        if (resolved.Length == 0)
+        {
+            throw new ArgumentException("At least one chat message is required.", nameof(messages));
+        }
+
+        for (var index = 0; index < resolved.Length; index++)
+        {
+            if (resolved[index] is null)
+            {
+                throw new ArgumentException("Chat message collections cannot contain null entries.", nameof(messages));
+            }
+        }
+
+        return resolved;
+    }
+
+    private string RenderChatTemplate(IReadOnlyList<ChatMessage> messages, ChatTemplateOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(messages);
+        ArgumentNullException.ThrowIfNull(options);
+
+        var template = ResolveTemplate(options);
+        var messagesJson = ChatMessageSerializer.Serialize(messages);
+        var variablesSnapshot = BuildVariablesSnapshot(options);
+        var variablesJson = ChatTemplatePayloadBuilder.BuildVariablesJson(TokenizerConfig, SpecialTokens, variablesSnapshot);
+
+        return Tokenizer.ApplyChatTemplate(template, messagesJson, variablesJson, options.AddGenerationPrompt);
+    }
+
+    private string ResolveTemplate(ChatTemplateOptions options)
+    {
+        var candidate = options.TemplateOverride ?? TokenizerConfig?.ChatTemplate;
+        if (string.IsNullOrWhiteSpace(candidate))
+        {
+            throw new InvalidOperationException("The tokenizer configuration does not define a chat template.");
+        }
+
+        return candidate;
+    }
+
+    private static IReadOnlyDictionary<string, JsonNode?>? BuildVariablesSnapshot(ChatTemplateOptions options)
+    {
+        if (options.AdditionalVariables.Count == 0)
+        {
+            return null;
+        }
+
+        var snapshot = new Dictionary<string, JsonNode?>(options.AdditionalVariables.Count, StringComparer.Ordinal);
+        foreach (var pair in options.AdditionalVariables)
+        {
+            if (string.IsNullOrWhiteSpace(pair.Key))
+            {
+                continue;
+            }
+
+            snapshot[pair.Key] = pair.Value?.DeepClone();
+        }
+
+        return snapshot;
     }
 }
 

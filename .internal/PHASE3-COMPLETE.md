@@ -94,11 +94,11 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 ### Native DLL Configuration:
 ```xml
 <ItemGroup>
-  <None Include="runtimes\win-x64\native\tokenizers.dll">
+    <None Include="runtimes\win-x64\native\tokenx_bridge.dll">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     <Pack>true</Pack>
     <PackagePath>runtimes/win-x64/native</PackagePath>
-    <Link>runtimes\win-x64\native\tokenizers.dll</Link>
+    <Link>runtimes\win-x64\native\tokenx_bridge.dll</Link>
   </None>
 </ItemGroup>
 ```
@@ -160,7 +160,7 @@ ErgoX.VecraX.ML.NLP.Tokenizers/
 │       ├── Decoders/ ✅ (9 files: All decoders)
 │       ├── Encoding/ ✅ (2 files: Manipulation, PositionMapping)
 │       ├── Internal/ ✅ (2 files: NativeTokenizerHandle, Interop/NativeMethods)
-│       ├── runtimes/win-x64/native/ ✅ (tokenizers.dll)
+│       ├── runtimes/win-x64/native/ ✅ (tokenx_bridge.dll)
 │       ├── Abstractions/ ⏳ (empty - Phase 4)
 │       ├── bin/Release/net8.0/ ✅ (DLL built successfully)
 │       └── obj/Release/net8.0/ ✅ (build artifacts)

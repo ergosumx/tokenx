@@ -6,14 +6,14 @@ on:
     paths:
       - 'src/**'
       - 'tests/**'
-      - '.ext/tokenizers/bindings/c/**'
+      - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
       - '.github/workflows/test-dotnet.yml'
   pull_request:
     branches: [main, master, develop]
     paths:
       - 'src/**'
       - 'tests/**'
-      - '.ext/tokenizers/bindings/c/**'
+      - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
       - '.github/workflows/test-dotnet.yml'
   workflow_dispatch:
 
@@ -35,15 +35,15 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            lib: libtokenizers.so
+            lib: libtokenx_bridge.so
             runtime: linux-x64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            lib: tokenizers.dll
+            lib: tokenx_bridge.dll
             runtime: win-x64
           - os: macos-latest
             target: x86_64-apple-darwin
-            lib: libtokenizers.dylib
+            lib: libtokenx_bridge.dylib
             runtime: osx-x64
     
     steps:
@@ -65,24 +65,24 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            .ext/tokenizers/bindings/c/target/
+            src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
       - name: Run Rust tests
-        working-directory: .ext/tokenizers/bindings/c
+        working-directory: src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
         run: cargo test --release --target ${{ matrix.target }}
 
       - name: Build Rust library
-        working-directory: .ext/tokenizers/bindings/c
+        working-directory: src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Copy library to runtime folder (Unix)
         if: runner.os != 'Windows'
         run: |
           mkdir -p src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native
-          cp .ext/tokenizers/bindings/c/target/${{ matrix.target }}/release/${{ matrix.lib }} \
+          cp src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/${{ matrix.target }}/release/${{ matrix.lib }} \
              src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native/
 
       - name: Copy library to runtime folder (Windows)
@@ -90,7 +90,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native"
-          Copy-Item ".ext/tokenizers/bindings/c/target/${{ matrix.target }}/release/${{ matrix.lib }}" `
+          Copy-Item "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/${{ matrix.target }}/release/${{ matrix.lib }}" `
                     "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native/"
 
       - name: Upload runtime library

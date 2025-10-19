@@ -25,14 +25,21 @@ public sealed class Tokenizer : ITokenizer
         NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
-    public Tokenizer(string jsonConfig)
+    private Tokenizer(NativeTokenizerHandle handle)
     {
-        if (string.IsNullOrWhiteSpace(jsonConfig))
-        {
-            throw new ArgumentException("Tokenizer configuration JSON must be provided.", nameof(jsonConfig));
-        }
+        ArgumentNullException.ThrowIfNull(handle);
+        _handle = handle;
+    }
 
-        _handle = NativeTokenizerHandle.Create(jsonConfig);
+    public Tokenizer(string jsonConfig)
+        : this(CreateHandleFromJson(jsonConfig))
+    {
+    }
+
+    public static Tokenizer FromPretrained(string identifier, string? revision = null, string? authToken = null)
+    {
+        var handle = NativeTokenizerHandle.CreateFromPretrained(identifier, revision, authToken);
+        return new Tokenizer(handle);
     }
 
     /// <summary>
@@ -71,6 +78,16 @@ public sealed class Tokenizer : ITokenizer
         return new Tokenizer(json);
     }
 
+    private static NativeTokenizerHandle CreateHandleFromJson(string jsonConfig)
+    {
+        if (string.IsNullOrWhiteSpace(jsonConfig))
+        {
+            throw new ArgumentException("Tokenizer configuration JSON must be provided.", nameof(jsonConfig));
+        }
+
+        return NativeTokenizerHandle.Create(jsonConfig);
+    }
+
     public void Save(string path, bool pretty = false)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -104,8 +121,8 @@ public sealed class Tokenizer : ITokenizer
                 var result = NativeMethods.TokenizerEnablePadding(
                     handlePtr,
                     (int)options.Direction,
-                    (uint)options.PadId,
-                    (uint)options.PadTypeId,
+                    options.PadId,
+                    options.PadTypeId,
                     options.PadToken,
                     length,
                     multiple,
@@ -513,6 +530,51 @@ public sealed class Tokenizer : ITokenizer
         }
 
         return results;
+    }
+
+    internal string ApplyChatTemplate(
+        string template,
+        string messagesJson,
+        string? variablesJson,
+        bool addGenerationPrompt)
+    {
+        if (string.IsNullOrWhiteSpace(template))
+        {
+            throw new ArgumentException("Chat template source must be provided.", nameof(template));
+        }
+
+        if (string.IsNullOrWhiteSpace(messagesJson))
+        {
+            throw new ArgumentException("Chat message payload must be provided.", nameof(messagesJson));
+        }
+
+        lock (_syncRoot)
+        {
+            return _handle.InvokeWithHandle(handlePtr =>
+            {
+                var nativePtr = NativeMethods.TokenizerApplyChatTemplate(
+                    handlePtr,
+                    template,
+                    messagesJson,
+                    variablesJson,
+                    addGenerationPrompt,
+                    out var status);
+
+                if (nativePtr == IntPtr.Zero || status != 0)
+                {
+                    throw CreateNativeException("Tokenizer apply chat template failed.");
+                }
+
+                try
+                {
+                    return Marshal.PtrToStringUTF8(nativePtr) ?? string.Empty;
+                }
+                finally
+                {
+                    NativeMethods.FreeString(nativePtr);
+                }
+            });
+        }
     }
 
     public int? TokenToId(string token)

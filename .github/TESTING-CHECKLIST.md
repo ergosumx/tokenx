@@ -8,7 +8,7 @@ Quick reference for running tests and creating releases.
 
 - [ ] **Build Rust library**
   ```bash
-  cd .ext/tokenizers/bindings/c
+  cd src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
   cargo build --release
   ```
 
@@ -19,19 +19,19 @@ Quick reference for running tests and creating releases.
 
 - [ ] **Copy DLL to .NET runtime**
   ```powershell
-  $srcPath = ".ext/tokenizers/bindings/c/target/release/tokenizers.dll"
+  $srcPath = "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll"
   $destDir = "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native"
   New-Item -ItemType Directory -Force -Path $destDir
   Copy-Item $srcPath $destDir -Force
   ```
 
-- [ ] **Run .NET tests** (180 tests)
+- [ ] **Run .NET tests**
   ```bash
   dotnet test --configuration Release
   ```
 
 - [ ] **Verify test results**
-  - Expected: 179 passed, 1 skipped, 0 failed
+  - Expected: 37 passed, 0 skipped, 0 failed
 
 ---
 
@@ -76,7 +76,7 @@ Quick reference for running tests and creating releases.
   ```
 
 - [ ] **Version updated**
-  - [ ] Update version in `.ext/tokenizers/bindings/c/Cargo.toml`
+  - [ ] Update version in `src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/Cargo.toml`
   - [ ] Update CHANGELOG.md with changes
 
 - [ ] **Documentation current**
@@ -101,19 +101,19 @@ Quick reference for running tests and creating releases.
 
 - [ ] **Verify release on GitHub**
   - [ ] All 8 artifacts present:
-    - [ ] `tokenizers-c-linux-x64.tar.gz`
-    - [ ] `tokenizers-c-win-x64.zip`
-    - [ ] `tokenizers-c-osx-x64.tar.gz`
-    - [ ] `tokenizers-c-osx-arm64.tar.gz`
-    - [ ] `tokenizers-c-ios-arm64.tar.gz`
-    - [ ] `tokenizers-c-android-arm64.tar.gz`
-    - [ ] `tokenizers-c-wasm.tar.gz`
+    - [ ] `tokenx-bridge-linux-x64.tar.gz`
+    - [ ] `tokenx-bridge-win-x64.zip`
+    - [ ] `tokenx-bridge-osx-x64.tar.gz`
+    - [ ] `tokenx-bridge-osx-arm64.tar.gz`
+    - [ ] `tokenx-bridge-ios-arm64.tar.gz`
+    - [ ] `tokenx-bridge-android-arm64.tar.gz`
+    - [ ] `tokenx-bridge-wasm.tar.gz`
     - [ ] `test-reports.tar.gz` ⭐
     - [ ] `checksums.txt`
 
 - [ ] **Verify release notes**
   - [ ] Test results section present
-  - [ ] Shows 180/179/1/0 (total/passed/skipped/failed)
+  - [ ] Shows 37/37/0/0 (total/passed/skipped/failed)
   - [ ] Platform list complete
   - [ ] Installation instructions clear
 
@@ -160,14 +160,14 @@ Quick reference for running tests and creating releases.
 ### .NET Tests Failing
 
 1. **Verify DLL location**
-   ```powershell
-   Test-Path "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/tokenizers.dll"
-   ```
+  ```powershell
+  Test-Path "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/tokenx_bridge.dll"
+  ```
 
 2. **Check DLL size** (should be ~4.3 MB)
-   ```powershell
-   (Get-Item ".ext/tokenizers/bindings/c/target/release/tokenizers.dll").Length / 1MB
-   ```
+  ```powershell
+  (Get-Item "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll").Length / 1MB
+  ```
 
 3. **Run verbose tests**
    ```bash
@@ -245,7 +245,7 @@ Quick reference for running tests and creating releases.
 cd .ext/tokenizers/bindings/c && cargo build --release
 
 # Copy DLL (Windows)
-Copy-Item .ext/tokenizers/bindings/c/target/release/tokenizers.dll src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/ -Force
+Copy-Item src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/ -Force
 
 # .NET
 dotnet build --configuration Release

@@ -37,6 +37,25 @@ internal sealed class NativeTokenizerHandle : SafeHandle
         return handle;
     }
 
+    public static NativeTokenizerHandle CreateFromPretrained(string identifier, string? revision, string? authToken)
+    {
+        if (string.IsNullOrWhiteSpace(identifier))
+        {
+            throw new ArgumentException("Identifier must be provided.", nameof(identifier));
+        }
+
+        var ptr = NativeMethods.TokenizerCreateFromPretrained(identifier, revision, authToken, out var status);
+        if (ptr == IntPtr.Zero || status != 0)
+        {
+            var message = NativeMethods.GetLastErrorMessage() ?? "Failed to load pretrained tokenizer.";
+            throw new InvalidOperationException(message);
+        }
+
+        var handle = new NativeTokenizerHandle();
+        handle.SetHandle(ptr);
+        return handle;
+    }
+
     public T InvokeWithHandle<T>(Func<IntPtr, T> invoker)
     {
         ArgumentNullException.ThrowIfNull(invoker);
