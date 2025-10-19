@@ -4,8 +4,7 @@ const NUMERIC_LENGTH_ERROR: &str =
     "tokenizers_encoding_copy_numeric received insufficient destination length";
 const DESTINATION_NULL_ERROR: &str =
     "tokenizers_encoding_copy_numeric received null destination buffer";
-const WORD_OVERFLOW_ERROR: &str =
-    "tokenizers_encoding_copy_numeric encountered word id overflow";
+const WORD_OVERFLOW_ERROR: &str = "tokenizers_encoding_copy_numeric encountered word id overflow";
 const SEQUENCE_OVERFLOW_ERROR: &str =
     "tokenizers_encoding_copy_numeric encountered sequence id overflow";
 
@@ -191,8 +190,8 @@ pub mod test_support {
             .build()
             .expect("wordlevel vocab should be valid");
 
-        let mut tokenizer = Tokenizer::new(model);
-        tokenizer.with_pre_tokenizer(Some(Whitespace::default()));
+    let mut tokenizer = Tokenizer::new(model);
+    tokenizer.with_pre_tokenizer(Some(Whitespace));
 
         let encoding = tokenizer
             .encode("Hello world", true)
@@ -228,10 +227,7 @@ pub mod test_support {
         encoding.fill_offsets(destination);
     }
 
-    pub fn fill_word_ids(
-        encoding: &CEncoding,
-        destination: *mut i32,
-    ) -> Result<(), &'static str> {
+    pub fn fill_word_ids(encoding: &CEncoding, destination: *mut i32) -> Result<(), &'static str> {
         encoding.fill_word_ids(destination)
     }
 

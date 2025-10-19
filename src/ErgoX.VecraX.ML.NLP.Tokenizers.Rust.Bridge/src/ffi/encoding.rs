@@ -10,8 +10,10 @@ use crate::tokenizer::CTokenizer;
 
 use super::utils::{copy_slice, read_optional_utf8, read_required_utf8, set_length, set_status};
 
+/// # Safety
+/// `tokenizer`, `sequence`, `pair`, `length`, and `status` must be valid pointers, and string inputs must be UTF-8 encoded.
 #[no_mangle]
-pub extern "C" fn tokenizers_encode(
+pub unsafe extern "C" fn tokenizers_encode(
     tokenizer: *mut CTokenizer,
     sequence: *const c_char,
     pair: *const c_char,
@@ -68,8 +70,10 @@ pub extern "C" fn tokenizers_encode(
     }
 }
 
+/// # Safety
+/// `encoding` must be null or a pointer previously returned by this module and not freed by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_free(encoding: *mut CEncoding) {
+pub unsafe extern "C" fn tokenizers_encoding_free(encoding: *mut CEncoding) {
     if encoding.is_null() {
         return;
     }
@@ -79,8 +83,10 @@ pub extern "C" fn tokenizers_encoding_free(encoding: *mut CEncoding) {
     }
 }
 
+/// # Safety
+/// `encoding` must be a valid pointer and `buffer` must reference space for at least `length` elements.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_ids(
+pub unsafe extern "C" fn tokenizers_encoding_get_ids(
     encoding: *const CEncoding,
     buffer: *mut u32,
     length: usize,
@@ -93,8 +99,10 @@ pub extern "C" fn tokenizers_encoding_get_ids(
     copy_slice(&encoding.ids, buffer, length);
 }
 
+/// # Safety
+/// `encoding` must be valid and `buffer` must provide storage for `length` pointers.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_tokens(
+pub unsafe extern "C" fn tokenizers_encoding_get_tokens(
     encoding: *const CEncoding,
     buffer: *mut *mut c_char,
     length: usize,
@@ -124,8 +132,10 @@ pub extern "C" fn tokenizers_encoding_get_tokens(
     }
 }
 
+/// # Safety
+/// `encoding` must be valid and `buffer` must reference space for at least `length` integers.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_offsets(
+pub unsafe extern "C" fn tokenizers_encoding_get_offsets(
     encoding: *const CEncoding,
     buffer: *mut u32,
     length: usize,
@@ -151,8 +161,10 @@ pub extern "C" fn tokenizers_encoding_get_offsets(
     }
 }
 
+/// # Safety
+/// `encoding` must be valid and `buffer` must contain space for at least `length` elements.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_type_ids(
+pub unsafe extern "C" fn tokenizers_encoding_get_type_ids(
     encoding: *const CEncoding,
     buffer: *mut u32,
     length: usize,
@@ -165,8 +177,10 @@ pub extern "C" fn tokenizers_encoding_get_type_ids(
     copy_slice(&encoding.type_ids, buffer, length);
 }
 
+/// # Safety
+/// `encoding` must be valid and `buffer` must contain space for at least `length` elements.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_attention_mask(
+pub unsafe extern "C" fn tokenizers_encoding_get_attention_mask(
     encoding: *const CEncoding,
     buffer: *mut u32,
     length: usize,
@@ -179,8 +193,10 @@ pub extern "C" fn tokenizers_encoding_get_attention_mask(
     copy_slice(&encoding.attention_mask, buffer, length);
 }
 
+/// # Safety
+/// `encoding` must be valid and `buffer` must contain space for at least `length` elements.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_special_tokens_mask(
+pub unsafe extern "C" fn tokenizers_encoding_get_special_tokens_mask(
     encoding: *const CEncoding,
     buffer: *mut u32,
     length: usize,
@@ -193,8 +209,10 @@ pub extern "C" fn tokenizers_encoding_get_special_tokens_mask(
     copy_slice(&encoding.special_tokens_mask, buffer, length);
 }
 
+/// # Safety
+/// `encoding` must be valid and `buffer` must have capacity for at least `length` elements.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_word_ids(
+pub unsafe extern "C" fn tokenizers_encoding_get_word_ids(
     encoding: *const CEncoding,
     buffer: *mut i32,
     length: usize,
@@ -214,8 +232,10 @@ pub extern "C" fn tokenizers_encoding_get_word_ids(
     }
 }
 
+/// # Safety
+/// `encoding` must be valid and `buffer` must have capacity for at least `length` elements.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_sequence_ids(
+pub unsafe extern "C" fn tokenizers_encoding_get_sequence_ids(
     encoding: *const CEncoding,
     buffer: *mut i32,
     length: usize,
@@ -235,8 +255,10 @@ pub extern "C" fn tokenizers_encoding_get_sequence_ids(
     }
 }
 
+/// # Safety
+/// `encoding`, `destination`, and `status` must be valid pointers and the destination buffers must be sized by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_copy_numeric(
+pub unsafe extern "C" fn tokenizers_encoding_copy_numeric(
     encoding: *const CEncoding,
     destination: *mut CEncodingNumericDest,
     length: usize,
@@ -294,10 +316,10 @@ pub extern "C" fn tokenizers_encoding_copy_numeric(
     count as c_int
 }
 
+/// # Safety
+/// `encoding` must be a valid pointer to an encoding produced by this library.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_overflowing_count(
-    encoding: *const CEncoding,
-) -> usize {
+pub unsafe extern "C" fn tokenizers_encoding_get_overflowing_count(encoding: *const CEncoding) -> usize {
     if encoding.is_null() {
         return 0;
     }
@@ -306,8 +328,10 @@ pub extern "C" fn tokenizers_encoding_get_overflowing_count(
     encoding.overflowing.len()
 }
 
+/// # Safety
+/// `encoding`, `length`, and `status` must be valid pointers; the caller is responsible for freeing the returned encoding.
 #[no_mangle]
-pub extern "C" fn tokenizers_encoding_get_overflowing(
+pub unsafe extern "C" fn tokenizers_encoding_get_overflowing(
     encoding: *const CEncoding,
     index: usize,
     length: *mut usize,

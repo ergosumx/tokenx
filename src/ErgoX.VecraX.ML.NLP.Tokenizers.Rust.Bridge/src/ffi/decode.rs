@@ -7,8 +7,10 @@ use crate::tokenizer::CTokenizer;
 
 use super::utils::set_status;
 
+/// # Safety
+/// `tokenizer`, `ids`, and `status` must be valid pointers; `ids` must reference at least `length` elements when `length > 0`.
 #[no_mangle]
-pub extern "C" fn tokenizers_decode(
+pub unsafe extern "C" fn tokenizers_decode(
     tokenizer: *const CTokenizer,
     ids: *const u32,
     length: usize,
@@ -27,7 +29,7 @@ pub extern "C" fn tokenizers_decode(
         return ptr::null_mut();
     }
 
-    let tokenizer = unsafe { &*tokenizer };
+    let tokenizer = &*tokenizer;
     let tokens = if length == 0 {
         &[][..]
     } else {
@@ -55,8 +57,10 @@ pub extern "C" fn tokenizers_decode(
     }
 }
 
+/// # Safety
+/// All pointer arguments must be valid; `tokens` must contain `total_length` elements and the `lengths` slice must describe `count` sequences.
 #[no_mangle]
-pub extern "C" fn tokenizers_decode_batch_flat(
+pub unsafe extern "C" fn tokenizers_decode_batch_flat(
     tokenizer: *const CTokenizer,
     tokens: *const u32,
     total_length: usize,
@@ -84,7 +88,7 @@ pub extern "C" fn tokenizers_decode_batch_flat(
         return 0;
     }
 
-    let tokenizer = unsafe { &*tokenizer };
+    let tokenizer = &*tokenizer;
     let lengths_slice = unsafe { std::slice::from_raw_parts(lengths, count) };
     let output_slice = unsafe { std::slice::from_raw_parts_mut(output, count) };
 

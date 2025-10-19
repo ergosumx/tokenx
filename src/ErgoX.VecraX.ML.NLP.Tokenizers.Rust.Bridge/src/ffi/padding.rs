@@ -7,8 +7,10 @@ use crate::tokenizer::CTokenizer;
 
 use super::utils::{read_optional_utf8, set_status};
 
+/// # Safety
+/// `tokenizer`, `pad_token`, and `status` must be valid pointers supplied by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_enable_padding(
+pub unsafe extern "C" fn tokenizers_enable_padding(
     tokenizer: *mut CTokenizer,
     direction: c_int,
     pad_id: u32,
@@ -28,7 +30,9 @@ pub extern "C" fn tokenizers_enable_padding(
         0 => PaddingDirection::Left,
         1 => PaddingDirection::Right,
         other => {
-            store_error(&format!("tokenizers_enable_padding unknown direction: {other}"));
+            store_error(&format!(
+                "tokenizers_enable_padding unknown direction: {other}"
+            ));
             set_status(status, 2);
             return 0;
         }
@@ -72,8 +76,10 @@ pub extern "C" fn tokenizers_enable_padding(
     1
 }
 
+/// # Safety
+/// `tokenizer` and `status` must be valid pointers supplied by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_disable_padding(
+pub unsafe extern "C" fn tokenizers_disable_padding(
     tokenizer: *mut CTokenizer,
     status: *mut c_int,
 ) -> c_int {

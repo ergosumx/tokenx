@@ -1,9 +1,6 @@
 use serde_json::json;
-use tokenx_bridge::generation::test_support::{
-    build_logits_bindings,
-    build_stopping_criteria,
-};
 use tokenx_bridge::generation::normalize_generation_config;
+use tokenx_bridge::generation::test_support::{build_logits_bindings, build_stopping_criteria};
 
 #[test]
 fn normalize_generation_config_preserves_structure() {

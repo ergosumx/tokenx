@@ -27,7 +27,9 @@ fn tokenizers_apply_chat_template_renders_output() {
     assert_eq!(status, 0);
     assert!(!rendered.is_null());
 
-    tokenizers_free_string(rendered);
+    unsafe {
+        tokenizers_free_string(rendered);
+    }
 }
 
 #[test]

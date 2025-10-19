@@ -56,7 +56,7 @@ pub(crate) fn to_u64(value: &Value) -> Option<u64> {
         Value::Number(number) => number.as_u64().or_else(|| {
             number
                 .as_i64()
-                .and_then(|signed| (signed >= 0).then(|| signed as u64))
+                .and_then(|signed| (signed >= 0).then_some(signed as u64))
         }),
         Value::String(text) => text.trim().parse::<f64>().ok().and_then(|parsed| {
             if parsed.is_finite() && parsed >= 0.0 {

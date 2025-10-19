@@ -1,9 +1,9 @@
 pub(crate) mod chat;
-pub mod generation;
 pub(crate) mod encoding;
 pub(crate) mod error;
-pub(crate) mod tokenizer;
 pub mod ffi;
+pub mod generation;
+pub(crate) mod tokenizer;
 
 pub use encoding::{CEncoding, CEncodingNumericDest, CEncodingOffset};
 pub use error::tokenizers_get_last_error;

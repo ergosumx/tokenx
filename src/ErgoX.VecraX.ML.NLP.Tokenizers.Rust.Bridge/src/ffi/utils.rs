@@ -52,9 +52,9 @@ pub(crate) fn copy_slice<T: Copy>(source: &[T], destination: *mut T, length: usi
 pub mod test_support {
     use std::os::raw::{c_char, c_int};
 
+    use super::set_status as inner_set_status;
     use super::{copy_slice as inner_copy_slice, read_optional_utf8 as inner_read_optional_utf8};
     use super::{read_required_utf8 as inner_read_required_utf8, set_length as inner_set_length};
-    use super::{set_status as inner_set_status};
 
     pub fn set_status(status: *mut c_int, value: c_int) {
         inner_set_status(status, value);

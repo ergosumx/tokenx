@@ -2,8 +2,7 @@ use serde_json::Value;
 use std::ffi::{c_char, CString};
 use std::ptr;
 use tokenx_bridge::ffi::generation::{
-    tokenizers_normalize_generation_config,
-    tokenizers_plan_logits_processors,
+    tokenizers_normalize_generation_config, tokenizers_plan_logits_processors,
     tokenizers_plan_stopping_criteria,
 };
 
@@ -18,7 +17,8 @@ fn read_string(ptr_value: *mut c_char) -> String {
 fn tokenizers_normalize_generation_config_returns_compact_json() {
     let payload = CString::new(r#"{"temperature": 0.5}"#).unwrap();
     let mut status = -1;
-    let result = tokenizers_normalize_generation_config(payload.as_ptr(), ptr::addr_of_mut!(status));
+    let result =
+        tokenizers_normalize_generation_config(payload.as_ptr(), ptr::addr_of_mut!(status));
 
     assert_eq!(status, 0);
     let normalized = read_string(result);
@@ -34,7 +34,7 @@ fn tokenizers_plan_logits_processors_emits_bindings() {
     assert_eq!(status, 0);
     let json = read_string(result);
     let value: Value = serde_json::from_str(&json).expect("valid JSON");
-    assert!(value.as_array().unwrap().len() >= 1);
+    assert!(!value.as_array().unwrap().is_empty());
 }
 
 #[test]

@@ -1,6 +1,6 @@
 use std::ptr;
-use tokenx_bridge::{CEncodingNumericDest, CEncodingOffset};
 use tokenx_bridge::encoding_test_support as encoding_support;
+use tokenx_bridge::{CEncodingNumericDest, CEncodingOffset};
 
 #[test]
 fn from_encoding_copies_core_fields() {

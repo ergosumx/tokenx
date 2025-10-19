@@ -9,8 +9,10 @@ use crate::tokenizer::CTokenizer;
 
 use super::utils::{read_required_utf8, set_status};
 
+/// # Safety
+/// `tokenizer` must be a valid pointer, `token` must reference a null-terminated UTF-8 string, and `status` must be writable.
 #[no_mangle]
-pub extern "C" fn tokenizers_token_to_id(
+pub unsafe extern "C" fn tokenizers_token_to_id(
     tokenizer: *const CTokenizer,
     token: *const c_char,
     status: *mut c_int,
@@ -30,7 +32,7 @@ pub extern "C" fn tokenizers_token_to_id(
         }
     };
 
-    let tokenizer = unsafe { &*tokenizer };
+    let tokenizer = &*tokenizer;
 
     match tokenizer.inner().token_to_id(&token_text) {
         Some(id) => {
@@ -46,8 +48,10 @@ pub extern "C" fn tokenizers_token_to_id(
     }
 }
 
+/// # Safety
+/// `tokenizer` and `status` must be valid writable pointers; the tokenizer must outlive this call.
 #[no_mangle]
-pub extern "C" fn tokenizers_id_to_token(
+pub unsafe extern "C" fn tokenizers_id_to_token(
     tokenizer: *const CTokenizer,
     id: u32,
     status: *mut c_int,
@@ -58,7 +62,7 @@ pub extern "C" fn tokenizers_id_to_token(
         return ptr::null_mut();
     }
 
-    let tokenizer = unsafe { &*tokenizer };
+    let tokenizer = &*tokenizer;
 
     match tokenizer.inner().id_to_token(id) {
         Some(token) => match CString::new(token) {
@@ -81,8 +85,10 @@ pub extern "C" fn tokenizers_id_to_token(
     }
 }
 
+/// # Safety
+/// `tokenizer` must be a valid pointer and `status` must be writable for the duration of the call.
 #[no_mangle]
-pub extern "C" fn tokenizers_get_config(
+pub unsafe extern "C" fn tokenizers_get_config(
     tokenizer: *const CTokenizer,
     pretty: bool,
     status: *mut c_int,
@@ -93,7 +99,7 @@ pub extern "C" fn tokenizers_get_config(
         return ptr::null_mut();
     }
 
-    let tokenizer = unsafe { &*tokenizer };
+    let tokenizer = &*tokenizer;
 
     match tokenizer.inner().to_string(pretty) {
         Ok(json) => match CString::new(json) {
@@ -116,8 +122,10 @@ pub extern "C" fn tokenizers_get_config(
     }
 }
 
+/// # Safety
+/// `tokenizer` must be valid and `status` must be a writable pointer supplied by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_get_padding(
+pub unsafe extern "C" fn tokenizers_get_padding(
     tokenizer: *const CTokenizer,
     status: *mut c_int,
 ) -> *mut c_char {
@@ -127,7 +135,7 @@ pub extern "C" fn tokenizers_get_padding(
         return ptr::null_mut();
     }
 
-    let tokenizer = unsafe { &*tokenizer };
+    let tokenizer = &*tokenizer;
 
     match tokenizer.inner().get_padding() {
         Some(params) => match to_string(params) {
@@ -157,8 +165,10 @@ pub extern "C" fn tokenizers_get_padding(
     }
 }
 
+/// # Safety
+/// `tokenizer` must be valid and `status` must be a writable pointer supplied by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_get_truncation(
+pub unsafe extern "C" fn tokenizers_get_truncation(
     tokenizer: *const CTokenizer,
     status: *mut c_int,
 ) -> *mut c_char {
@@ -168,7 +178,7 @@ pub extern "C" fn tokenizers_get_truncation(
         return ptr::null_mut();
     }
 
-    let tokenizer = unsafe { &*tokenizer };
+    let tokenizer = &*tokenizer;
 
     match tokenizer.inner().get_truncation() {
         Some(params) => match to_string(params) {

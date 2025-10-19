@@ -1,11 +1,7 @@
 use std::ffi::CString;
 use std::ptr;
 use tokenx_bridge::ffi::utils_test_support::{
-    copy_slice,
-    read_optional_utf8,
-    read_required_utf8,
-    set_length,
-    set_status,
+    copy_slice, read_optional_utf8, read_required_utf8, set_length, set_status,
 };
 
 #[test]

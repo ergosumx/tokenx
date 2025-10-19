@@ -4,7 +4,7 @@ use std::os::raw::c_char;
 use std::ptr;
 
 thread_local! {
-    pub(crate) static LAST_ERROR: RefCell<Option<CString>> = RefCell::new(None);
+    pub(crate) static LAST_ERROR: RefCell<Option<CString>> = const { RefCell::new(None) };
 }
 
 pub(crate) fn store_error(message: &str) {
@@ -40,4 +40,3 @@ pub mod test_support {
         super::clear_error();
     }
 }
-

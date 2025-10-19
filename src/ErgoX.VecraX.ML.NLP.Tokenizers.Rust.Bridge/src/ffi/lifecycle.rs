@@ -3,15 +3,17 @@ use std::os::raw::{c_char, c_int};
 use std::ptr;
 
 use crate::error::{clear_error, store_error};
-use crate::tokenizer::CTokenizer;
 use crate::ffi::utils::{read_optional_utf8, read_required_utf8, set_status};
+use crate::tokenizer::CTokenizer;
 
 #[cfg(not(any(target_family = "wasm", target_os = "ios", target_os = "android")))]
 use tokenizers::FromPretrainedParameters;
 use tokenizers::Tokenizer;
 
+/// # Safety
+/// `json` must reference a null-terminated UTF-8 string and `status` must be a writable pointer.
 #[no_mangle]
-pub extern "C" fn tokenizers_create(json: *const c_char, status: *mut c_int) -> *mut CTokenizer {
+pub unsafe extern "C" fn tokenizers_create(json: *const c_char, status: *mut c_int) -> *mut CTokenizer {
     match read_required_utf8(json) {
         Ok(content) => match Tokenizer::from_bytes(content.into_bytes()) {
             Ok(tokenizer) => {
@@ -34,8 +36,10 @@ pub extern "C" fn tokenizers_create(json: *const c_char, status: *mut c_int) -> 
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "ios", target_os = "android")))]
+/// # Safety
+/// All pointer arguments must be valid and reference UTF-8 strings when non-null; `status` must be writable.
 #[no_mangle]
-pub extern "C" fn tokenizers_from_pretrained(
+pub unsafe extern "C" fn tokenizers_from_pretrained(
     identifier: *const c_char,
     revision: *const c_char,
     auth_token: *const c_char,
@@ -91,8 +95,10 @@ pub extern "C" fn tokenizers_from_pretrained(
 }
 
 #[cfg(any(target_family = "wasm", target_os = "ios", target_os = "android"))]
+/// # Safety
+/// `status` must be a writable pointer supplied by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_from_pretrained(
+pub unsafe extern "C" fn tokenizers_from_pretrained(
     _identifier: *const c_char,
     _revision: *const c_char,
     _auth_token: *const c_char,
@@ -103,8 +109,10 @@ pub extern "C" fn tokenizers_from_pretrained(
     ptr::null_mut()
 }
 
+/// # Safety
+/// `tokenizer` must be null or a pointer previously returned by this library and not yet freed.
 #[no_mangle]
-pub extern "C" fn tokenizers_free(tokenizer: *mut CTokenizer) {
+pub unsafe extern "C" fn tokenizers_free(tokenizer: *mut CTokenizer) {
     if tokenizer.is_null() {
         return;
     }
@@ -114,8 +122,10 @@ pub extern "C" fn tokenizers_free(tokenizer: *mut CTokenizer) {
     }
 }
 
+/// # Safety
+/// `value` must be null or a pointer previously obtained from this library via ownership transfer.
 #[no_mangle]
-pub extern "C" fn tokenizers_free_string(value: *mut c_char) {
+pub unsafe extern "C" fn tokenizers_free_string(value: *mut c_char) {
     if value.is_null() {
         return;
     }

@@ -1,8 +1,6 @@
 use serde_json::json;
 use tokenx_bridge::generation::test_support::{
-    collect_stop_sequences,
-    convert_value_to_string,
-    extract_numeric,
+    collect_stop_sequences, convert_value_to_string, extract_numeric,
 };
 
 #[test]

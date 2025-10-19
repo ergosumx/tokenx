@@ -1,4 +1,4 @@
-use std::os::raw::{c_int};
+use std::os::raw::c_int;
 
 use tokenizers::utils::truncation::{TruncationDirection, TruncationParams, TruncationStrategy};
 
@@ -7,8 +7,10 @@ use crate::tokenizer::CTokenizer;
 
 use super::utils::set_status;
 
+/// # Safety
+/// `tokenizer` and `status` must be valid pointers supplied by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_enable_truncation(
+pub unsafe extern "C" fn tokenizers_enable_truncation(
     tokenizer: *mut CTokenizer,
     max_length: usize,
     stride: usize,
@@ -69,8 +71,10 @@ pub extern "C" fn tokenizers_enable_truncation(
     }
 }
 
+/// # Safety
+/// `tokenizer` and `status` must be valid pointers supplied by the caller.
 #[no_mangle]
-pub extern "C" fn tokenizers_disable_truncation(
+pub unsafe extern "C" fn tokenizers_disable_truncation(
     tokenizer: *mut CTokenizer,
     status: *mut c_int,
 ) -> c_int {
