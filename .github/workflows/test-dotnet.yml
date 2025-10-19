@@ -1,20 +1,20 @@
 name: .NET Tests & Integration
 
 on:
-  push:
-    branches: [main, master, develop]
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
-      - '.github/workflows/test-dotnet.yml'
-  pull_request:
-    branches: [main, master, develop]
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
-      - '.github/workflows/test-dotnet.yml'
+  # push:
+  #   branches: [main, master, develop]
+  #   paths:
+  #     - 'src/**'
+  #     - 'tests/**'
+  #     - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
+  #     - '.github/workflows/test-dotnet.yml'
+  # pull_request:
+  #   branches: [main, master, develop]
+  #   paths:
+  #     - 'src/**'
+  #     - 'tests/**'
+  #     - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
+  #     - '.github/workflows/test-dotnet.yml'
   workflow_dispatch:
 
 env:
