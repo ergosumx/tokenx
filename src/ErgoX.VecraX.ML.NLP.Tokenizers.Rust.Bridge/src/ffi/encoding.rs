@@ -319,7 +319,9 @@ pub unsafe extern "C" fn tokenizers_encoding_copy_numeric(
 /// # Safety
 /// `encoding` must be a valid pointer to an encoding produced by this library.
 #[no_mangle]
-pub unsafe extern "C" fn tokenizers_encoding_get_overflowing_count(encoding: *const CEncoding) -> usize {
+pub unsafe extern "C" fn tokenizers_encoding_get_overflowing_count(
+    encoding: *const CEncoding,
+) -> usize {
     if encoding.is_null() {
         return 0;
     }

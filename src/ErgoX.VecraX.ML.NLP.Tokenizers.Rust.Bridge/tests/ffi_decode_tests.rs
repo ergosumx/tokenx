@@ -102,7 +102,8 @@ fn tokenizers_decode_batch_flat_decodes_multiple_sequences() {
 #[test]
 fn tokenizers_decode_handles_null_tokenizer() {
     let mut status = -1;
-    let result = unsafe { tokenizers_decode(ptr::null(), ptr::null(), 0, true, ptr::addr_of_mut!(status)) };
+    let result =
+        unsafe { tokenizers_decode(ptr::null(), ptr::null(), 0, true, ptr::addr_of_mut!(status)) };
 
     assert!(result.is_null());
     assert_ne!(status, 0);

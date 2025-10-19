@@ -190,8 +190,8 @@ pub mod test_support {
             .build()
             .expect("wordlevel vocab should be valid");
 
-    let mut tokenizer = Tokenizer::new(model);
-    tokenizer.with_pre_tokenizer(Some(Whitespace));
+        let mut tokenizer = Tokenizer::new(model);
+        tokenizer.with_pre_tokenizer(Some(Whitespace));
 
         let encoding = tokenizer
             .encode("Hello world", true)

@@ -13,7 +13,10 @@ use tokenizers::Tokenizer;
 /// # Safety
 /// `json` must reference a null-terminated UTF-8 string and `status` must be a writable pointer.
 #[no_mangle]
-pub unsafe extern "C" fn tokenizers_create(json: *const c_char, status: *mut c_int) -> *mut CTokenizer {
+pub unsafe extern "C" fn tokenizers_create(
+    json: *const c_char,
+    status: *mut c_int,
+) -> *mut CTokenizer {
     match read_required_utf8(json) {
         Ok(content) => match Tokenizer::from_bytes(content.into_bytes()) {
             Ok(tokenizer) => {
