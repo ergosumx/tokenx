@@ -1,22 +1,26 @@
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
-
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
 
 /// <summary>
 /// Tests for encoding manipulation methods (Merge, Pad, Truncate).
 /// </summary>
+[Trait(TestCategories.Category, TestCategories.Integration)]
 public class EncodingManipulationTests : IDisposable
 {
+    private const string SolutionFileName = "TokenX.HF.sln";
     private readonly Tokenizer _tokenizer;
 
     public EncodingManipulationTests()
     {
-        _tokenizer = Tokenizer.FromPretrained("bert-base-uncased");
+        _tokenizer = Tokenizer.FromFile(GetTokenizerPath());
     }
 
     public void Dispose()
@@ -96,7 +100,7 @@ public class EncodingManipulationTests : IDisposable
         // Second encoding's offsets should be adjusted
         for (int i = 0; i < encoding2.Length; i++)
         {
-            var expected = (encoding2.Offsets[i].Item1 + lastOffset.Item2, 
+            var expected = (encoding2.Offsets[i].Item1 + lastOffset.Item2,
                            encoding2.Offsets[i].Item2 + lastOffset.Item2);
             Assert.Equal(expected, result.Offsets[encoding1.Length + i]);
         }
@@ -289,7 +293,7 @@ public class EncodingManipulationTests : IDisposable
         // Assert
         Assert.Equal(maxLength, result.Length);
         Assert.NotEmpty(result.Overflowing);
-        
+
         // First overflowing should start at maxLength - stride
         var firstOverflow = result.Overflowing.First();
         Assert.True(firstOverflow.Length <= maxLength);
@@ -333,7 +337,30 @@ public class EncodingManipulationTests : IDisposable
         var stride = 10; // Larger than maxLength
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             encoding.Truncate(maxLength, stride, direction: TruncationDirection.Right));
+    }
+
+    private static string GetTokenizerPath()
+    {
+        var root = GetBenchmarksDataRoot();
+        return Path.Combine(root, "bert-base-uncased", "tokenizer.json");
+    }
+
+    private static string GetBenchmarksDataRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var solutionCandidate = Path.Combine(directory.FullName, SolutionFileName);
+            if (File.Exists(solutionCandidate))
+            {
+                return Path.Combine(directory.FullName, "tests", "_TestData");
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new InvalidOperationException("Unable to locate repository root from test context.");
     }
 }

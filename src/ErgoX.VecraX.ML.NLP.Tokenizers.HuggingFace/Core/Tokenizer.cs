@@ -18,6 +18,7 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 public sealed class Tokenizer : ITokenizer
 {
     private readonly NativeTokenizerHandle _handle;
+    private readonly INativeInterop _interop;
     private readonly object _syncRoot = new();
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -25,21 +26,34 @@ public sealed class Tokenizer : ITokenizer
         NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
-    private Tokenizer(NativeTokenizerHandle handle)
+    private Tokenizer(NativeTokenizerHandle handle, INativeInterop interop)
     {
         ArgumentNullException.ThrowIfNull(handle);
+        ArgumentNullException.ThrowIfNull(interop);
         _handle = handle;
+        _interop = interop;
     }
 
     public Tokenizer(string jsonConfig)
-        : this(CreateHandleFromJson(jsonConfig))
+        : this(CreateHandleFromJson(jsonConfig, out var interop), interop)
     {
     }
 
     public static Tokenizer FromPretrained(string identifier, string? revision = null, string? authToken = null)
     {
+        var interop = NativeInteropProvider.Current;
+        ArgumentNullException.ThrowIfNull(interop);
+
         var handle = NativeTokenizerHandle.CreateFromPretrained(identifier, revision, authToken);
-        return new Tokenizer(handle);
+        try
+        {
+            return new Tokenizer(handle, interop);
+        }
+        catch
+        {
+            handle.Dispose();
+            throw;
+        }
     }
 
     /// <summary>
@@ -78,7 +92,14 @@ public sealed class Tokenizer : ITokenizer
         return new Tokenizer(json);
     }
 
-    private static NativeTokenizerHandle CreateHandleFromJson(string jsonConfig)
+    private static NativeTokenizerHandle CreateHandleFromJson(string jsonConfig, out INativeInterop interop)
+    {
+        interop = NativeInteropProvider.Current;
+        ArgumentNullException.ThrowIfNull(interop);
+        return CreateHandleFromJsonCore(jsonConfig);
+    }
+
+    private static NativeTokenizerHandle CreateHandleFromJsonCore(string jsonConfig)
     {
         if (string.IsNullOrWhiteSpace(jsonConfig))
         {
@@ -95,12 +116,13 @@ public sealed class Tokenizer : ITokenizer
             throw new ArgumentException("Generation configuration JSON must be provided.", nameof(json));
         }
 
-        var nativeResult = NativeMethods.TokenizersNormalizeGenerationConfig(json, out var status);
+        var interop = NativeInteropProvider.Current;
+        var nativeResult = interop.TokenizersNormalizeGenerationConfig(json, out var status);
         try
         {
             if (nativeResult == IntPtr.Zero || status != 0)
             {
-                var details = NativeMethods.GetLastErrorMessage();
+                var details = interop.GetLastErrorMessage();
                 var message = details is null
                     ? "Generation configuration normalization failed."
                     : $"Generation configuration normalization failed: {details}";
@@ -113,7 +135,7 @@ public sealed class Tokenizer : ITokenizer
         {
             if (nativeResult != IntPtr.Zero)
             {
-                NativeMethods.FreeString(nativeResult);
+                interop.FreeString(nativeResult);
             }
         }
     }
@@ -125,12 +147,13 @@ public sealed class Tokenizer : ITokenizer
             throw new ArgumentException("Generation configuration JSON must be provided.", nameof(json));
         }
 
-        var nativeResult = NativeMethods.TokenizersPlanLogitsProcessors(json, out var status);
+        var interop = NativeInteropProvider.Current;
+        var nativeResult = interop.TokenizersPlanLogitsProcessors(json, out var status);
         try
         {
             if (nativeResult == IntPtr.Zero || status != 0)
             {
-                var details = NativeMethods.GetLastErrorMessage();
+                var details = interop.GetLastErrorMessage();
                 var message = details is null
                     ? "Logits processor planning failed."
                     : $"Logits processor planning failed: {details}";
@@ -143,7 +166,7 @@ public sealed class Tokenizer : ITokenizer
         {
             if (nativeResult != IntPtr.Zero)
             {
-                NativeMethods.FreeString(nativeResult);
+                interop.FreeString(nativeResult);
             }
         }
     }
@@ -155,12 +178,13 @@ public sealed class Tokenizer : ITokenizer
             throw new ArgumentException("Generation configuration JSON must be provided.", nameof(json));
         }
 
-        var nativeResult = NativeMethods.TokenizersPlanStoppingCriteria(json, out var status);
+        var interop = NativeInteropProvider.Current;
+        var nativeResult = interop.TokenizersPlanStoppingCriteria(json, out var status);
         try
         {
             if (nativeResult == IntPtr.Zero || status != 0)
             {
-                var details = NativeMethods.GetLastErrorMessage();
+                var details = interop.GetLastErrorMessage();
                 var message = details is null
                     ? "Stopping criteria planning failed."
                     : $"Stopping criteria planning failed: {details}";
@@ -173,7 +197,7 @@ public sealed class Tokenizer : ITokenizer
         {
             if (nativeResult != IntPtr.Zero)
             {
-                NativeMethods.FreeString(nativeResult);
+                interop.FreeString(nativeResult);
             }
         }
     }
@@ -208,15 +232,14 @@ public sealed class Tokenizer : ITokenizer
             {
                 var length = options.Length ?? -1;
                 var multiple = options.PadToMultipleOf ?? 0;
-                var result = NativeMethods.TokenizerEnablePadding(
-                    handlePtr,
+                var request = new NativePaddingRequest(
                     (int)options.Direction,
                     options.PadId,
                     options.PadTypeId,
                     options.PadToken,
                     length,
-                    multiple,
-                    out var status);
+                    multiple);
+                var result = _interop.TokenizerEnablePadding(handlePtr, request, out var status);
 
                 if (result == 0 || status != 0)
                 {
@@ -234,7 +257,7 @@ public sealed class Tokenizer : ITokenizer
         {
             _handle.InvokeWithHandle(handlePtr =>
             {
-                var result = NativeMethods.TokenizerDisablePadding(handlePtr, out var status);
+                var result = _interop.TokenizerDisablePadding(handlePtr, out var status);
                 if (result == 0 || status != 0)
                 {
                     throw CreateNativeException("Tokenizer disable padding failed.");
@@ -251,12 +274,12 @@ public sealed class Tokenizer : ITokenizer
         {
             return _handle.InvokeWithHandle(handlePtr =>
             {
-                var nativePtr = NativeMethods.TokenizerGetPadding(handlePtr, out var status);
+                var nativePtr = _interop.TokenizerGetPadding(handlePtr, out var status);
                 if (status != 0)
                 {
                     if (nativePtr != IntPtr.Zero)
                     {
-                        NativeMethods.FreeString(nativePtr);
+                        _interop.FreeString(nativePtr);
                     }
 
                     throw CreateNativeException("Tokenizer padding retrieval failed.");
@@ -279,7 +302,7 @@ public sealed class Tokenizer : ITokenizer
                 }
                 finally
                 {
-                    NativeMethods.FreeString(nativePtr);
+                    _interop.FreeString(nativePtr);
                 }
             });
         }
@@ -296,7 +319,7 @@ public sealed class Tokenizer : ITokenizer
         {
             _handle.InvokeWithHandle(handlePtr =>
             {
-                var result = NativeMethods.TokenizerEnableTruncation(
+                var result = _interop.TokenizerEnableTruncation(
                     handlePtr,
                     (nuint)options.MaxLength,
                     (nuint)options.Stride,
@@ -320,7 +343,7 @@ public sealed class Tokenizer : ITokenizer
         {
             _handle.InvokeWithHandle(handlePtr =>
             {
-                var result = NativeMethods.TokenizerDisableTruncation(handlePtr, out var status);
+                var result = _interop.TokenizerDisableTruncation(handlePtr, out var status);
                 if (result == 0 || status != 0)
                 {
                     throw CreateNativeException("Tokenizer disable truncation failed.");
@@ -337,12 +360,12 @@ public sealed class Tokenizer : ITokenizer
         {
             return _handle.InvokeWithHandle(handlePtr =>
             {
-                var nativePtr = NativeMethods.TokenizerGetTruncation(handlePtr, out var status);
+                var nativePtr = _interop.TokenizerGetTruncation(handlePtr, out var status);
                 if (status != 0)
                 {
                     if (nativePtr != IntPtr.Zero)
                     {
-                        NativeMethods.FreeString(nativePtr);
+                        _interop.FreeString(nativePtr);
                     }
 
                     throw CreateNativeException("Tokenizer truncation retrieval failed.");
@@ -365,27 +388,27 @@ public sealed class Tokenizer : ITokenizer
                 }
                 finally
                 {
-                    NativeMethods.FreeString(nativePtr);
+                    _interop.FreeString(nativePtr);
                 }
             });
         }
     }
 
-    public EncodingResult Encode(string sequence, bool addSpecialTokens = true)
-        => Encode(sequence, null, addSpecialTokens);
+    public EncodingResult Encode(string text, bool addSpecialTokens = true)
+        => Encode(text, null, addSpecialTokens);
 
-    public EncodingResult Encode(string sequence, string? pair, bool addSpecialTokens = true)
+    public EncodingResult Encode(string text, string? textPair, bool addSpecialTokens = true)
     {
-        if (sequence is null)
+        if (text is null)
         {
-            throw new ArgumentNullException(nameof(sequence));
+            throw new ArgumentNullException(nameof(text));
         }
 
         lock (_syncRoot)
         {
             return _handle.InvokeWithHandle(handlePtr =>
             {
-                var encodingPtr = NativeMethods.TokenizerEncode(handlePtr, sequence, pair, addSpecialTokens, out var length, out var status);
+                var encodingPtr = _interop.TokenizerEncode(handlePtr, text, textPair, addSpecialTokens, out var length, out var status);
                 if (encodingPtr == IntPtr.Zero || status != 0)
                 {
                     throw CreateNativeException("Tokenizer encode failed.");
@@ -397,61 +420,61 @@ public sealed class Tokenizer : ITokenizer
                 }
                 finally
                 {
-                    NativeMethods.EncodingFree(encodingPtr);
+                    _interop.EncodingFree(encodingPtr);
                 }
             });
         }
     }
 
-    public IReadOnlyList<EncodingResult> EncodeBatch(IEnumerable<string> sequences, bool addSpecialTokens = true)
+    public IReadOnlyList<EncodingResult> EncodeBatch(IEnumerable<string> inputs, bool addSpecialTokens = true)
     {
-        if (sequences is null)
+        if (inputs is null)
         {
-            throw new ArgumentNullException(nameof(sequences));
+            throw new ArgumentNullException(nameof(inputs));
         }
 
-        var inputs = sequences.ToArray();
-        if (inputs.Length == 0)
+        var localInputs = inputs.ToArray();
+        if (localInputs.Length == 0)
         {
             return Array.Empty<EncodingResult>();
         }
 
-        var results = new EncodingResult[inputs.Length];
-        for (var i = 0; i < inputs.Length; i++)
+        var results = new EncodingResult[localInputs.Length];
+        for (var i = 0; i < localInputs.Length; i++)
         {
-            if (inputs[i] is null)
+            if (localInputs[i] is null)
             {
-                throw new ArgumentException("Sequence collection cannot contain null entries.", nameof(sequences));
+                throw new ArgumentException("Sequence collection cannot contain null entries.", nameof(inputs));
             }
 
-            results[i] = Encode(inputs[i], null, addSpecialTokens);
+            results[i] = Encode(localInputs[i], null, addSpecialTokens);
         }
 
         return results;
     }
 
-    public IReadOnlyList<EncodingResult> EncodeBatch(IEnumerable<(string First, string? Second)> sequences, bool addSpecialTokens = true)
+    public IReadOnlyList<EncodingResult> EncodeBatch(IEnumerable<(string First, string? Second)> inputs, bool addSpecialTokens = true)
     {
-        if (sequences is null)
+        if (inputs is null)
         {
-            throw new ArgumentNullException(nameof(sequences));
+            throw new ArgumentNullException(nameof(inputs));
         }
 
-        var inputs = sequences.ToArray();
-        if (inputs.Length == 0)
+        var localInputs = inputs.ToArray();
+        if (localInputs.Length == 0)
         {
             return Array.Empty<EncodingResult>();
         }
 
-        var results = new EncodingResult[inputs.Length];
-        for (var i = 0; i < inputs.Length; i++)
+        var results = new EncodingResult[localInputs.Length];
+        for (var i = 0; i < localInputs.Length; i++)
         {
-            if (inputs[i].First is null)
+            if (localInputs[i].First is null)
             {
-                throw new ArgumentException("Sequence collection cannot contain null entries.", nameof(sequences));
+                throw new ArgumentException("Sequence collection cannot contain null entries.", nameof(inputs));
             }
 
-            results[i] = Encode(inputs[i].First, inputs[i].Second, addSpecialTokens);
+            results[i] = Encode(localInputs[i].First, localInputs[i].Second, addSpecialTokens);
         }
 
         return results;
@@ -483,7 +506,7 @@ public sealed class Tokenizer : ITokenizer
             {
                 return _handle.InvokeWithHandle(handlePtr =>
                 {
-                    var nativePtr = NativeMethods.TokenizerDecode(handlePtr, rented, (nuint)length, skipSpecialTokens, out var status);
+                    var nativePtr = _interop.TokenizerDecode(handlePtr, rented, (nuint)length, skipSpecialTokens, out var status);
                     if (nativePtr == IntPtr.Zero || status != 0)
                     {
                         throw CreateNativeException("Tokenizer decode failed.");
@@ -495,7 +518,7 @@ public sealed class Tokenizer : ITokenizer
                     }
                     finally
                     {
-                        NativeMethods.FreeString(nativePtr);
+                        _interop.FreeString(nativePtr);
                     }
                 });
             }
@@ -506,38 +529,25 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
-    public IReadOnlyList<string> DecodeBatch(IEnumerable<IReadOnlyList<int>> encodings, bool skipSpecialTokens = true)
+    public IReadOnlyList<string> DecodeBatch(IEnumerable<IReadOnlyList<int>> sequences, bool skipSpecialTokens = true)
     {
-        if (encodings is null)
+        if (sequences is null)
         {
-            throw new ArgumentNullException(nameof(encodings));
+            throw new ArgumentNullException(nameof(sequences));
         }
 
-        var inputs = encodings.ToArray();
+        var inputs = sequences.ToArray();
         if (inputs.Length == 0)
         {
             return Array.Empty<string>();
         }
 
-        var count = inputs.Length;
-        var lengths = new nuint[count];
-        nuint totalLength = 0;
-
-        for (var i = 0; i < count; i++)
-        {
-            var sequence = inputs[i];
-            if (sequence is null)
-            {
-                throw new ArgumentException("Encoding collection cannot contain null entries.", nameof(encodings));
-            }
-
-            lengths[i] = (nuint)sequence.Count;
-            totalLength += lengths[i];
-        }
+        var lengths = new nuint[inputs.Length];
+        var totalLength = PopulateSequenceLengths(inputs, lengths, nameof(sequences));
 
         if (totalLength == 0)
         {
-            return Enumerable.Repeat(string.Empty, count).ToArray();
+            return CreateEmptyResults(inputs.Length);
         }
 
         if (totalLength > int.MaxValue)
@@ -545,9 +555,42 @@ public sealed class Tokenizer : ITokenizer
             throw new InvalidOperationException("Total token count exceeds supported bounds.");
         }
 
+        var flattened = FlattenSequences(inputs, totalLength);
+        return DecodeBatchInternal(inputs, lengths, totalLength, flattened, skipSpecialTokens);
+    }
+
+    private static nuint PopulateSequenceLengths(IReadOnlyList<int>[] inputs, nuint[] lengths, string parameterName)
+    {
+        nuint totalLength = 0;
+        for (var i = 0; i < inputs.Length; i++)
+        {
+            var sequence = inputs[i];
+            if (sequence is null)
+            {
+                throw new ArgumentException("Encoding collection cannot contain null entries.", parameterName);
+            }
+
+            var length = (nuint)sequence.Count;
+            lengths[i] = length;
+            totalLength += length;
+        }
+
+        return totalLength;
+    }
+
+    private static string[] CreateEmptyResults(int count)
+    {
+        var results = new string[count];
+        Array.Fill(results, string.Empty);
+        return results;
+    }
+
+    private static uint[] FlattenSequences(IReadOnlyList<int>[] inputs, nuint totalLength)
+    {
         var flattened = new uint[(int)totalLength];
         var offset = 0;
-        for (var i = 0; i < count; i++)
+
+        for (var i = 0; i < inputs.Length; i++)
         {
             var sequence = inputs[i];
             for (var j = 0; j < sequence.Count; j++)
@@ -556,6 +599,17 @@ public sealed class Tokenizer : ITokenizer
             }
         }
 
+        return flattened;
+    }
+
+    private IReadOnlyList<string> DecodeBatchInternal(
+        IReadOnlyList<int>[] inputs,
+        nuint[] lengths,
+        nuint totalLength,
+        uint[] flattened,
+        bool skipSpecialTokens)
+    {
+        var count = inputs.Length;
         var outputPointers = new IntPtr[count];
         var results = new string[count];
 
@@ -563,63 +617,82 @@ public sealed class Tokenizer : ITokenizer
         {
             _handle.InvokeWithHandle(handlePtr =>
             {
-                unsafe
-                {
-                    fixed (uint* tokensPtr = flattened)
-                    fixed (nuint* lengthsPtr = lengths)
-                    fixed (IntPtr* outputsPtr = outputPointers)
-                    {
-                        var decodedCount = NativeMethods.TokenizerDecodeBatchFlat(
-                            handlePtr,
-                            tokensPtr,
-                            (nuint)totalLength,
-                            lengthsPtr,
-                            (nuint)count,
-                            skipSpecialTokens,
-                            outputsPtr,
-                            out var status);
-
-                        if (status != 0 || decodedCount != count)
-                        {
-                            for (var index = 0; index < count; index++)
-                            {
-                                if (outputsPtr[index] != IntPtr.Zero)
-                                {
-                                    NativeMethods.FreeString(outputsPtr[index]);
-                                    outputsPtr[index] = IntPtr.Zero;
-                                }
-                            }
-
-                            throw CreateNativeException("Tokenizer batch decode failed.");
-                        }
-                    }
-                }
-
-                for (var i = 0; i < count; i++)
-                {
-                    var nativePtr = outputPointers[i];
-                    if (nativePtr == IntPtr.Zero)
-                    {
-                        results[i] = string.Empty;
-                        continue;
-                    }
-
-                    try
-                    {
-                        results[i] = Marshal.PtrToStringUTF8(nativePtr) ?? string.Empty;
-                    }
-                    finally
-                    {
-                        NativeMethods.FreeString(nativePtr);
-                        outputPointers[i] = IntPtr.Zero;
-                    }
-                }
-
+                DecodeBatchNative(handlePtr, flattened, lengths, totalLength, count, skipSpecialTokens, outputPointers);
+                PopulateDecodedResults(outputPointers, results);
                 return 0;
             });
         }
 
         return results;
+    }
+
+    private void DecodeBatchNative(
+        IntPtr handlePtr,
+        uint[] flattened,
+        nuint[] lengths,
+        nuint totalLength,
+        int count,
+        bool skipSpecialTokens,
+        IntPtr[] outputPointers)
+    {
+        unsafe
+        {
+            fixed (uint* tokensPtr = flattened)
+            fixed (nuint* lengthsPtr = lengths)
+            fixed (IntPtr* outputsPtr = outputPointers)
+            {
+                var request = new NativeDecodeBatchRequest(
+                    handlePtr,
+                    tokensPtr,
+                    totalLength,
+                    lengthsPtr,
+                    (nuint)count,
+                    skipSpecialTokens,
+                    outputsPtr);
+
+                var decodedCount = _interop.TokenizerDecodeBatchFlat(request, out var status);
+                if (status != 0 || decodedCount != count)
+                {
+                    ReleaseOutputPointers(outputsPtr, count);
+                    throw CreateNativeException("Tokenizer batch decode failed.");
+                }
+            }
+        }
+    }
+
+    private void PopulateDecodedResults(IntPtr[] outputPointers, string[] results)
+    {
+        for (var i = 0; i < outputPointers.Length; i++)
+        {
+            var nativePtr = outputPointers[i];
+            if (nativePtr == IntPtr.Zero)
+            {
+                results[i] = string.Empty;
+                continue;
+            }
+
+            try
+            {
+                results[i] = Marshal.PtrToStringUTF8(nativePtr) ?? string.Empty;
+            }
+            finally
+            {
+                _interop.FreeString(nativePtr);
+                outputPointers[i] = IntPtr.Zero;
+            }
+        }
+    }
+
+    private unsafe void ReleaseOutputPointers(IntPtr* outputsPtr, int count)
+    {
+        for (var index = 0; index < count; index++)
+        {
+            if (outputsPtr[index] != IntPtr.Zero)
+            {
+                _interop.FreeString(outputsPtr[index]);
+                outputsPtr[index] = IntPtr.Zero;
+            }
+        }
     }
 
     internal string ApplyChatTemplate(
@@ -642,7 +715,7 @@ public sealed class Tokenizer : ITokenizer
         {
             return _handle.InvokeWithHandle(handlePtr =>
             {
-                var nativePtr = NativeMethods.TokenizerApplyChatTemplate(
+                var nativePtr = _interop.TokenizerApplyChatTemplate(
                     handlePtr,
                     template,
                     messagesJson,
@@ -661,7 +734,7 @@ public sealed class Tokenizer : ITokenizer
                 }
                 finally
                 {
-                    NativeMethods.FreeString(nativePtr);
+                    _interop.FreeString(nativePtr);
                 }
             });
         }
@@ -678,7 +751,7 @@ public sealed class Tokenizer : ITokenizer
         {
             var result = _handle.InvokeWithHandle(handlePtr =>
             {
-                var id = NativeMethods.TokenToId(handlePtr, token, out var nativeStatus);
+                var id = _interop.TokenToId(handlePtr, token, out var nativeStatus);
                 return (Id: id, Status: nativeStatus);
             });
 
@@ -695,7 +768,7 @@ public sealed class Tokenizer : ITokenizer
         {
             return _handle.InvokeWithHandle(handlePtr =>
             {
-                var nativePtr = NativeMethods.IdToToken(handlePtr, id, out var status);
+                var nativePtr = _interop.IdToToken(handlePtr, id, out var status);
                 if (nativePtr == IntPtr.Zero || status != 0)
                 {
                     return null;
@@ -707,7 +780,7 @@ public sealed class Tokenizer : ITokenizer
                 }
                 finally
                 {
-                    NativeMethods.FreeString(nativePtr);
+                    _interop.FreeString(nativePtr);
                 }
             });
         }
@@ -733,9 +806,9 @@ public sealed class Tokenizer : ITokenizer
     /// <param name="handlePtr">Native tokenizer pointer.</param>
     /// <param name="pretty">True to request pretty-printed JSON.</param>
     /// <returns>The tokenizer configuration JSON.</returns>
-    private static string GetConfigJsonUnsafe(IntPtr handlePtr, bool pretty)
+    private string GetConfigJsonUnsafe(IntPtr handlePtr, bool pretty)
     {
-        var nativePtr = NativeMethods.TokenizerGetConfig(handlePtr, pretty, out var status);
+        var nativePtr = _interop.TokenizerGetConfig(handlePtr, pretty, out var status);
         if (nativePtr == IntPtr.Zero || status != 0)
         {
             throw CreateNativeException("Tokenizer serialization failed.");
@@ -747,11 +820,11 @@ public sealed class Tokenizer : ITokenizer
         }
         finally
         {
-            NativeMethods.FreeString(nativePtr);
+            _interop.FreeString(nativePtr);
         }
     }
 
-    private static EncodingResult MarshalEncoding(IntPtr encodingPtr, nuint length)
+    private EncodingResult MarshalEncoding(IntPtr encodingPtr, nuint length)
     {
         if (length == 0)
         {
@@ -769,86 +842,15 @@ public sealed class Tokenizer : ITokenizer
         var attentionMask = new uint[size];
         var specialTokensMask = new uint[size];
         var offsetsNative = new NativeMethods.EncodingOffsetNative[size];
-        var offsets = new (int Start, int End)[size];
         var wordIdsRaw = new int[size];
         var sequenceIdsRaw = new int[size];
-        var wordIds = new int?[size];
-        var sequenceIds = new int?[size];
+        var numericBuffer = new EncodingNumericBuffer(managedIds, typeIds, attentionMask, specialTokensMask, offsetsNative, wordIdsRaw, sequenceIdsRaw);
+        PopulateNumericData(encodingPtr, size, numericBuffer);
 
-        unsafe
-        {
-            fixed (int* idsPtr = managedIds)
-            fixed (uint* typeIdsPtr = typeIds)
-            fixed (uint* attentionMaskPtr = attentionMask)
-            fixed (uint* specialTokensMaskPtr = specialTokensMask)
-            fixed (NativeMethods.EncodingOffsetNative* offsetsPtr = offsetsNative)
-            fixed (int* wordIdsPtr = wordIdsRaw)
-            fixed (int* sequenceIdsPtr = sequenceIdsRaw)
-            {
-                var destinations = new NativeMethods.EncodingNumericDest
-                {
-                    Ids = (IntPtr)idsPtr,
-                    TypeIds = (IntPtr)typeIdsPtr,
-                    AttentionMask = (IntPtr)attentionMaskPtr,
-                    SpecialTokensMask = (IntPtr)specialTokensMaskPtr,
-                    Offsets = (IntPtr)offsetsPtr,
-                    WordIds = (IntPtr)wordIdsPtr,
-                    SequenceIds = (IntPtr)sequenceIdsPtr
-                };
-
-                var copied = NativeMethods.EncodingCopyNumeric(encodingPtr, ref destinations, (nuint)size, out var status);
-                if (status != 0)
-                {
-                    throw CreateNativeException("Tokenizer encoding numeric copy failed.");
-                }
-
-                if (copied != size)
-                {
-                    throw new InvalidOperationException("Tokenizer encoding numeric copy returned an unexpected token count.");
-                }
-            }
-        }
-
-        for (var i = 0; i < size; i++)
-        {
-            offsets[i] = ((int)offsetsNative[i].Start, (int)offsetsNative[i].End);
-            wordIds[i] = wordIdsRaw[i] >= 0 ? wordIdsRaw[i] : null;
-            sequenceIds[i] = sequenceIdsRaw[i] >= 0 ? sequenceIdsRaw[i] : null;
-        }
-
-        var tokens = new string[size];
-        var tokenPtrBuffer = ArrayPool<IntPtr>.Shared.Rent(size);
-        try
-        {
-            NativeMethods.EncodingGetTokens(encodingPtr, tokenPtrBuffer, (nuint)size);
-            for (var i = 0; i < size; i++)
-            {
-                var tokenPtr = tokenPtrBuffer[i];
-                tokens[i] = tokenPtr == IntPtr.Zero
-                    ? string.Empty
-                    : Marshal.PtrToStringUTF8(tokenPtr) ?? string.Empty;
-
-                if (tokenPtr != IntPtr.Zero)
-                {
-                    NativeMethods.FreeString(tokenPtr);
-                    tokenPtrBuffer[i] = IntPtr.Zero;
-                }
-            }
-        }
-        finally
-        {
-            for (var i = 0; i < size; i++)
-            {
-                if (tokenPtrBuffer[i] != IntPtr.Zero)
-                {
-                    NativeMethods.FreeString(tokenPtrBuffer[i]);
-                    tokenPtrBuffer[i] = IntPtr.Zero;
-                }
-            }
-
-            ArrayPool<IntPtr>.Shared.Return(tokenPtrBuffer, clearArray: true);
-        }
-
+        var offsets = BuildOffsets(offsetsNative);
+        var wordIds = BuildNullableValues(wordIdsRaw);
+        var sequenceIds = BuildNullableValues(sequenceIdsRaw);
+        var tokens = ExtractTokens(encodingPtr, size);
         var overflowing = MarshalOverflowingEncodings(encodingPtr);
 
         return new EncodingResult(
@@ -863,9 +865,141 @@ public sealed class Tokenizer : ITokenizer
             overflowing);
     }
 
-    private static IReadOnlyList<EncodingResult> MarshalOverflowingEncodings(IntPtr encodingPtr)
+    private readonly struct EncodingNumericBuffer
     {
-        var overflowingCount = (int)NativeMethods.EncodingGetOverflowingCount(encodingPtr);
+        public EncodingNumericBuffer(
+            int[] managedIds,
+            uint[] typeIds,
+            uint[] attentionMask,
+            uint[] specialTokensMask,
+            NativeMethods.EncodingOffsetNative[] offsetsNative,
+            int[] wordIdsRaw,
+            int[] sequenceIdsRaw)
+        {
+            ManagedIds = managedIds;
+            TypeIds = typeIds;
+            AttentionMask = attentionMask;
+            SpecialTokensMask = specialTokensMask;
+            OffsetsNative = offsetsNative;
+            WordIdsRaw = wordIdsRaw;
+            SequenceIdsRaw = sequenceIdsRaw;
+        }
+
+        public int[] ManagedIds { get; }
+
+        public uint[] TypeIds { get; }
+
+        public uint[] AttentionMask { get; }
+
+        public uint[] SpecialTokensMask { get; }
+
+        public NativeMethods.EncodingOffsetNative[] OffsetsNative { get; }
+
+        public int[] WordIdsRaw { get; }
+
+        public int[] SequenceIdsRaw { get; }
+    }
+
+    private void PopulateNumericData(IntPtr encodingPtr, int size, in EncodingNumericBuffer buffer)
+    {
+        unsafe
+        {
+            fixed (int* idsPtr = buffer.ManagedIds)
+            fixed (uint* typeIdsPtr = buffer.TypeIds)
+            fixed (uint* attentionMaskPtr = buffer.AttentionMask)
+            fixed (uint* specialTokensMaskPtr = buffer.SpecialTokensMask)
+            fixed (NativeMethods.EncodingOffsetNative* offsetsPtr = buffer.OffsetsNative)
+            fixed (int* wordIdsPtr = buffer.WordIdsRaw)
+            fixed (int* sequenceIdsPtr = buffer.SequenceIdsRaw)
+            {
+                var destinations = new NativeMethods.EncodingNumericDest
+                {
+                    Ids = (IntPtr)idsPtr,
+                    TypeIds = (IntPtr)typeIdsPtr,
+                    AttentionMask = (IntPtr)attentionMaskPtr,
+                    SpecialTokensMask = (IntPtr)specialTokensMaskPtr,
+                    Offsets = (IntPtr)offsetsPtr,
+                    WordIds = (IntPtr)wordIdsPtr,
+                    SequenceIds = (IntPtr)sequenceIdsPtr
+                };
+
+                var copied = _interop.EncodingCopyNumeric(encodingPtr, ref destinations, (nuint)size, out var status);
+                if (status != 0)
+                {
+                    throw CreateNativeException("Tokenizer encoding numeric copy failed.");
+                }
+
+                if (copied != size)
+                {
+                    throw new InvalidOperationException("Tokenizer encoding numeric copy returned an unexpected token count.");
+                }
+            }
+        }
+    }
+
+    private static (int Start, int End)[] BuildOffsets(NativeMethods.EncodingOffsetNative[] offsetsNative)
+    {
+        var offsets = new (int Start, int End)[offsetsNative.Length];
+        for (var i = 0; i < offsetsNative.Length; i++)
+        {
+            offsets[i] = ((int)offsetsNative[i].Start, (int)offsetsNative[i].End);
+        }
+
+        return offsets;
+    }
+
+    private static int?[] BuildNullableValues(int[] source)
+    {
+        var result = new int?[source.Length];
+        for (var i = 0; i < source.Length; i++)
+        {
+            result[i] = source[i] >= 0 ? source[i] : null;
+        }
+
+        return result;
+    }
+
+    private string[] ExtractTokens(IntPtr encodingPtr, int size)
+    {
+        var tokens = new string[size];
+        var tokenPtrBuffer = ArrayPool<IntPtr>.Shared.Rent(size);
+        try
+        {
+            _interop.EncodingGetTokens(encodingPtr, tokenPtrBuffer, (nuint)size);
+            for (var i = 0; i < size; i++)
+            {
+                var tokenPtr = tokenPtrBuffer[i];
+                tokens[i] = tokenPtr == IntPtr.Zero
+                    ? string.Empty
+                    : Marshal.PtrToStringUTF8(tokenPtr) ?? string.Empty;
+
+                if (tokenPtr != IntPtr.Zero)
+                {
+                    _interop.FreeString(tokenPtr);
+                    tokenPtrBuffer[i] = IntPtr.Zero;
+                }
+            }
+        }
+        finally
+        {
+            for (var i = 0; i < size; i++)
+            {
+                if (tokenPtrBuffer[i] != IntPtr.Zero)
+                {
+                    _interop.FreeString(tokenPtrBuffer[i]);
+                    tokenPtrBuffer[i] = IntPtr.Zero;
+                }
+            }
+
+            ArrayPool<IntPtr>.Shared.Return(tokenPtrBuffer, clearArray: true);
+        }
+
+        return tokens;
+    }
+
+    private IReadOnlyList<EncodingResult> MarshalOverflowingEncodings(IntPtr encodingPtr)
+    {
+        var overflowingCount = (int)_interop.EncodingGetOverflowingCount(encodingPtr);
         if (overflowingCount == 0)
         {
             return Array.Empty<EncodingResult>();
@@ -874,7 +1008,7 @@ public sealed class Tokenizer : ITokenizer
         var overflowResults = new List<EncodingResult>(overflowingCount);
         for (var i = 0; i < overflowingCount; i++)
         {
-            var overflowingPtr = NativeMethods.EncodingGetOverflowing(encodingPtr, (nuint)i, out var overflowingLength, out var overflowingStatus);
+            var overflowingPtr = _interop.EncodingGetOverflowing(encodingPtr, (nuint)i, out var overflowingLength, out var overflowingStatus);
             if (overflowingStatus != 0 || overflowingPtr == IntPtr.Zero)
             {
                 continue;
@@ -886,16 +1020,16 @@ public sealed class Tokenizer : ITokenizer
             }
             finally
             {
-                NativeMethods.EncodingFree(overflowingPtr);
+                _interop.EncodingFree(overflowingPtr);
             }
         }
 
         return overflowResults.Count == 0 ? Array.Empty<EncodingResult>() : overflowResults;
     }
 
-    private static InvalidOperationException CreateNativeException(string message)
+    private InvalidOperationException CreateNativeException(string message)
     {
-        var details = NativeMethods.GetLastErrorMessage();
+        var details = _interop.GetLastErrorMessage();
         return details is null
             ? new InvalidOperationException(message)
             : new InvalidOperationException($"{message}: {details}");
@@ -978,20 +1112,6 @@ public sealed class Tokenizer : ITokenizer
             _ => TruncationStrategy.LongestFirst
         };
     }
-
-    private static string SerializePaddingDirection(PaddingDirection direction)
-        => direction == PaddingDirection.Left ? "left" : "right";
-
-    private static string SerializeTruncationDirection(TruncationDirection direction)
-        => direction == TruncationDirection.Left ? "left" : "right";
-
-    private static string SerializeTruncationStrategy(TruncationStrategy strategy)
-        => strategy switch
-        {
-            TruncationStrategy.OnlyFirst => "only_first",
-            TruncationStrategy.OnlySecond => "only_second",
-            _ => "longest_first"
-        };
 
     private sealed class NativePaddingPayload
     {

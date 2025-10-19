@@ -17,7 +17,7 @@ internal sealed class NativeTokenizerHandle : SafeHandle
     {
         if (!IsInvalid)
         {
-            NativeMethods.TokenizerFree(handle);
+            NativeInteropProvider.Current.TokenizerFree(handle);
         }
 
         return true;
@@ -25,10 +25,10 @@ internal sealed class NativeTokenizerHandle : SafeHandle
 
     public static NativeTokenizerHandle Create(string json)
     {
-        var ptr = NativeMethods.TokenizerCreateFromJson(json, out var status);
+        var ptr = NativeInteropProvider.Current.TokenizerCreateFromJson(json, out var status);
         if (ptr == IntPtr.Zero || status != 0)
         {
-            var message = NativeMethods.GetLastErrorMessage() ?? "Failed to create tokenizer handle.";
+            var message = NativeInteropProvider.Current.GetLastErrorMessage() ?? "Failed to create tokenizer handle.";
             throw new InvalidOperationException(message);
         }
 
@@ -44,10 +44,10 @@ internal sealed class NativeTokenizerHandle : SafeHandle
             throw new ArgumentException("Identifier must be provided.", nameof(identifier));
         }
 
-        var ptr = NativeMethods.TokenizerCreateFromPretrained(identifier, revision, authToken, out var status);
+        var ptr = NativeInteropProvider.Current.TokenizerCreateFromPretrained(identifier, revision, authToken, out var status);
         if (ptr == IntPtr.Zero || status != 0)
         {
-            var message = NativeMethods.GetLastErrorMessage() ?? "Failed to load pretrained tokenizer.";
+            var message = NativeInteropProvider.Current.GetLastErrorMessage() ?? "Failed to load pretrained tokenizer.";
             throw new InvalidOperationException(message);
         }
 

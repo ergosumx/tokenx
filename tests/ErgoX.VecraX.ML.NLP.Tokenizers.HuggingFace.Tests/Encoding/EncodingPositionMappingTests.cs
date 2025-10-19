@@ -1,20 +1,24 @@
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
+
 using System;
+using System.IO;
 using System.Linq;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
-
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
 
 /// <summary>
 /// Tests for encoding position mapping methods (word/token/char conversions).
 /// </summary>
+[Trait(TestCategories.Category, TestCategories.Integration)]
 public class EncodingPositionMappingTests : IDisposable
 {
+    private const string SolutionFileName = "TokenX.HF.sln";
     private readonly Tokenizer _tokenizer;
 
     public EncodingPositionMappingTests()
     {
-        _tokenizer = Tokenizer.FromPretrained("bert-base-uncased");
+        _tokenizer = Tokenizer.FromFile(GetTokenizerPath());
     }
 
     public void Dispose()
@@ -27,7 +31,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act - Get tokens for first word (assuming word index 0 exists)
         var result = encoding.WordToTokens(wordIndex: 0, sequenceIndex: 0);
 
@@ -45,7 +49,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act - Use a word index that definitely doesn't exist
         var result = encoding.WordToTokens(wordIndex: 9999, sequenceIndex: 0);
 
@@ -58,7 +62,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act - Single sequence encoding, so sequence 1 shouldn't exist
         var result = encoding.WordToTokens(wordIndex: 0, sequenceIndex: 1);
 
@@ -71,7 +75,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act - Get chars for first word
         var result = encoding.WordToChars(wordIndex: 0, sequenceIndex: 0);
 
@@ -89,7 +93,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act
         var result = encoding.WordToChars(wordIndex: 9999, sequenceIndex: 0);
 
@@ -102,14 +106,14 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Skip test if SequenceIds are not populated for this model
         // OR if the first token doesn't have a sequence ID (could be special token)
         if (!encoding.SequenceIds.Any(s => s.HasValue) || !encoding.SequenceIds[0].HasValue)
         {
             return; // Skip this test
         }
-        
+
         // Act
         var result = encoding.TokenToSequence(tokenIndex: 0);
 
@@ -122,7 +126,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act
         var result = encoding.TokenToSequence(tokenIndex: encoding.Length + 10);
 
@@ -135,21 +139,21 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Skip test if SequenceIds are not populated for this model
         // OR if the first token doesn't have a sequence ID
         if (!encoding.SequenceIds.Any(s => s.HasValue) || !encoding.SequenceIds[0].HasValue)
         {
             return; // Skip this test
         }
-        
+
         // Act
         var result = encoding.TokenToChars(tokenIndex: 0);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.True(result.Value.Item2.Start >= 0);
-        Assert.True(result.Value.Item2.End > result.Value.Item2.Start);
+    Assert.NotNull(result);
+    Assert.True(result.Value.Chars.Start >= 0);
+    Assert.True(result.Value.Chars.End > result.Value.Chars.Start);
     }
 
     [Fact]
@@ -157,7 +161,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act
         var result = encoding.TokenToChars(tokenIndex: encoding.Length + 10);
 
@@ -170,7 +174,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act
         var result = encoding.TokenToWord(tokenIndex: 0);
 
@@ -189,7 +193,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act
         var result = encoding.TokenToWord(tokenIndex: encoding.Length + 10);
 
@@ -202,7 +206,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Find a special token (usually at start/end for BERT)
         int? specialTokenIndex = null;
         for (int i = 0; i < encoding.Length; i++)
@@ -218,8 +222,11 @@ public class EncodingPositionMappingTests : IDisposable
         if (specialTokenIndex.HasValue)
         {
             var result = encoding.TokenToWord(specialTokenIndex.Value);
-            // Result can be null if special tokens don't have associated word IDs
-            // This is expected behavior
+            Assert.False(result.HasValue, "Special tokens should not be associated with word indices.");
+        }
+        else
+        {
+            Assert.Contains(1u, encoding.SpecialTokensMask);
         }
     }
 
@@ -228,7 +235,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act - First character should map to a token
         var result = encoding.CharToToken(charPosition: 0, sequenceIndex: 0);
 
@@ -246,7 +253,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act - Use a character position way beyond the input
         var result = encoding.CharToToken(charPosition: 100000, sequenceIndex: 0);
 
@@ -259,7 +266,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act - Single sequence, so sequence 1 doesn't exist
         var result = encoding.CharToToken(charPosition: 0, sequenceIndex: 1);
 
@@ -272,19 +279,14 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act
         var result = encoding.CharToWord(charPosition: 0, sequenceIndex: 0);
 
         // Assert - First char should map to a word if word IDs exist
-        if (encoding.WordIds.Any(w => w.HasValue))
+        if (encoding.WordIds.Any(w => w.HasValue) && result.HasValue)
         {
-            // Result may be null if char maps to a special token without word ID
-            // but if it's not null, it should be valid
-            if (result.HasValue)
-            {
-                Assert.True(result >= 0);
-            }
+            Assert.True(result.Value >= 0);
         }
     }
 
@@ -293,7 +295,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world");
-        
+
         // Act
         var result = encoding.CharToWord(charPosition: 100000, sequenceIndex: 0);
 
@@ -306,7 +308,7 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world test");
-        
+
         // Find a valid word index
         var validWordId = encoding.WordIds.FirstOrDefault(w => w.HasValue);
         if (!validWordId.HasValue) return; // Skip if no word IDs
@@ -316,7 +318,7 @@ public class EncodingPositionMappingTests : IDisposable
         Assert.NotNull(tokenRange);
 
         var backToWord = encoding.TokenToWord(tokenRange.Value.StartToken);
-        
+
         // Assert
         Assert.NotNull(backToWord);
         Assert.Equal(validWordId.Value, backToWord.Value.WordIndex);
@@ -327,14 +329,14 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("Hello world test");
-        
+
         // Act - Token -> Chars -> Token
         var charOffsets = encoding.TokenToChars(tokenIndex: 0);
-        
+
         // Assert - Only test if sequence IDs are available
         if (charOffsets.HasValue)
         {
-            var backToToken = encoding.CharToToken(charOffsets.Value.Item2.Start, charOffsets.Value.SequenceIndex);
+            var backToToken = encoding.CharToToken(charOffsets.Value.Chars.Start, charOffsets.Value.SequenceIndex);
             Assert.NotNull(backToToken);
             Assert.Equal(0, backToToken.Value);
         }
@@ -345,13 +347,13 @@ public class EncodingPositionMappingTests : IDisposable
     {
         // Arrange
         var encoding = _tokenizer.Encode("First sentence", "Second sentence");
-        
+
         // Act - Check that we have multiple sequence indices
         var uniqueSequences = encoding.SequenceIds.Distinct().Count();
-        
+
         // Assert
         Assert.True(uniqueSequences > 1, "Sequence pair should have multiple sequence indices");
-        
+
         // Verify sequence index mapping works
         for (int i = 0; i < encoding.Length; i++)
         {
@@ -362,4 +364,27 @@ public class EncodingPositionMappingTests : IDisposable
             }
         }
     }
+
+        private static string GetTokenizerPath()
+        {
+            var root = GetBenchmarksDataRoot();
+            return Path.Combine(root, "bert-base-uncased", "tokenizer.json");
+        }
+
+        private static string GetBenchmarksDataRoot()
+        {
+            var directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (directory is not null)
+            {
+                var solutionCandidate = Path.Combine(directory.FullName, SolutionFileName);
+                if (File.Exists(solutionCandidate))
+                {
+                    return Path.Combine(directory.FullName, "tests", "_TestData");
+                }
+
+                directory = directory.Parent;
+            }
+
+            throw new InvalidOperationException("Unable to locate repository root from test context.");
+        }
 }

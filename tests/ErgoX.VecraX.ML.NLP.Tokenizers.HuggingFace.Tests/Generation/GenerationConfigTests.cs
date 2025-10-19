@@ -9,8 +9,10 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
+[Trait(TestCategories.Category, TestCategories.Integration)]
 public sealed class GenerationConfigTests
 {
     private const string SolutionFileName = "TokenX.HF.sln";

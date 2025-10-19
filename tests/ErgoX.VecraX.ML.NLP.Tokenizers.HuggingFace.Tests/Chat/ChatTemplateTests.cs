@@ -9,8 +9,10 @@ using System.Text.Json.Nodes;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
 using ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
+[Trait(TestCategories.Category, TestCategories.Integration)]
 public sealed class ChatTemplateTests
 {
     private const string ChatFixtureFileName = "chat-template.json";

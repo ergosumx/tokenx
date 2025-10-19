@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
+[Trait(TestCategories.Category, TestCategories.Unit)]
 public sealed class GenerationContractsTests
 {
     [Fact]
