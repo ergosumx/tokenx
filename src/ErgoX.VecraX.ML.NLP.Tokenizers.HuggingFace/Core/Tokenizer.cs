@@ -88,6 +88,36 @@ public sealed class Tokenizer : ITokenizer
         return NativeTokenizerHandle.Create(jsonConfig);
     }
 
+    internal static string NormalizeGenerationConfig(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new ArgumentException("Generation configuration JSON must be provided.", nameof(json));
+        }
+
+        var nativeResult = NativeMethods.TokenizersNormalizeGenerationConfig(json, out var status);
+        try
+        {
+            if (nativeResult == IntPtr.Zero || status != 0)
+            {
+                var details = NativeMethods.GetLastErrorMessage();
+                var message = details is null
+                    ? "Generation configuration normalization failed."
+                    : $"Generation configuration normalization failed: {details}";
+                throw new InvalidOperationException(message);
+            }
+
+            return Marshal.PtrToStringUTF8(nativeResult) ?? string.Empty;
+        }
+        finally
+        {
+            if (nativeResult != IntPtr.Zero)
+            {
+                NativeMethods.FreeString(nativeResult);
+            }
+        }
+    }
+
     public void Save(string path, bool pretty = false)
     {
         if (string.IsNullOrWhiteSpace(path))

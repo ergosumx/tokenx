@@ -112,6 +112,9 @@ internal static partial class NativeMethods
         [MarshalAs(UnmanagedType.Bool)] bool addGenerationPrompt,
         out int status);
 
+    [LibraryImport(LibraryName, EntryPoint = "tokenizers_normalize_generation_config", StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial IntPtr TokenizersNormalizeGenerationConfig(string source, out int status);
+
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_free_string")]
     internal static partial void FreeString(IntPtr str);
 

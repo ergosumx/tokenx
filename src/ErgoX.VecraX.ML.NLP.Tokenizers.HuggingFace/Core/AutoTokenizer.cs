@@ -7,6 +7,7 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
@@ -17,12 +18,14 @@ public sealed class AutoTokenizer : IDisposable
         Tokenizer tokenizer,
         TokenizerConfig? tokenizerConfig,
         SpecialTokensMap? specialTokens,
+        GenerationConfig? generationConfig,
         string basePath,
         AutoTokenizerLoadOptions options)
     {
         Tokenizer = tokenizer;
         TokenizerConfig = tokenizerConfig;
         SpecialTokens = specialTokens;
+        GenerationConfig = generationConfig;
         BasePath = basePath;
         Options = options;
     }
@@ -33,11 +36,15 @@ public sealed class AutoTokenizer : IDisposable
 
     public SpecialTokensMap? SpecialTokens { get; }
 
+    public GenerationConfig? GenerationConfig { get; }
+
     public string BasePath { get; }
 
     public AutoTokenizerLoadOptions Options { get; }
 
     public bool SupportsChatTemplate => !string.IsNullOrEmpty(TokenizerConfig?.ChatTemplate);
+
+    public bool SupportsGenerationDefaults => GenerationConfig is not null;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Factory method returns the disposable instance to the caller.")]
     public static AutoTokenizer Load(string location, AutoTokenizerLoadOptions? options = null)
@@ -79,13 +86,19 @@ public sealed class AutoTokenizer : IDisposable
         {
             var tokenizerConfig = await TryLoadTokenizerConfigAsync(baseDirectory, cancellationToken).ConfigureAwait(false);
             var specialTokens = await TryLoadSpecialTokensAsync(baseDirectory, cancellationToken).ConfigureAwait(false);
+            GenerationConfig? generationConfig = null;
+
+            if (resolvedOptions.LoadGenerationConfig)
+            {
+                generationConfig = await TryLoadGenerationConfigAsync(baseDirectory, cancellationToken).ConfigureAwait(false);
+            }
 
             if (resolvedOptions.ApplyTokenizerDefaults)
             {
                 ApplyTokenizerDefaults(tokenizer, tokenizerConfig);
             }
 
-            return new AutoTokenizer(tokenizer, tokenizerConfig, specialTokens, baseDirectory, resolvedOptions);
+            return new AutoTokenizer(tokenizer, tokenizerConfig, specialTokens, generationConfig, baseDirectory, resolvedOptions);
         }
         catch
         {
@@ -117,6 +130,29 @@ public sealed class AutoTokenizer : IDisposable
 
     public IReadOnlyList<int> ApplyChatTemplateAsTokenIds(IEnumerable<ChatMessage> messages, ChatTemplateOptions? options = null)
         => ApplyChatTemplateAsEncoding(messages, options).Ids;
+
+    public GenerationRequest Generate(string prompt, GenerationOptions? generationOptions = null)
+    {
+        if (prompt is null)
+        {
+            throw new ArgumentNullException(nameof(prompt));
+        }
+
+        var settings = ResolveGenerationSettings(generationOptions);
+        return new GenerationRequest(prompt, settings, null);
+    }
+
+    public GenerationRequest Generate(
+        IEnumerable<ChatMessage> messages,
+        ChatTemplateOptions? chatOptions = null,
+        GenerationOptions? generationOptions = null)
+    {
+        var resolvedMessages = MaterializeMessages(messages);
+        var resolvedChatOptions = chatOptions ?? new ChatTemplateOptions();
+        var prompt = RenderChatTemplate(resolvedMessages, resolvedChatOptions);
+        var settings = ResolveGenerationSettings(generationOptions);
+        return new GenerationRequest(prompt, settings, resolvedMessages);
+    }
 
     private static async Task<TokenizerConfig?> TryLoadTokenizerConfigAsync(string baseDirectory, CancellationToken cancellationToken)
     {
@@ -152,6 +188,46 @@ public sealed class AutoTokenizer : IDisposable
 
         var json = Encoding.UTF8.GetString(bytes);
         return SpecialTokensMap.FromJson(json);
+    }
+
+    private static async Task<GenerationConfig?> TryLoadGenerationConfigAsync(string baseDirectory, CancellationToken cancellationToken)
+    {
+        var path = Path.Combine(baseDirectory, "generation_config.json");
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+
+        var bytes = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(false);
+        if (bytes.Length == 0)
+        {
+            return null;
+        }
+
+        var json = Encoding.UTF8.GetString(bytes);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        string normalized;
+        try
+        {
+            normalized = Tokenizer.NormalizeGenerationConfig(json);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to normalize generation configuration at '{path}'.", ex);
+        }
+
+        try
+        {
+            return GenerationConfig.FromJson(normalized);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to parse generation configuration at '{path}'.", ex);
+        }
     }
 
     private static void ApplyTokenizerDefaults(Tokenizer tokenizer, TokenizerConfig? config)
@@ -248,6 +324,16 @@ public sealed class AutoTokenizer : IDisposable
         return candidate;
     }
 
+    private GenerationSettings ResolveGenerationSettings(GenerationOptions? generationOptions)
+    {
+        if (GenerationConfig is null)
+        {
+            throw new InvalidOperationException("The tokenizer does not provide generation defaults.");
+        }
+
+        return GenerationConfig.BuildSettings(generationOptions);
+    }
+
     private static IReadOnlyDictionary<string, JsonNode?>? BuildVariablesSnapshot(ChatTemplateOptions options)
     {
         if (options.AdditionalVariables.Count == 0)
@@ -273,4 +359,6 @@ public sealed class AutoTokenizer : IDisposable
 public sealed class AutoTokenizerLoadOptions
 {
     public bool ApplyTokenizerDefaults { get; set; } = true;
+
+    public bool LoadGenerationConfig { get; set; } = true;
 }
