@@ -1,0 +1,3 @@
+[submodule ".ext/sentencepiece"]
+	path = .ext/sentencepiece
+	url = https://github.com/ergosumx/sentencepiece.git
