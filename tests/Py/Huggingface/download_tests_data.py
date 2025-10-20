@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from generate_benchmarks import (
+    BENCHMARK_MODEL_IDS,
     DEFAULT_OUTPUT_DIR,
     MODEL_SPECS,
     ensure_model_assets,
@@ -24,7 +25,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         dest="models",
         action="append",
         choices=sorted(MODEL_SPECS.keys()),
-        help="Model identifier to download (defaults to all models).",
+        help=(
+            "Model identifier to download (defaults to models with fast tokenizer support used by benchmarks)."
+        ),
     )
     parser.add_argument(
         "--output-dir",
@@ -47,7 +50,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    models = args.models or sorted(MODEL_SPECS.keys())
+    models = args.models or list(BENCHMARK_MODEL_IDS)
 
     ensure_repo_venv(require_repo_venv=not args.allow_system_python)
 

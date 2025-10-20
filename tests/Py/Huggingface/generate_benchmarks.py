@@ -32,9 +32,13 @@ except ImportError as exc:  # pragma: no cover - defensive wiring for missing de
 try:
     from huggingface_hub import hf_hub_download
     try:
-        from huggingface_hub.errors import HfHubHTTPError
+        from huggingface_hub.errors import EntryNotFoundError, HfHubHTTPError
     except ImportError:  # pragma: no cover - compatibility shim for older hubs
         from huggingface_hub import HfHubHTTPError  # type: ignore[attr-defined]
+        try:
+            from huggingface_hub import EntryNotFoundError  # type: ignore[attr-defined]
+        except ImportError:  # pragma: no cover - final fallback for very old hubs
+            EntryNotFoundError = HfHubHTTPError  # type: ignore[assignment]
 except ImportError as exc:  # pragma: no cover - defensive wiring for missing deps
     raise SystemExit(
         "The 'huggingface_hub' package is required. Activate the workspace .venv and install dependencies."
@@ -104,6 +108,7 @@ class ModelSpec:
     optional_files: Sequence[str] = field(default_factory=tuple)
     revision: str | None = None
     trust_remote_code: bool = False
+    supports_fast_tokenizer: bool = True
 
 
 @dataclass(frozen=True)
@@ -198,12 +203,6 @@ MODEL_SPECS: Dict[str, ModelSpec] = {
         repo_id="openai/whisper-medium",
         required_files=("tokenizer.json",),
         optional_files=("vocab.json", "merges.txt", "special_tokens_map.json"),
-    ),
-    "facebook-wav2vec2-base-960h": ModelSpec(
-        name="Wav2Vec2 Base 960h",
-        repo_id="facebook/wav2vec2-base-960h",
-        required_files=("tokenizer.json",),
-        optional_files=("vocab.json", "merges.txt"),
     ),
     # Computer vision OCR tokenizers
     "microsoft-trocr-base-handwritten": ModelSpec(
@@ -347,6 +346,10 @@ MODEL_SPECS: Dict[str, ModelSpec] = {
         optional_files=("tokenizer_config.json", "special_tokens_map.json", "tokenizer.model"),
     ),
 }
+
+BENCHMARK_MODEL_IDS: Tuple[str, ...] = tuple(
+    sorted(name for name, spec in MODEL_SPECS.items() if spec.supports_fast_tokenizer)
+)
 
 CHAT_SYSTEM_PROMPT = (
     "You are a compliance co-pilot guiding investigators through telemetry anomalies and policy drift."
@@ -581,7 +584,9 @@ def ensure_model_assets(model: str, spec: ModelSpec, output_root: Path, force: b
             )
         except HfHubHTTPError as exc:
             status = getattr(getattr(exc, "response", None), "status_code", None)
-            if status == 404 and (not required or allow_missing):
+            is_missing = status == 404 or isinstance(exc, EntryNotFoundError)
+            is_unauthorized = status in {401, 403}
+            if (is_missing or (is_unauthorized and not required)) and (not required or allow_missing):
                 return False
 
             raise RuntimeError(
@@ -759,7 +764,7 @@ def normalize_special_tokens_map(map_path: Path) -> None:
 
     tokens = payload.get("additional_special_tokens")
     if isinstance(tokens, list):
-        normalized_tokens: List[Dict[str, Any]] = []
+        normalized_tokens: List[str] = []
         for item in tokens:
             normalized = _normalize_token_definition(item)
             if normalized is None:
@@ -776,15 +781,16 @@ def normalize_special_tokens_map(map_path: Path) -> None:
         map_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _normalize_token_definition(node: Any) -> Dict[str, Any] | None:
+def _normalize_token_definition(node: Any) -> str | None:
     if node is None:
         return None
 
     if isinstance(node, dict):
-        return node
+        content = node.get("content")
+        return content if isinstance(content, str) else None
 
     if isinstance(node, str):
-        return {"content": node}
+        return node
 
     return None
 
@@ -1070,6 +1076,11 @@ def run(models: Sequence[str], output_dir: Path, force_download: bool, require_r
     cases = build_cases()
     for model in models:
         spec = MODEL_SPECS[model]
+        if not spec.supports_fast_tokenizer:
+            print(
+                f"Skipping {model}: fast tokenizer assets are not available for benchmark generation."
+            )
+            continue
         resolved_assets = ensure_model_assets(model, spec, output_dir, force_download)
         if "tokenizer.json" not in resolved_assets:
             raise FileNotFoundError(
@@ -1104,7 +1115,9 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         dest="models",
         action="append",
         choices=sorted(MODEL_SPECS.keys()),
-        help="Model identifier to process. Can be supplied multiple times (defaults to all models).",
+        help=(
+            "Model identifier to process. Can be supplied multiple times (defaults to models with fast tokenizer support)."
+        ),
     )
     parser.add_argument(
         "--output-dir",
@@ -1127,7 +1140,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    models = args.models or sorted(MODEL_SPECS.keys())
+    models = args.models or list(BENCHMARK_MODEL_IDS)
     try:
         run(
             models=models,
