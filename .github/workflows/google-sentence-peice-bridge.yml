@@ -1,30 +1,78 @@
 name: Build Multi-Platform SentencePiece
 
 on:
+  push:
+    tags:
+      - 'sp-v*'
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (e.g., v1.0.0)"
-        required: true
-        default: "v1.0.0"
-  push:
-    tags:
-      - "v*.*.*"
+        description: 'Version number without the sp- prefix (optional for manual runs)'
+        required: false
+        type: string
 
 env:
   CMAKE_BUILD_TYPE: Release
   BUILD_SHARED_LIBS: ON
+  SENTENCEPIECE_DIR: .ext/sentencepiece
 
 jobs:
+  prepare:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve-version.outputs.version }}
+    steps:
+      - name: Resolve release version
+        id: resolve-version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${INPUT_VERSION}"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            if [[ "${GITHUB_REF_NAME}" == sp-* ]]; then
+              version="${GITHUB_REF_NAME#sp-}"
+            else
+              echo "Tag ${GITHUB_REF_NAME} is not prefixed with sp-." >&2
+              exit 1
+            fi
+          fi
+
+          if [[ -z "${version}" ]]; then
+            echo "Version must be provided via sp-* tag or manual input." >&2
+            exit 1
+          fi
+
+          if [[ "${version}" != v* ]]; then
+            version="v${version}"
+          fi
+
+          echo "Resolved version: ${version}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
   # ============================================
   # Linux x64
   # ============================================
   build-linux-x64:
     name: Build Linux x64
     runs-on: ubuntu-latest
+    needs: prepare
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Sync SentencePiece source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule update --init --recursive "${SENTENCEPIECE_DIR}"
+          pushd "${SENTENCEPIECE_DIR}"
+          git fetch origin --tags
+          git checkout "${VERSION}"
+          popd
 
       - name: Install dependencies
         run: |
@@ -32,10 +80,13 @@ jobs:
           sudo apt-get install -y cmake build-essential
 
       - name: Build SentencePiece
+        shell: bash
         run: |
-          mkdir build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DSPM_ENABLE_SHARED=ON
-          make -j$(nproc)
+          set -euo pipefail
+          BUILD_DIR="${SENTENCEPIECE_DIR}/build"
+          rm -rf "${BUILD_DIR}"
+          cmake -S "${SENTENCEPIECE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DSPM_ENABLE_SHARED=ON -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+          cmake --build "${BUILD_DIR}" --parallel $(nproc)
 
       - name: Prepare artifacts
         run: |
@@ -45,16 +96,16 @@ jobs:
           while IFS= read -r file; do
             cp "$file" artifacts/linux-x64/native/
             copied=true
-          done < <(find build -type f -name "libsentencepiece_c*.so*" -print)
+          done < <(find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_c*.so*" -print)
 
           if [ "$copied" = false ]; then
             echo "❌ libsentencepiece_c not found in build output" >&2
-            find build -type f -name "*sentencepiece*"
+            find "${SENTENCEPIECE_DIR}/build" -type f -name "*sentencepiece*"
             exit 1
           fi
 
           # Include canonical SentencePiece library for reference
-          find build -type f -name "libsentencepiece.so*" -exec cp {} artifacts/linux-x64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.so*" -exec cp {} artifacts/linux-x64/native/ \; || true
           ls -lh artifacts/linux-x64/native/
 
       - name: Upload artifact
@@ -69,9 +120,22 @@ jobs:
   build-windows-x64:
     name: Build Windows x64
     runs-on: windows-latest
+    needs: prepare
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Sync SentencePiece source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule update --init --recursive "${SENTENCEPIECE_DIR}"
+          pushd "${SENTENCEPIECE_DIR}"
+          git fetch origin --tags
+          git checkout "${VERSION}"
+          popd
 
       - name: Setup MSVC
         uses: microsoft/setup-msbuild@v2
@@ -79,20 +143,23 @@ jobs:
       - name: Build SentencePiece
         shell: pwsh
         run: |
-          mkdir build
-          cd build
-          cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
-          cmake --build . --config Release --parallel
+          $source = Resolve-Path $env:SENTENCEPIECE_DIR
+          $buildDir = Join-Path $source 'build'
+          if (Test-Path $buildDir) { Remove-Item $buildDir -Recurse -Force }
+          cmake -S $source -B $buildDir -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=$env:BUILD_SHARED_LIBS
+          cmake --build $buildDir --config Release --parallel
 
       - name: Prepare artifacts
         shell: pwsh
         run: |
+          $source = Resolve-Path $env:SENTENCEPIECE_DIR
+          $buildDir = Join-Path $source 'build'
           New-Item -ItemType Directory -Force -Path artifacts/win-x64/native
           # Ensure the C facade is available
-          $cFacade = @(Get-ChildItem -Path build -Recurse -Filter "sentencepiece_c*.dll" -ErrorAction SilentlyContinue)
+          $cFacade = @(Get-ChildItem -Path $buildDir -Recurse -Filter "sentencepiece_c*.dll" -ErrorAction SilentlyContinue)
           if ($cFacade.Count -eq 0) {
             Write-Host "❌ Error: sentencepiece_c DLL not found!"
-            Get-ChildItem -Path build -Recurse -Filter "*.dll" | ForEach-Object {
+            Get-ChildItem -Path $buildDir -Recurse -Filter "*.dll" | ForEach-Object {
               Write-Host "Available DLL: $($_.FullName)"
             }
             exit 1
@@ -104,7 +171,7 @@ jobs:
           }
 
           # Ship the canonical SentencePiece DLL as well when available
-          $coreDlls = @(Get-ChildItem -Path build -Recurse -Filter "sentencepiece.dll" -ErrorAction SilentlyContinue)
+          $coreDlls = @(Get-ChildItem -Path $buildDir -Recurse -Filter "sentencepiece.dll" -ErrorAction SilentlyContinue)
           $coreDlls | ForEach-Object {
             Copy-Item $_.FullName artifacts/win-x64/native/ -ErrorAction SilentlyContinue
           }
@@ -122,9 +189,22 @@ jobs:
   build-macos-x64:
     name: Build macOS x64
     runs-on: macos-latest
+    needs: prepare
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Sync SentencePiece source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule update --init --recursive "${SENTENCEPIECE_DIR}"
+          pushd "${SENTENCEPIECE_DIR}"
+          git fetch origin --tags
+          git checkout "${VERSION}"
+          popd
 
       - name: Install dependencies
         run: |
@@ -132,12 +212,14 @@ jobs:
 
       - name: Build SentencePiece
         run: |
-          mkdir build && cd build
-          cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
+          set -euo pipefail
+          BUILD_DIR="${SENTENCEPIECE_DIR}/build"
+          rm -rf "${BUILD_DIR}"
+          cmake -S "${SENTENCEPIECE_DIR}" -B "${BUILD_DIR}" \
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
             -DSPM_ENABLE_SHARED=ON \
             -DCMAKE_OSX_ARCHITECTURES=x86_64
-          make -j$(sysctl -n hw.ncpu)
+          cmake --build "${BUILD_DIR}" --parallel $(sysctl -n hw.ncpu)
 
       - name: Prepare artifacts
         run: |
@@ -147,15 +229,15 @@ jobs:
           while IFS= read -r file; do
             cp "$file" artifacts/osx-x64/native/
             copied=true
-          done < <(find build -type f -name "libsentencepiece_c*.dylib" -print)
+          done < <(find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_c*.dylib" -print)
 
           if [ "$copied" = false ]; then
             echo "❌ libsentencepiece_c.dylib not found" >&2
-            find build -type f -name "*sentencepiece*"
+            find "${SENTENCEPIECE_DIR}/build" -type f -name "*sentencepiece*"
             exit 1
           fi
 
-          find build -type f -name "libsentencepiece.dylib" -exec cp {} artifacts/osx-x64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.dylib" -exec cp {} artifacts/osx-x64/native/ \; || true
           ls -lh artifacts/osx-x64/native/
 
       - name: Upload artifact
@@ -170,9 +252,22 @@ jobs:
   build-macos-arm64:
     name: Build macOS ARM64
     runs-on: macos-latest
+    needs: prepare
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Sync SentencePiece source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule update --init --recursive "${SENTENCEPIECE_DIR}"
+          pushd "${SENTENCEPIECE_DIR}"
+          git fetch origin --tags
+          git checkout "${VERSION}"
+          popd
 
       - name: Install dependencies
         run: |
@@ -180,12 +275,14 @@ jobs:
 
       - name: Build SentencePiece
         run: |
-          mkdir build && cd build
-          cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
+          set -euo pipefail
+          BUILD_DIR="${SENTENCEPIECE_DIR}/build"
+          rm -rf "${BUILD_DIR}"
+          cmake -S "${SENTENCEPIECE_DIR}" -B "${BUILD_DIR}" \
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
             -DSPM_ENABLE_SHARED=ON \
             -DCMAKE_OSX_ARCHITECTURES=arm64
-          make -j$(sysctl -n hw.ncpu)
+          cmake --build "${BUILD_DIR}" --parallel $(sysctl -n hw.ncpu)
 
       - name: Prepare artifacts
         run: |
@@ -195,15 +292,15 @@ jobs:
           while IFS= read -r file; do
             cp "$file" artifacts/osx-arm64/native/
             copied=true
-          done < <(find build -type f -name "libsentencepiece_c*.dylib" -print)
+          done < <(find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_c*.dylib" -print)
 
           if [ "$copied" = false ]; then
             echo "❌ libsentencepiece_c.dylib not found" >&2
-            find build -type f -name "*sentencepiece*"
+            find "${SENTENCEPIECE_DIR}/build" -type f -name "*sentencepiece*"
             exit 1
           fi
 
-          find build -type f -name "libsentencepiece.dylib" -exec cp {} artifacts/osx-arm64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.dylib" -exec cp {} artifacts/osx-arm64/native/ \; || true
           ls -lh artifacts/osx-arm64/native/
 
       - name: Upload artifact
@@ -218,9 +315,22 @@ jobs:
   build-android-arm64:
     name: Build Android ARM64
     runs-on: ubuntu-latest
+    needs: prepare
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Sync SentencePiece source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule update --init --recursive "${SENTENCEPIECE_DIR}"
+          pushd "${SENTENCEPIECE_DIR}"
+          git fetch origin --tags
+          git checkout "${VERSION}"
+          popd
 
       - name: Setup Android NDK
         run: |
@@ -232,16 +342,18 @@ jobs:
 
       - name: Build SentencePiece
         run: |
-          mkdir build && cd build
-          cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
+          set -euo pipefail
+          BUILD_DIR="${SENTENCEPIECE_DIR}/build"
+          rm -rf "${BUILD_DIR}"
+          cmake -S "${SENTENCEPIECE_DIR}" -B "${BUILD_DIR}" \
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
             -DSPM_ENABLE_SHARED=ON \
             -DCMAKE_SYSTEM_NAME=Android \
             -DCMAKE_SYSTEM_VERSION=21 \
             -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \
             -DCMAKE_ANDROID_NDK=$ANDROID_NDK_HOME \
             -DCMAKE_ANDROID_STL_TYPE=c++_shared
-          make -j$(nproc)
+          cmake --build "${BUILD_DIR}" --parallel $(nproc)
 
       - name: Prepare artifacts
         run: |
@@ -251,15 +363,15 @@ jobs:
           while IFS= read -r file; do
             cp "$file" artifacts/android-arm64/native/
             copied=true
-          done < <(find build -type f -name "libsentencepiece_c*.so" -print)
+          done < <(find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_c*.so" -print)
 
           if [ "$copied" = false ]; then
             echo "❌ libsentencepiece_c.so not found" >&2
-            find build -type f -name "*sentencepiece*"
+            find "${SENTENCEPIECE_DIR}/build" -type f -name "*sentencepiece*"
             exit 1
           fi
 
-          find build -type f -name "libsentencepiece.so" -exec cp {} artifacts/android-arm64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.so" -exec cp {} artifacts/android-arm64/native/ \; || true
           ls -lh artifacts/android-arm64/native/
 
       - name: Upload artifact
@@ -274,9 +386,22 @@ jobs:
   build-ios-arm64:
     name: Build iOS ARM64
     runs-on: macos-latest
+    needs: prepare
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Sync SentencePiece source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule update --init --recursive "${SENTENCEPIECE_DIR}"
+          pushd "${SENTENCEPIECE_DIR}"
+          git fetch origin --tags
+          git checkout "${VERSION}"
+          popd
 
       - name: Install dependencies
         run: |
@@ -284,15 +409,17 @@ jobs:
 
       - name: Build SentencePiece
         run: |
-          mkdir build && cd build
-          cmake .. \
+          set -euo pipefail
+          BUILD_DIR="${SENTENCEPIECE_DIR}/build"
+          rm -rf "${BUILD_DIR}"
+          cmake -S "${SENTENCEPIECE_DIR}" -B "${BUILD_DIR}" \
             -G "Xcode" \
             -DCMAKE_SYSTEM_NAME=iOS \
             -DCMAKE_OSX_ARCHITECTURES=arm64 \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
             -DBUILD_SHARED_LIBS=OFF \
             -DSPM_ENABLE_SHARED=OFF
-          cmake --build . --config Release --parallel
+          cmake --build "${BUILD_DIR}" --config Release --parallel
 
       - name: Prepare artifacts
         run: |
@@ -302,15 +429,15 @@ jobs:
           while IFS= read -r file; do
             cp "$file" artifacts/ios-arm64/native/
             copied=true
-          done < <(find build -type f -name "libsentencepiece_c*.a" -print)
+          done < <(find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_c*.a" -print)
 
           if [ "$copied" = false ]; then
             echo "❌ libsentencepiece_c static library not found" >&2
-            find build -type f -name "*sentencepiece*"
+            find "${SENTENCEPIECE_DIR}/build" -type f -name "*sentencepiece*"
             exit 1
           fi
 
-          find build -type f -name "libsentencepiece.a" -exec cp {} artifacts/ios-arm64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.a" -exec cp {} artifacts/ios-arm64/native/ \; || true
           ls -lh artifacts/ios-arm64/native/
 
       - name: Upload artifact
