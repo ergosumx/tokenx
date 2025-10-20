@@ -155,8 +155,15 @@ jobs:
         run: dotnet build TokenX.HF.sln --configuration Release --no-restore
 
   unit-tests:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest
+    name: Run Unit Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-14]
+    defaults:
+      run:
+        shell: bash
     needs: build
     steps:
       - name: Checkout repository
@@ -177,11 +184,16 @@ jobs:
           mkdir -p "${RUNTIMES_ROOT}"
           tar -xzf runtime-assets/tokenizers-runtimes.tar.gz -C "${RUNTIMES_ROOT}"
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Restore tokenizer fixtures
         shell: bash
         run: |
           set -euo pipefail
-          python3 tests/Py/Huggingface/restore_test_data.py --force
+          python tests/Py/Huggingface/restore_test_data.py --force
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -201,13 +213,20 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: canary-unit-test-results
+          name: canary-unit-test-results-${{ matrix.os }}
           path: tests/**/TestResults/*.trx
           if-no-files-found: ignore
 
   integration-tests:
-    name: Run Integration Tests
-    runs-on: ubuntu-latest
+    name: Run Integration Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-14]
+    defaults:
+      run:
+        shell: bash
     needs: unit-tests
     steps:
       - name: Checkout repository
@@ -228,12 +247,6 @@ jobs:
           mkdir -p "${RUNTIMES_ROOT}"
           tar -xzf runtime-assets/tokenizers-runtimes.tar.gz -C "${RUNTIMES_ROOT}"
 
-      - name: Restore tokenizer fixtures
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 tests/Py/Huggingface/restore_test_data.py --force
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -249,15 +262,34 @@ jobs:
         run: |
           set -euo pipefail
           python -m venv .venv
-          . .venv/bin/activate
+          ACTIVATE=".venv/bin/activate"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            ACTIVATE=".venv/Scripts/activate"
+          fi
+          . "${ACTIVATE}"
           python -m pip install --upgrade pip
           python -m pip install tokenizers huggingface_hub transformers jinja2 sentencepiece protobuf sacremoses
+
+      - name: Restore tokenizer fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTIVATE=".venv/bin/activate"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            ACTIVATE=".venv/Scripts/activate"
+          fi
+          . "${ACTIVATE}"
+          python tests/Py/Huggingface/restore_test_data.py --force
 
       - name: Configure Hugging Face authentication
         shell: bash
         run: |
           set -euo pipefail
-          . .venv/bin/activate
+          ACTIVATE=".venv/bin/activate"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            ACTIVATE=".venv/Scripts/activate"
+          fi
+          . "${ACTIVATE}"
           hf_token="${{ secrets.HF_TOKEN }}"
           if [ -z "$hf_token" ]; then
             echo "HF_TOKEN secret is not configured; skipping Hugging Face login." >&2
@@ -275,14 +307,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          . .venv/bin/activate
+          ACTIVATE=".venv/bin/activate"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            ACTIVATE=".venv/Scripts/activate"
+          fi
+          . "${ACTIVATE}"
           python tests/Py/Huggingface/download_tests_data.py
 
       - name: Generate benchmark corpora
         shell: bash
         run: |
           set -euo pipefail
-          . .venv/bin/activate
+          ACTIVATE=".venv/bin/activate"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            ACTIVATE=".venv/Scripts/activate"
+          fi
+          . "${ACTIVATE}"
           python tests/Py/Huggingface/generate_benchmarks.py
 
       - name: Clear Hugging Face authentication
@@ -290,7 +330,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          . .venv/bin/activate
+          ACTIVATE=".venv/bin/activate"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            ACTIVATE=".venv/Scripts/activate"
+          fi
+          . "${ACTIVATE}"
           python tests/Py/Huggingface/hf_auth.py logout
 
       - name: Run integration tests
@@ -300,7 +344,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: canary-integration-test-results
+          name: canary-integration-test-results-${{ matrix.os }}
           path: tests/**/TestResults/*.trx
           if-no-files-found: ignore
 
