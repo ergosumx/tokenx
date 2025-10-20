@@ -37,7 +37,14 @@ jobs:
           TEMP_DIR="$(mktemp -d)"
 
           shopt -s nullglob
-          for archive in runtime-artifacts/*; do
+          mapfile -d '' -t archives < <(find runtime-artifacts -type f \( -name '*.tar.gz' -o -name '*.zip' \) -print0)
+
+          if [ ${#archives[@]} -eq 0 ]; then
+            echo "No runtime archives found under runtime-artifacts" >&2
+            exit 1
+          fi
+
+          for archive in "${archives[@]}"; do
             base="$(basename "${archive}")"
             stem="${base}"
             workdir="${TEMP_DIR}/${stem}"
