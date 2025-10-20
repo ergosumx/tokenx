@@ -9,6 +9,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
+[Trait(TestCategories.Filter, TestCategories.Unit)]
 public sealed class OptionsContractsUnitTests
 {
     [Fact]

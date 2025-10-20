@@ -13,6 +13,7 @@ using Xunit;
 /// Tests for encoding manipulation methods (Merge, Pad, Truncate).
 /// </summary>
 [Trait(TestCategories.Category, TestCategories.Integration)]
+[Trait(TestCategories.Filter, TestCategories.Integration)]
 public class EncodingManipulationIntegrationTests : IDisposable
 {
     private const string SolutionFileName = "TokenX.HF.sln";

@@ -11,6 +11,7 @@ using Xunit;
 /// Tests for encoding position mapping methods (word/token/char conversions).
 /// </summary>
 [Trait(TestCategories.Category, TestCategories.Integration)]
+[Trait(TestCategories.Filter, TestCategories.Integration)]
 public class EncodingPositionMappingIntegrationTests : IDisposable
 {
     private const string SolutionFileName = "TokenX.HF.sln";

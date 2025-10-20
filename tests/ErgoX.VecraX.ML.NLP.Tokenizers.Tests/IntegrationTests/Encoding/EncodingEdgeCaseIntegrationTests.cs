@@ -8,6 +8,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
+[Trait(TestCategories.Filter, TestCategories.Integration)]
 public sealed class EncodingEdgeCaseIntegrationTests : IDisposable
 {
     private readonly Tokenizer _tokenizer;

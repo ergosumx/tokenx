@@ -15,6 +15,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
+[Trait(TestCategories.Filter, TestCategories.Integration)]
 public sealed class AutoTokenizerIntegrationTests
 {
     private const string ChatModel = "meta-llama-3-8b-instruct";
