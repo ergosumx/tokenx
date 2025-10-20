@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.Collections.Generic;
@@ -6,14 +6,15 @@ using System.IO;
 using System.Linq;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
-[Trait(TestCategories.Category, TestCategories.Unit)]
-public sealed class TokenizerEndToEndTests : IDisposable
+[Trait(TestCategories.Category, TestCategories.Integration)]
+public sealed class TokenizerEndToEndIntegrationTests : IDisposable
 {
     private readonly Tokenizer tokenizer;
 
-    public TokenizerEndToEndTests()
+    public TokenizerEndToEndIntegrationTests()
     {
         var tokenizerPath = TestDataPath.GetModelTokenizerPath("meta-llama-3-8b-instruct");
         tokenizer = Tokenizer.FromFile(tokenizerPath);
@@ -43,11 +44,11 @@ public sealed class TokenizerEndToEndTests : IDisposable
 
         Assert.Equal(2, tupleBatch.Count);
 
-    var decodedBatch = tokenizer.DecodeBatch(batch.Select(result => result.Ids).ToArray());
+        var decodedBatch = tokenizer.DecodeBatch(batch.Select(result => result.Ids).ToArray());
         Assert.Equal(batch.Count, decodedBatch.Count);
         Assert.All(decodedBatch, text => Assert.False(string.IsNullOrWhiteSpace(text)));
 
-    var decodedPairBatch = tokenizer.DecodeBatch(tupleBatch.Select(result => result.Ids).ToArray(), skipSpecialTokens: false);
+        var decodedPairBatch = tokenizer.DecodeBatch(tupleBatch.Select(result => result.Ids).ToArray(), skipSpecialTokens: false);
         Assert.Equal(tupleBatch.Count, decodedPairBatch.Count);
 
         var emptyBatch = tokenizer.EncodeBatch(Array.Empty<string>());

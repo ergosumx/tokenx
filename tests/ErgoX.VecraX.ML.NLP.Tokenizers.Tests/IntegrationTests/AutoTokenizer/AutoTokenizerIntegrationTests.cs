@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.AutoTokenizer;
 
 using System;
 using System.Collections.Generic;
@@ -11,10 +11,11 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
-[Trait(TestCategories.Category, TestCategories.Unit)]
-public sealed class AutoTokenizerUnitTests
+[Trait(TestCategories.Category, TestCategories.Integration)]
+public sealed class AutoTokenizerIntegrationTests
 {
     private const string ChatModel = "meta-llama-3-8b-instruct";
     private const string SimpleModel = "gpt2";
@@ -33,10 +34,10 @@ public sealed class AutoTokenizerUnitTests
             Assert.NotNull(autoTokenizer.SpecialTokens.BosToken);
         }
 
-    var padding = autoTokenizer.Tokenizer.GetPadding();
-    var truncation = autoTokenizer.Tokenizer.GetTruncation();
-    Assert.True(padding is null || padding.Length.HasValue);
-    Assert.True(truncation is null || truncation.MaxLength > 0);
+        var padding = autoTokenizer.Tokenizer.GetPadding();
+        var truncation = autoTokenizer.Tokenizer.GetTruncation();
+        Assert.True(padding is null || padding.Length.HasValue);
+        Assert.True(truncation is null || truncation.MaxLength > 0);
     }
 
     [Fact]
@@ -48,7 +49,7 @@ public sealed class AutoTokenizerUnitTests
             ApplyTokenizerDefaults = false
         };
 
-        var autoTokenizer = await AutoTokenizer.LoadAsync(TestDataPath.GetModelRoot(SimpleModel), options);
+        var autoTokenizer = await AutoTokenizer.LoadAsync(TestDataPath.GetModelRoot(SimpleModel), options).ConfigureAwait(false);
         try
         {
             Assert.False(autoTokenizer.SupportsGenerationDefaults);
@@ -83,7 +84,7 @@ public sealed class AutoTokenizerUnitTests
         Assert.Null(promptRequest.Messages);
         Assert.Equal(0.7, promptRequest.Settings.Temperature);
         Assert.Null(promptRequest.Settings.TopP);
-        Assert.Equal(false, promptRequest.Settings.DoSample);
+        Assert.False(promptRequest.Settings.DoSample);
 
         var defaultStream = autoTokenizer.GenerateStream("Hello world");
         Assert.True(defaultStream.SkipSpecialTokens);
@@ -105,8 +106,8 @@ public sealed class AutoTokenizerUnitTests
         var chatOptionsWithVariable = new ChatTemplateOptions();
         chatOptionsWithVariable.SetVariable("custom", JsonValue.Create("value"));
 
-    var promptWithVariables = autoTokenizer.ApplyChatTemplate(messages, chatOptionsWithVariable);
-    Assert.False(string.IsNullOrWhiteSpace(promptWithVariables));
+        var promptWithVariables = autoTokenizer.ApplyChatTemplate(messages, chatOptionsWithVariable);
+        Assert.False(string.IsNullOrWhiteSpace(promptWithVariables));
 
         var ids = autoTokenizer.ApplyChatTemplateAsTokenIds(messages, chatOptionsWithVariable);
         Assert.NotEmpty(ids);
@@ -119,8 +120,8 @@ public sealed class AutoTokenizerUnitTests
         };
 
         var chatRequest = autoTokenizer.Generate(messages, chatOptionsWithVariable, generationOptions);
-    Assert.Equal(messages.Count, chatRequest.Messages!.Count);
-    Assert.False(string.IsNullOrWhiteSpace(chatRequest.Prompt));
+        Assert.Equal(messages.Count, chatRequest.Messages!.Count);
+        Assert.False(string.IsNullOrWhiteSpace(chatRequest.Prompt));
 
         var streamRequest = autoTokenizer.GenerateStream(messages, chatOptionsWithVariable);
         Assert.NotEmpty(streamRequest.Prompt);

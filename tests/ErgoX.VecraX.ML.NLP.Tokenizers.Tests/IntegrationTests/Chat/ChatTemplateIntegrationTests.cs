@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Chat;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Chat;
 
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
-public sealed class ChatTemplateTests
+public sealed class ChatTemplateIntegrationTests
 {
     private const string ChatFixtureFileName = "chat-template.json";
     private const string SolutionFileName = "TokenX.HF.sln";
@@ -120,68 +120,25 @@ public sealed class ChatTemplateTests
 
     private static ChatMessagePart DeserializePart(JsonElement element)
     {
-        return element.ValueKind switch
+        return element.GetProperty("type").GetString() switch
         {
-            JsonValueKind.String => new ChatTextPart(element.GetString() ?? string.Empty),
-            JsonValueKind.Object => DeserializeObjectPart(element),
-            JsonValueKind.Array => new ChatGenericPart((JsonObject?)JsonNode.Parse(element.GetRawText()) ?? new JsonObject()),
-            JsonValueKind.Null => new ChatTextPart(string.Empty),
-            _ => new ChatTextPart(element.GetRawText())
+            "text" => new ChatTextPart(element.GetProperty("text").GetString() ?? string.Empty),
+            "image_url" => new ChatImageUrlPart(
+                element.GetProperty("image_url").GetProperty("url").GetString() ?? string.Empty,
+                element.GetProperty("image_url").TryGetProperty("mime_type", out var mime)
+                    ? mime.GetString()
+                    : null),
+            _ => throw new InvalidOperationException($"Unsupported chat message part type '{element.GetProperty("type").GetString()}'.")
         };
     }
 
-    private static ChatMessagePart[] MaterializeParts(JsonElement array)
+    private static IEnumerable<ChatMessagePart> MaterializeParts(JsonElement array)
     {
-        var parts = new List<ChatMessagePart>();
         using var enumerator = array.EnumerateArray();
         while (enumerator.MoveNext())
         {
-            parts.Add(DeserializePart(enumerator.Current));
+            yield return DeserializePart(enumerator.Current);
         }
-
-        return parts.ToArray();
-    }
-
-    private static ChatMessagePart DeserializeObjectPart(JsonElement element)
-    {
-        var node = JsonNode.Parse(element.GetRawText()) as JsonObject
-                   ?? throw new InvalidOperationException("Unable to parse chat message part payload into a JSON object.");
-
-        if (!node.TryGetPropertyValue("type", out var typeNode) || typeNode is not JsonValue typeValue || !typeValue.TryGetValue<string>(out var typeName))
-        {
-            return new ChatGenericPart(node);
-        }
-
-        if (string.Equals(typeName, "text", StringComparison.OrdinalIgnoreCase))
-        {
-            if (node.TryGetPropertyValue("text", out var textNode) && textNode is JsonValue textValue && textValue.TryGetValue<string>(out var text))
-            {
-                return new ChatTextPart(text);
-            }
-
-            return new ChatTextPart(string.Empty);
-        }
-
-        if (string.Equals(typeName, "image_url", StringComparison.OrdinalIgnoreCase)
-            && node.TryGetPropertyValue("image_url", out var imageNode)
-            && imageNode is JsonObject imageObject)
-        {
-            var url = TryGetString(imageObject, "url") ?? string.Empty;
-            var mimeType = TryGetString(imageObject, "mime_type");
-            return new ChatImageUrlPart(url, mimeType);
-        }
-
-        return new ChatGenericPart(node);
-    }
-
-    private static string? TryGetString(JsonObject payload, string key)
-    {
-        if (!payload.TryGetPropertyValue(key, out var candidate) || candidate is not JsonValue value)
-        {
-            return null;
-        }
-
-        return value.TryGetValue<string>(out var result) ? result : null;
     }
 
     private static string GetBenchmarksDataRoot()

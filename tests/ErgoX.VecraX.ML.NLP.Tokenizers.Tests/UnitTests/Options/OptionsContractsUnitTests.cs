@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Options;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Options;
 
 using System;
 using System.Text.Json;
@@ -9,7 +9,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
-public sealed class OptionsContractsTests
+public sealed class OptionsContractsUnitTests
 {
     [Fact]
     public void AddedToken_validates_and_clones()
@@ -134,7 +134,7 @@ public sealed class OptionsContractsTests
     [Fact]
     public void TokenizerConfig_parses_added_tokens_into_vocab()
     {
-    const string json = "{\"model\":{\"vocab\":{},\"unk_token\":\"<eos>\"},\"added_tokens\":[{\"id\":10,\"content\":\"<eos>\"}],\"model_max_length\":512}";
+        const string json = "{\"model\":{\"vocab\":{},\"unk_token\":\"<eos>\"},\"added_tokens\":[{\"id\":10,\"content\":\"<eos>\"}],\"model_max_length\":512}";
         var config = TokenizerConfig.FromJson(json);
         Assert.Equal(512, config.ModelMaxLength);
         Assert.Equal(10, config.Vocab["<eos>"]);

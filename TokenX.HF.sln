@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErgoX.VecraX.ML.NLP.Tokenizers", "src\ErgoX.VecraX.ML.NLP.Tokenizers\ErgoX.VecraX.ML.NLP.Tokenizers.csproj", "{26648CFC-9D20-421B-BD94-F1A93161F233}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests", "tests\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.csproj", "{73D2303D-0C38-447F-AFE1-F2D9FBE28805}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErgoX.VecraX.ML.NLP.Tokenizers.Tests", "tests\ErgoX.VecraX.ML.NLP.Tokenizers.Tests\ErgoX.VecraX.ML.NLP.Tokenizers.Tests.csproj", "{73D2303D-0C38-447F-AFE1-F2D9FBE28805}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

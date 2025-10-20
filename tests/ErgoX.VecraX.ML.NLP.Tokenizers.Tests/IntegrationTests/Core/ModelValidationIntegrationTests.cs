@@ -1,13 +1,15 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Core;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Core;
 
 using System;
 using System.IO;
 using System.Text.Json;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
-public static class ModelValidationTests
+[Trait(TestCategories.Category, TestCategories.Integration)]
+public static class ModelValidationIntegrationTests
 {
     [Fact]
     public static void BpeModel_InvalidDropout_Throws()

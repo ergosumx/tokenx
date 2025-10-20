@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.Collections.Generic;
@@ -13,12 +13,12 @@ using Xunit;
 /// Tests for encoding manipulation methods (Merge, Pad, Truncate).
 /// </summary>
 [Trait(TestCategories.Category, TestCategories.Integration)]
-public class EncodingManipulationTests : IDisposable
+public class EncodingManipulationIntegrationTests : IDisposable
 {
     private const string SolutionFileName = "TokenX.HF.sln";
     private readonly Tokenizer _tokenizer;
 
-    public EncodingManipulationTests()
+    public EncodingManipulationIntegrationTests()
     {
         _tokenizer = Tokenizer.FromFile(GetTokenizerPath());
     }

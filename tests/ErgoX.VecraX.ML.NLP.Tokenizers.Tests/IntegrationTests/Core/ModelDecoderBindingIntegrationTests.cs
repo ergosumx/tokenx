@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Core;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Core;
 
 using System;
 using System.IO;
@@ -7,13 +7,15 @@ using System.Text.Json.Nodes;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
-public sealed class ModelDecoderBindingTests : IDisposable
+[Trait(TestCategories.Category, TestCategories.Integration)]
+public sealed class ModelDecoderBindingIntegrationTests : IDisposable
 {
     private readonly Tokenizer _tokenizer;
 
-    public ModelDecoderBindingTests()
+    public ModelDecoderBindingIntegrationTests()
     {
         _tokenizer = Tokenizer.FromFile(TestDataPath.GetModelTokenizerPath("gpt2"));
     }
@@ -64,12 +66,12 @@ public sealed class ModelDecoderBindingTests : IDisposable
     {
         var root = TestDataPath.GetModelRoot("bert-base-uncased");
         var vocabPath = Path.Combine(root, "vocab.txt");
-    using var model = new WordPieceModel(vocabPath, new WordPieceModelOptions { ContinuingSubwordPrefix = "@@", MaxInputCharsPerWord = 150 });
+        using var model = new WordPieceModel(vocabPath, new WordPieceModelOptions { ContinuingSubwordPrefix = "@@", MaxInputCharsPerWord = 150 });
 
         Assert.Equal("WordPiece", model.Type);
 
         var serialized = JsonDocument.Parse(model.ToJson()).RootElement;
-    Assert.Equal("@@", serialized.GetProperty("continuing_subword_prefix").GetString());
+        Assert.Equal("@@", serialized.GetProperty("continuing_subword_prefix").GetString());
         Assert.Equal(150, serialized.GetProperty("max_input_chars_per_word").GetInt32());
     }
 

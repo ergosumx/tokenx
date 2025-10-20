@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.Collections.Generic;
@@ -8,12 +8,12 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
-[Trait(TestCategories.Category, TestCategories.Unit)]
-public sealed class EncodingResultOperationsTests : IDisposable
+[Trait(TestCategories.Category, TestCategories.Integration)]
+public sealed class EncodingResultOperationsIntegrationTests : IDisposable
 {
     private readonly Tokenizer tokenizer;
 
-    public EncodingResultOperationsTests()
+    public EncodingResultOperationsIntegrationTests()
     {
         tokenizer = Tokenizer.FromFile(TestDataPath.GetModelTokenizerPath("gpt2"));
     }

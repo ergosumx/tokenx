@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Encoding;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.IO;
@@ -11,12 +11,12 @@ using Xunit;
 /// Tests for encoding position mapping methods (word/token/char conversions).
 /// </summary>
 [Trait(TestCategories.Category, TestCategories.Integration)]
-public class EncodingPositionMappingTests : IDisposable
+public class EncodingPositionMappingIntegrationTests : IDisposable
 {
     private const string SolutionFileName = "TokenX.HF.sln";
     private readonly Tokenizer _tokenizer;
 
-    public EncodingPositionMappingTests()
+    public EncodingPositionMappingIntegrationTests()
     {
         _tokenizer = Tokenizer.FromFile(GetTokenizerPath());
     }

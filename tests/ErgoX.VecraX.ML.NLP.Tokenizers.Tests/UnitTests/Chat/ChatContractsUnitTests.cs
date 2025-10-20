@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Chat;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Chat;
 
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
-public sealed class ChatContractsTests
+public sealed class ChatContractsUnitTests
 {
     [Fact]
     public void ChatMessage_from_text_assigns_defaults()
@@ -23,12 +23,12 @@ public sealed class ChatContractsTests
         Assert.Equal("user", message.Role);
         Assert.Equal("hello", message.Content);
         Assert.Empty(message.Parts);
-    Assert.Equal("vecrax", message.Metadata["tenant"]?.GetValue<string>());
+        Assert.Equal("vecrax", message.Metadata["tenant"]?.GetValue<string>());
 
-    metadata["tenant"] = JsonValue.Create("mutated");
-    Assert.Equal("vecrax", message.Metadata["tenant"]?.GetValue<string>());
-    Assert.True(message.Metadata.ContainsKey("region"));
-    Assert.Null(message.Metadata["region"]);
+        metadata["tenant"] = JsonValue.Create("mutated");
+        Assert.Equal("vecrax", message.Metadata["tenant"]?.GetValue<string>());
+        Assert.True(message.Metadata.ContainsKey("region"));
+        Assert.Null(message.Metadata["region"]);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public sealed class ChatContractsTests
         Assert.Equal("image_url", json["type"]?.GetValue<string>());
         var imageUrl = json["image_url"] as JsonObject;
         Assert.NotNull(imageUrl);
-        Assert.Equal("https://example.com/image.jpg", imageUrl["url"]?.GetValue<string>());
+        Assert.Equal("https://example.com/image.jpg", imageUrl!["url"]?.GetValue<string>());
         Assert.Equal("image/jpeg", imageUrl["mime_type"]?.GetValue<string>());
     }
 
@@ -127,7 +127,7 @@ public sealed class ChatContractsTests
         var json = imagePart.ToJson();
         var imageUrl = json["image_url"] as JsonObject;
         Assert.NotNull(imageUrl);
-        Assert.Equal("https://example.com/image.png", imageUrl["url"]?.GetValue<string>());
+        Assert.Equal("https://example.com/image.png", imageUrl!["url"]?.GetValue<string>());
         Assert.False(imageUrl.ContainsKey("mime_type"));
     }
 
@@ -204,31 +204,9 @@ public sealed class ChatContractsTests
         };
 
         var genericPart = new ChatGenericPart(payload);
-        var json = genericPart.ToJson();
+        var serialized = genericPart.ToJson();
 
-        json["data"] = JsonValue.Create(99);
-
-        Assert.Equal(42, genericPart.ToJson()["data"]?.GetValue<int>());
+        serialized["data"] = JsonValue.Create(99);
+        Assert.Equal(42, genericPart.Payload["data"]?.GetValue<int>());
     }
-
-    [Fact]
-    public void ChatTemplateOptions_manages_variables()
-    {
-        var options = new ChatTemplateOptions
-        {
-            AddGenerationPrompt = false,
-            TemplateOverride = "{{ custom }}"
-        };
-
-        options.SetVariable("custom", JsonValue.Create("value"));
-        Assert.True(options.AdditionalVariables.ContainsKey("custom"));
-
-        var clone = options.AdditionalVariables["custom"]?.DeepClone();
-        Assert.Equal("value", clone?.GetValue<string>());
-
-        Assert.True(options.RemoveVariable("custom"));
-        Assert.False(options.RemoveVariable("custom"));
-        Assert.False(options.RemoveVariable(""));
-    }
-
 }

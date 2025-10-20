@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Generation;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Generation;
 
 using System;
 using System.Linq;
@@ -9,7 +9,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
-public sealed class GenerationSettingsSimpleTests
+public sealed class GenerationSettingsUnitTests
 {
     [Fact]
     public void BuildSettings_WithSimpleJson_ComputesBindingsAndCriteria()
@@ -122,8 +122,8 @@ public sealed class GenerationSettingsSimpleTests
         Assert.True(settings.TryGetRawParameter("metadata", out var raw));
         Assert.NotNull(raw);
 
-    raw!["provider"] = JsonValue.Create("mutated");
-    Assert.Equal("vecrax", settings.ToJsonObject()["metadata"]?["provider"]?.GetValue<string>());
-    Assert.Equal("mutated", raw["provider"]?.GetValue<string>());
+        raw!["provider"] = JsonValue.Create("mutated");
+        Assert.Equal("vecrax", settings.ToJsonObject()["metadata"]?["provider"]?.GetValue<string>());
+        Assert.Equal("mutated", raw["provider"]?.GetValue<string>());
     }
 }

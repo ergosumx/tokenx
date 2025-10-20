@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Generation;
+namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Generation;
 
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
-public sealed class GenerationContractsTests
+public sealed class GenerationContractsUnitTests
 {
     [Fact]
     public void LogitsBinding_Throws_WhenCategoryMissing()
