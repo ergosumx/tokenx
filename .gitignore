@@ -84,3 +84,5 @@ scripts/local/**
 BenchmarkDotNet.Artifacts/results
 _TestData
 coverage
+crossbeam_utils/**
+**/target/doc

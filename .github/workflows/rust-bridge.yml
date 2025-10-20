@@ -13,7 +13,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CRATE_DIR: src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge
+  CRATE_DIR: src/_hf_bridge
 
 jobs:
   prepare:
@@ -70,7 +70,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ env.CRATE_DIR }}/target
-          key: lint-${{ runner.os }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: lint-${{ runner.os }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Run cargo fmt
         working-directory: ${{ env.CRATE_DIR }}
@@ -106,7 +106,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ env.CRATE_DIR }}/target
-          key: test-${{ runner.os }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: test-${{ runner.os }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Run cargo test
         working-directory: ${{ env.CRATE_DIR }}
@@ -141,7 +141,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ env.CRATE_DIR }}/target
-          key: coverage-${{ runner.os }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: coverage-${{ runner.os }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Install cargo-tarpaulin
         run: cargo install cargo-tarpaulin || true
@@ -199,7 +199,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ env.CRATE_DIR }}/target
-          key: build-${{ env.TARGET }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: build-${{ env.TARGET }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Build release artifacts
         working-directory: ${{ env.CRATE_DIR }}
@@ -256,7 +256,7 @@ jobs:
             ~\AppData\Local\Cargo\registry
             ~\AppData\Local\Cargo\git
             ${{ env.CRATE_DIR }}\target
-          key: build-${{ env.TARGET }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: build-${{ env.TARGET }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Build release artifacts
         working-directory: ${{ env.CRATE_DIR }}
@@ -324,7 +324,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ env.CRATE_DIR }}/target
-          key: build-${{ env.TARGET }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: build-${{ env.TARGET }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Build release artifacts
         working-directory: ${{ env.CRATE_DIR }}
@@ -379,7 +379,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ env.CRATE_DIR }}/target
-          key: build-${{ env.TARGET }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: build-${{ env.TARGET }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Build release artifacts
         working-directory: ${{ env.CRATE_DIR }}
@@ -443,7 +443,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ env.CRATE_DIR }}/target
-          key: build-${{ env.TARGET }}-${{ hashFiles('src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge/Cargo.lock') }}
+          key: build-${{ env.TARGET }}-${{ hashFiles('src/_hf_bridge/Cargo.lock') }}
 
       - name: Build release artifacts
         working-directory: ${{ env.CRATE_DIR }}

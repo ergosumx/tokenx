@@ -3,9 +3,11 @@ pub(crate) mod utils;
 pub mod chat;
 pub mod config;
 pub mod decode;
+pub mod decoders;
 pub mod encoding;
 pub mod generation;
 pub mod lifecycle;
+pub mod models;
 pub mod padding;
 pub mod truncation;
 

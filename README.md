@@ -66,7 +66,7 @@ Console.WriteLine($"Decoded: {decoded}");
 
 ```bash
 # Build Rust library
-cd src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
+cd src/_hf_bridge
 cargo build --release
 
 # Copy to .NET runtime folder
@@ -81,7 +81,7 @@ dotnet build --configuration Release
 
 ```bash
 # Run Rust tests
-cd src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
+cd src/_hf_bridge
 cargo test --release
 
 # Run .NET tests
@@ -158,7 +158,7 @@ ErgoX.VecraX.ML.NLP.Tokenizers/
 │   ├── CI-CD-WORKFLOWS.md        # CI/CD documentation
 │   └── TESTING-CHECKLIST.md      # Quick reference
 └── src/
-   ├── ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/  # Native bridge crate (Rust)
+   ├── _hf_bridge/  # Native bridge crate (Rust)
    │   ├── Cargo.toml
    │   └── src/lib.rs
    ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/
@@ -231,7 +231,7 @@ See [TESTING-CHECKLIST.md](.github/TESTING-CHECKLIST.md) for pre-commit checklis
 
 3. **Check DLL size** (should be ~4.3 MB):
    ```powershell
-   (Get-Item "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll").Length / 1MB
+   (Get-Item "src/_hf_bridge/target/release/tokenx_bridge.dll").Length / 1MB
    ```
 
 ### CI Failures

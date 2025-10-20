@@ -6,14 +6,14 @@ on:
   #   paths:
   #     - 'src/**'
   #     - 'tests/**'
-  #     - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
+  #     - 'src/_hf_bridge/**'
   #     - '.github/workflows/test-dotnet.yml'
   # pull_request:
   #   branches: [main, master, develop]
   #   paths:
   #     - 'src/**'
   #     - 'tests/**'
-  #     - 'src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/**'
+  #     - 'src/_hf_bridge/**'
   #     - '.github/workflows/test-dotnet.yml'
   workflow_dispatch:
 
@@ -65,24 +65,24 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/
+            src/_hf_bridge/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
       - name: Run Rust tests
-        working-directory: src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
+        working-directory: src/_hf_bridge
         run: cargo test --release --target ${{ matrix.target }}
 
       - name: Build Rust library
-        working-directory: src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
+        working-directory: src/_hf_bridge
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Copy library to runtime folder (Unix)
         if: runner.os != 'Windows'
         run: |
           mkdir -p src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native
-          cp src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/${{ matrix.target }}/release/${{ matrix.lib }} \
+          cp src/_hf_bridge/target/${{ matrix.target }}/release/${{ matrix.lib }} \
              src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native/
 
       - name: Copy library to runtime folder (Windows)
@@ -90,7 +90,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native"
-          Copy-Item "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/${{ matrix.target }}/release/${{ matrix.lib }}" `
+          Copy-Item "src/_hf_bridge/target/${{ matrix.target }}/release/${{ matrix.lib }}" `
                     "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/${{ matrix.runtime }}/native/"
 
       - name: Upload runtime library

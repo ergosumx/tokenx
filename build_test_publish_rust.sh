@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${SCRIPT_DIR}"
 
-RUST_BRIDGE="${REPO_ROOT}/src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge"
+RUST_BRIDGE="${REPO_ROOT}/src/_hf_bridge"
 MANIFEST="${RUST_BRIDGE}/Cargo.toml"
 TARGET_DIR="${RUST_BRIDGE}/target/release"
 RUNTIME_ROOT="${REPO_ROOT}/src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes"

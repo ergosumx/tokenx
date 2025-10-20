@@ -11,7 +11,7 @@ $repoRoot = if ([string]::IsNullOrWhiteSpace($scriptRoot)) { Get-Location } else
 
 Write-Host "Repository root: $repoRoot"
 
-$rustBridge = Join-Path $repoRoot 'src/ErgoX.VecraX.ML.NLP.Tokenizers.Rust.Bridge'
+$rustBridge = Join-Path $repoRoot 'src/_hf_bridge'
 $manifest = Join-Path $rustBridge 'Cargo.toml'
 $targetDir = Join-Path $rustBridge 'target/release'
 $runtimeRoot = Join-Path $repoRoot 'src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes'

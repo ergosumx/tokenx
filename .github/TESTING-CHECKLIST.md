@@ -8,7 +8,7 @@ Quick reference for running tests and creating releases.
 
 - [ ] **Build Rust library**
   ```bash
-  cd src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge
+  cd src/_hf_bridge
   cargo build --release
   ```
 
@@ -19,7 +19,7 @@ Quick reference for running tests and creating releases.
 
 - [ ] **Copy DLL to .NET runtime**
   ```powershell
-  $srcPath = "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll"
+  $srcPath = "src/_hf_bridge/target/release/tokenx_bridge.dll"
   $destDir = "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native"
   New-Item -ItemType Directory -Force -Path $destDir
   Copy-Item $srcPath $destDir -Force
@@ -76,7 +76,7 @@ Quick reference for running tests and creating releases.
   ```
 
 - [ ] **Version updated**
-  - [ ] Update version in `src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/Cargo.toml`
+  - [ ] Update version in `src/_hf_bridge/Cargo.toml`
   - [ ] Update CHANGELOG.md with changes
 
 - [ ] **Documentation current**
@@ -166,7 +166,7 @@ Quick reference for running tests and creating releases.
 
 2. **Check DLL size** (should be ~4.3 MB)
   ```powershell
-  (Get-Item "src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll").Length / 1MB
+  (Get-Item "src/_hf_bridge/target/release/tokenx_bridge.dll").Length / 1MB
   ```
 
 3. **Run verbose tests**
@@ -245,7 +245,7 @@ Quick reference for running tests and creating releases.
 cd .ext/tokenizers/bindings/c && cargo build --release
 
 # Copy DLL (Windows)
-Copy-Item src/ErgoX.Vecrax.ML.NLP.Tokenizers.Rust.Bridge/target/release/tokenx_bridge.dll src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/ -Force
+Copy-Item src/_hf_bridge/target/release/tokenx_bridge.dll src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/ -Force
 
 # .NET
 dotnet build --configuration Release
