@@ -112,7 +112,7 @@ fn assert_decoder_type(tokenizer: &CTokenizer, expected: Option<&str>) {
         }
         None => {
             assert!(
-                value.get("decoder").map_or(true, Value::is_null),
+                value.get("decoder").is_none_or(Value::is_null),
                 "decoder entry should be null when cleared"
             );
         }
