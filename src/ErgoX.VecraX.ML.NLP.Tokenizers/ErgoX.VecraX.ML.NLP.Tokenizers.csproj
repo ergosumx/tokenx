@@ -34,47 +34,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="HuggingFace\runtimes\win-x64\native\tokenx_bridge.dll">
+    <None Include="HuggingFace\runtimes\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
-      <PackagePath>runtimes/win-x64/native</PackagePath>
-      <Link>runtimes\win-x64\native\tokenx_bridge.dll</Link>
-    </None>
-    <None Include="HuggingFace\runtimes\win-x64\native\tokenx_bridge.pdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/win-x64/native</PackagePath>
-      <Link>runtimes\win-x64\native\tokenx_bridge.pdb</Link>
-    </None>
-    <None Include="HuggingFace\runtimes\linux-x64\native\libtokenx_bridge.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/linux-x64/native</PackagePath>
-      <Link>runtimes\linux-x64\native\libtokenx_bridge.so</Link>
-    </None>
-    <None Include="HuggingFace\runtimes\osx-x64\native\libtokenx_bridge.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/osx-x64/native</PackagePath>
-      <Link>runtimes\osx-x64\native\libtokenx_bridge.dylib</Link>
-    </None>
-    <None Include="HuggingFace\runtimes\osx-arm64\native\libtokenx_bridge.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/osx-arm64/native</PackagePath>
-      <Link>runtimes\osx-arm64\native\libtokenx_bridge.dylib</Link>
-    </None>
-    <None Include="HuggingFace\runtimes\android-arm64\native\libtokenx_bridge.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/android-arm64/native</PackagePath>
-      <Link>runtimes\android-arm64\native\libtokenx_bridge.so</Link>
-    </None>
-    <None Include="HuggingFace\runtimes\ios-arm64\native\libtokenx_bridge.a">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackagePath>runtimes/ios-arm64/native</PackagePath>
-      <Link>runtimes\ios-arm64\native\libtokenx_bridge.a</Link>
+      <PackagePath>runtimes/$([System.String]::Copy('%(RecursiveDir)').Replace('\\','/'))</PackagePath>
+      <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </None>
   </ItemGroup>
 

@@ -1,13 +1,13 @@
-name: Rust Bridge Build & Release
+name: HuggingFace Bridge Build & Release
 
 on:
   push:
     tags:
-      - 'rust-v*'
+      - 'hf-v*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number without the rust- prefix (optional for manual runs)'
+        description: 'Version number without the hf- prefix (optional for manual runs)'
         required: false
         type: string
 
@@ -31,16 +31,16 @@ jobs:
         run: |
           version="${INPUT_VERSION}"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            if [[ "${GITHUB_REF_NAME}" == rust-* ]]; then
-              version="${GITHUB_REF_NAME#rust-}"
+            if [[ "${GITHUB_REF_NAME}" == hf-* ]]; then
+              version="${GITHUB_REF_NAME#hf-}"
             else
-              echo "Tag ${GITHUB_REF_NAME} is not prefixed with rust-." >&2
+              echo "Tag ${GITHUB_REF_NAME} is not prefixed with hf-." >&2
               exit 1
             fi
           fi
 
           if [[ -z "${version}" ]]; then
-            echo "Version must be provided via rust-* tag or manual input." >&2
+            echo "Version must be provided via hf-* tag or manual input." >&2
             exit 1
           fi
 
