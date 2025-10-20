@@ -130,6 +130,12 @@ jobs:
           mkdir -p "${RUNTIMES_ROOT}"
           tar -xzf runtime-assets/tokenizers-runtimes.tar.gz -C "${RUNTIMES_ROOT}"
 
+      - name: Restore tokenizer fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/Py/Huggingface/restore_test_data.py --force
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -163,6 +169,12 @@ jobs:
           rm -rf "${RUNTIMES_ROOT}/runtimes"
           mkdir -p "${RUNTIMES_ROOT}"
           tar -xzf runtime-assets/tokenizers-runtimes.tar.gz -C "${RUNTIMES_ROOT}"
+
+      - name: Restore tokenizer fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/Py/Huggingface/restore_test_data.py --force
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -209,6 +221,12 @@ jobs:
           mkdir -p "${RUNTIMES_ROOT}"
           tar -xzf runtime-assets/tokenizers-runtimes.tar.gz -C "${RUNTIMES_ROOT}"
 
+      - name: Restore tokenizer fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/Py/Huggingface/restore_test_data.py --force
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -235,10 +253,10 @@ jobs:
           . .venv/bin/activate
           hf_token="${{ secrets.HF_TOKEN }}"
           if [ -z "$hf_token" ]; then
-            echo "HF_TOKEN secret is not configured." >&2
-            exit 1
+            echo "HF_TOKEN secret is not configured; skipping Hugging Face login." >&2
+            exit 0
           fi
-          huggingface-cli login --token "$hf_token" --add-to-git-credential
+          python tests/Py/Huggingface/hf_auth.py login "$hf_token"
 
       - name: Restore .NET dependencies
         run: dotnet restore
@@ -259,6 +277,14 @@ jobs:
           set -euo pipefail
           . .venv/bin/activate
           python tests/Py/Huggingface/generate_benchmarks.py
+
+      - name: Clear Hugging Face authentication
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          . .venv/bin/activate
+          python tests/Py/Huggingface/hf_auth.py logout
 
       - name: Run integration tests
         run: dotnet test TokenX.HF.sln --configuration Release --no-build --logger "trx;LogFileName=integration-tests.trx" --filter "TestCategories=Integration"

@@ -81,6 +81,9 @@ dotnet build --configuration Release
 ### Testing
 
 ```bash
+# Restore sanitized tokenizer fixtures (skips network downloads)
+python tests/Py/Huggingface/restore_test_data.py --force
+
 # Run Rust tests
 cd .ext/hf_bridge
 cargo test --release
@@ -89,8 +92,8 @@ cargo test --release
 dotnet test --configuration Release
 
 # Refresh Python parity fixtures (required when tokenizer assets change)
-# Downloads fixtures for 20 reference models spanning GPT-2, BERT, RoBERTa, T5, CLIP, DeBERTa, LayoutLM, Pegasus, and more.
-.\.venv\Scripts\python.exe tests\Py\Huggingface\generate_benchmarks.py
+# This regenerates the benchmark JSON output using the archived assets.
+\.\.venv\Scripts\python.exe tests\Py\Huggingface\generate_benchmarks.py
 
 > Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, and `huggingface_hub` packages so the generator can materialize tokenizer pipelines directly from each model's `tokenizer_config.json`.
 ```
