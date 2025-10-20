@@ -11,8 +11,8 @@ use tokenizers::decoders::metaspace::Metaspace;
 use tokenizers::decoders::sequence::Sequence;
 use tokenizers::decoders::wordpiece::WordPiece;
 use tokenizers::decoders::DecoderWrapper;
-use tokenizers::pre_tokenizers::metaspace::PrependScheme;
 use tokenizers::normalizers::replace::Replace;
+use tokenizers::pre_tokenizers::metaspace::PrependScheme;
 
 use tokenx_bridge::ffi::config::tokenizers_get_config;
 use tokenx_bridge::ffi::decoders::{
@@ -50,11 +50,7 @@ fn metaspace_decoder_json() -> CString {
 }
 
 fn ctc_decoder_json() -> CString {
-    decoder_json(DecoderWrapper::from(CTC::new(
-        "_".into(),
-        " ".into(),
-        true,
-    )))
+    decoder_json(DecoderWrapper::from(CTC::new("_".into(), " ".into(), true)))
 }
 
 fn fuse_decoder_json() -> CString {
@@ -62,11 +58,14 @@ fn fuse_decoder_json() -> CString {
 }
 
 fn replace_decoder_json() -> CString {
-    decoder_json(DecoderWrapper::from(Replace::new("_".into(), " ".into())))
+    let replace = Replace::new("_", " ").expect("replace construction must succeed");
+    decoder_json(DecoderWrapper::from(replace))
 }
 
 fn strip_decoder_json() -> CString {
-    decoder_json(DecoderWrapper::from(tokenizers::decoders::strip::Strip::default()))
+    decoder_json(DecoderWrapper::from(
+        tokenizers::decoders::strip::Strip::default(),
+    ))
 }
 
 fn byte_fallback_decoder_json() -> CString {
@@ -120,7 +119,7 @@ fn assert_decoder_type(tokenizer: &CTokenizer, expected: Option<&str>) {
     }
 }
 
-fn exercise_decoder(json: CString, expected_type: &str) {
+fn exercise_decoder(json: CString, expected_config_type: &str, expected_runtime_type: &str) {
     let mut status = -1;
     let decoder_ptr =
         unsafe { tokenizers_decoder_from_json(json.as_ptr(), ptr::addr_of_mut!(status)) };
@@ -138,7 +137,7 @@ fn exercise_decoder(json: CString, expected_type: &str) {
     assert_eq!(set_result, 1);
     assert_eq!(status, 0);
 
-    assert_decoder_type(&tokenizer, Some(expected_type));
+    assert_decoder_type(&tokenizer, Some(expected_config_type));
 
     let mut type_status = -1;
     let type_ptr =
@@ -150,7 +149,7 @@ fn exercise_decoder(json: CString, expected_type: &str) {
             .expect("decoder type should be utf-8")
             .to_owned()
     };
-    assert_eq!(decoder_type, expected_type);
+    assert_eq!(decoder_type, expected_runtime_type);
     unsafe {
         tokenizers_free_string(type_ptr);
     }
@@ -162,52 +161,52 @@ fn exercise_decoder(json: CString, expected_type: &str) {
 
 #[test]
 fn tokenizers_decoder_supports_bpe() {
-    exercise_decoder(bpe_decoder_json(), "BPE");
+    exercise_decoder(bpe_decoder_json(), "BPEDecoder", "BPE");
 }
 
 #[test]
 fn tokenizers_decoder_supports_byte_level() {
-    exercise_decoder(byte_level_decoder_json(), "ByteLevel");
+    exercise_decoder(byte_level_decoder_json(), "ByteLevel", "ByteLevel");
 }
 
 #[test]
 fn tokenizers_decoder_supports_word_piece() {
-    exercise_decoder(word_piece_decoder_json(), "WordPiece");
+    exercise_decoder(word_piece_decoder_json(), "WordPiece", "WordPiece");
 }
 
 #[test]
 fn tokenizers_decoder_supports_metaspace() {
-    exercise_decoder(metaspace_decoder_json(), "Metaspace");
+    exercise_decoder(metaspace_decoder_json(), "Metaspace", "Metaspace");
 }
 
 #[test]
 fn tokenizers_decoder_supports_ctc() {
-    exercise_decoder(ctc_decoder_json(), "CTC");
+    exercise_decoder(ctc_decoder_json(), "CTC", "CTC");
 }
 
 #[test]
 fn tokenizers_decoder_supports_fuse() {
-    exercise_decoder(fuse_decoder_json(), "Fuse");
+    exercise_decoder(fuse_decoder_json(), "Fuse", "Fuse");
 }
 
 #[test]
 fn tokenizers_decoder_supports_replace() {
-    exercise_decoder(replace_decoder_json(), "Replace");
+    exercise_decoder(replace_decoder_json(), "Replace", "Replace");
 }
 
 #[test]
 fn tokenizers_decoder_supports_strip() {
-    exercise_decoder(strip_decoder_json(), "Strip");
+    exercise_decoder(strip_decoder_json(), "Strip", "Strip");
 }
 
 #[test]
 fn tokenizers_decoder_supports_byte_fallback() {
-    exercise_decoder(byte_fallback_decoder_json(), "ByteFallback");
+    exercise_decoder(byte_fallback_decoder_json(), "ByteFallback", "ByteFallback");
 }
 
 #[test]
 fn tokenizers_decoder_supports_sequence() {
-    exercise_decoder(sequence_decoder_json(), "Sequence");
+    exercise_decoder(sequence_decoder_json(), "Sequence", "Sequence");
 }
 
 #[test]

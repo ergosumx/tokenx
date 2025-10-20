@@ -64,6 +64,70 @@ internal sealed class NativeMethodsBridge : INativeInterop
     public IntPtr IdToToken(IntPtr handle, uint id, out int status)
         => NativeMethods.IdToToken(handle, id, out status);
 
+    public IntPtr TokenizersModelFromJson(string json, out int status)
+        => NativeMethods.TokenizersModelFromJson(json, out status);
+
+    public void TokenizersModelFree(IntPtr model)
+        => NativeMethods.TokenizersModelFree(model);
+
+    public IntPtr TokenizersModelGetType(IntPtr model, out int status)
+        => NativeMethods.TokenizersModelGetType(model, out status);
+
+    public IntPtr TokenizersModelToJson(IntPtr model, bool pretty, out int status)
+        => NativeMethods.TokenizersModelToJson(model, pretty, out status);
+
+    public IntPtr TokenizersModelBpeFromFiles(in NativeBpeModelParameters parameters, out int status)
+        => NativeMethods.TokenizersModelBpeFromFiles(
+            parameters.VocabPath,
+            parameters.MergesPath,
+            parameters.Dropout,
+            parameters.HasDropout,
+            parameters.UnknownToken,
+            parameters.ContinuingSubwordPrefix,
+            parameters.EndOfWordSuffix,
+            parameters.FuseUnknown,
+            parameters.EnableByteFallback,
+            out status);
+
+    public IntPtr TokenizersModelWordPieceFromFile(
+        string vocabPath,
+        string unkToken,
+        string? continuingSubwordPrefix,
+        nuint maxInputCharsPerWord,
+        bool hasMaxInputCharsPerWord,
+        out int status)
+        => NativeMethods.TokenizersModelWordPieceFromFile(
+            vocabPath,
+            unkToken,
+            continuingSubwordPrefix,
+            maxInputCharsPerWord,
+            hasMaxInputCharsPerWord,
+            out status);
+
+    public IntPtr TokenizersModelUnigramFromFile(string modelPath, out int status)
+        => NativeMethods.TokenizersModelUnigramFromFile(modelPath, out status);
+
+    public int TokenizersTokenizerSetModel(IntPtr tokenizer, IntPtr model, out int status)
+        => NativeMethods.TokenizersTokenizerSetModel(tokenizer, model, out status);
+
+    public IntPtr TokenizersDecoderFromJson(string json, out int status)
+        => NativeMethods.TokenizersDecoderFromJson(json, out status);
+
+    public void TokenizersDecoderFree(IntPtr decoder)
+        => NativeMethods.TokenizersDecoderFree(decoder);
+
+    public IntPtr TokenizersDecoderGetType(IntPtr decoder, out int status)
+        => NativeMethods.TokenizersDecoderGetType(decoder, out status);
+
+    public IntPtr TokenizersDecoderToJson(IntPtr decoder, bool pretty, out int status)
+        => NativeMethods.TokenizersDecoderToJson(decoder, pretty, out status);
+
+    public int TokenizersTokenizerSetDecoder(IntPtr tokenizer, IntPtr decoder, out int status)
+        => NativeMethods.TokenizersTokenizerSetDecoder(tokenizer, decoder, out status);
+
+    public int TokenizersTokenizerClearDecoder(IntPtr tokenizer, out int status)
+        => NativeMethods.TokenizersTokenizerClearDecoder(tokenizer, out status);
+
     public IntPtr TokenizerGetConfig(IntPtr handle, bool pretty, out int status)
         => NativeMethods.TokenizerGetConfig(handle, pretty, out status);
 

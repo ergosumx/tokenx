@@ -394,6 +394,77 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    public void SetModel(IModel model)
+    {
+        if (model is null)
+        {
+            throw new ArgumentNullException(nameof(model));
+        }
+
+        if (model is not TokenizerModel tokenizerModel)
+        {
+            throw new ArgumentException("Model must be created via TokenizerModel factory methods.", nameof(model));
+        }
+
+        lock (_syncRoot)
+        {
+            _handle.InvokeWithHandle(handlePtr =>
+            {
+                tokenizerModel.InvokeWithHandle(modelPtr =>
+                {
+                    var result = _interop.TokenizersTokenizerSetModel(handlePtr, modelPtr, out var status);
+                    if (result == 0 || status != 0)
+                    {
+                        throw CreateNativeException("Tokenizer set model failed.");
+                    }
+                });
+            });
+        }
+    }
+
+    public void SetDecoder(IDecoder decoder)
+    {
+        if (decoder is null)
+        {
+            throw new ArgumentNullException(nameof(decoder));
+        }
+
+        if (decoder is not TokenizerDecoder tokenizerDecoder)
+        {
+            throw new ArgumentException("Decoder must be created via TokenizerDecoder factory methods.", nameof(decoder));
+        }
+
+        lock (_syncRoot)
+        {
+            _handle.InvokeWithHandle(handlePtr =>
+            {
+                tokenizerDecoder.InvokeWithHandle(decoderPtr =>
+                {
+                    var result = _interop.TokenizersTokenizerSetDecoder(handlePtr, decoderPtr, out var status);
+                    if (result == 0 || status != 0)
+                    {
+                        throw CreateNativeException("Tokenizer set decoder failed.");
+                    }
+                });
+            });
+        }
+    }
+
+    public void ClearDecoder()
+    {
+        lock (_syncRoot)
+        {
+            _handle.InvokeWithHandle(handlePtr =>
+            {
+                var result = _interop.TokenizersTokenizerClearDecoder(handlePtr, out var status);
+                if (result == 0 || status != 0)
+                {
+                    throw CreateNativeException("Tokenizer clear decoder failed.");
+                }
+            });
+        }
+    }
+
     public EncodingResult Encode(string text, bool addSpecialTokens = true)
         => Encode(text, null, addSpecialTokens);
 

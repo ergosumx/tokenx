@@ -3,7 +3,9 @@ use std::os::raw::{c_char, c_int};
 use std::ptr;
 
 use crate::error::{clear_error, store_error};
-use crate::ffi::utils::{read_optional_utf8, read_required_utf8, set_status};
+use crate::ffi::utils::{read_required_utf8, set_status};
+#[cfg(not(any(target_family = "wasm", target_os = "ios", target_os = "android")))]
+use crate::ffi::utils::read_optional_utf8;
 use crate::tokenizer::CTokenizer;
 
 #[cfg(not(any(target_family = "wasm", target_os = "ios", target_os = "android")))]
