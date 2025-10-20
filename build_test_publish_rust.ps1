@@ -11,10 +11,29 @@ $repoRoot = if ([string]::IsNullOrWhiteSpace($scriptRoot)) { Get-Location } else
 
 Write-Host "Repository root: $repoRoot"
 
-$rustBridge = Join-Path $repoRoot 'src/_hf_bridge'
+$rustBridge = Join-Path $repoRoot '.ext/hf_bridge'
 $manifest = Join-Path $rustBridge 'Cargo.toml'
-$targetDir = Join-Path $rustBridge 'target/release'
-$runtimeRoot = Join-Path $repoRoot 'src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes'
+$targetRoot = Join-Path $rustBridge 'target'
+$targetDir = Join-Path $targetRoot 'release'
+$runtimeRoot = Join-Path $repoRoot 'src/ErgoX.VecraX.ML.NLP.Tokenizers/HuggingFace/runtimes'
+
+if (-not (Test-Path $targetDir)) {
+    $candidateReleases = Get-ChildItem -Path $targetRoot -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+        $releasePath = Join-Path $_.FullName 'release'
+        if (Test-Path $releasePath) {
+            [PSCustomObject]@{
+                Path = $releasePath
+                LastWriteTime = (Get-Item $releasePath).LastWriteTimeUtc
+            }
+        }
+    } | Sort-Object -Property LastWriteTime -Descending
+
+    if ($candidateReleases) {
+        $targetDir = $candidateReleases[0].Path
+    } else {
+        throw "Unable to locate release artifacts under $targetRoot after build."
+    }
+}
 
 Write-Host '===> Building Rust bridge (release configuration)'
 cargo build --manifest-path $manifest --release
@@ -24,12 +43,25 @@ if (-not $SkipTests.IsPresent) {
     cargo test --manifest-path $manifest
 }
 
+$processArchitecture = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
 $osRuntime = if ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
-    'win-x64'
+    switch ($processArchitecture) {
+        ([System.Runtime.InteropServices.Architecture]::X86) { 'win-x86' }
+        ([System.Runtime.InteropServices.Architecture]::Arm64) { 'win-arm64' }
+        Default { 'win-x64' }
+    }
 } elseif ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)) {
-    'linux-x64'
+    if ($processArchitecture -eq [System.Runtime.InteropServices.Architecture]::Arm64) {
+        'linux-arm64'
+    } else {
+        'linux-x64'
+    }
 } elseif ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)) {
-    'osx-x64'
+    if ($processArchitecture -eq [System.Runtime.InteropServices.Architecture]::Arm64) {
+        'osx-arm64'
+    } else {
+        'osx-x64'
+    }
 } else {
     throw 'Unsupported operating system for runtime publish.'
 }
@@ -41,12 +73,21 @@ if (-not (Test-Path $destination)) {
 }
 
 $artifacts = @()
-if ($osRuntime -eq 'win-x64') {
+if ($osRuntime -like 'win-*') {
     $artifacts = @('tokenx_bridge.dll', 'tokenx_bridge.pdb')
-} elseif ($osRuntime -eq 'linux-x64') {
+} elseif ($osRuntime -like 'linux-*' -or $osRuntime -like 'android-*') {
     $artifacts = @('libtokenx_bridge.so')
-} else {
+} elseif ($osRuntime -like 'osx-*') {
     $artifacts = @('libtokenx_bridge.dylib')
+} elseif ($osRuntime -like 'ios-*') {
+    $artifacts = @('libtokenx_bridge.a', 'libtokenx_bridge.dylib') | Where-Object {
+        Test-Path (Join-Path $targetDir $_)
+    }
+    if (-not $artifacts) {
+        throw 'No iOS bridge artifacts were produced.'
+    }
+} else {
+    throw "Unsupported runtime identifier mapping: $osRuntime"
 }
 
 Write-Host "===> Publishing artifacts to $destination"

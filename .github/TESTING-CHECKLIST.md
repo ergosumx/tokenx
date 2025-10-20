@@ -20,7 +20,7 @@ Quick reference for running tests and creating releases.
 - [ ] **Copy DLL to .NET runtime**
   ```powershell
   $srcPath = "src/_hf_bridge/target/release/tokenx_bridge.dll"
-  $destDir = "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native"
+  $destDir = "src/ErgoX.VecraX.ML.NLP.Tokenizers/HuggingFace/runtimes/win-x64/native"
   New-Item -ItemType Directory -Force -Path $destDir
   Copy-Item $srcPath $destDir -Force
   ```
@@ -161,7 +161,7 @@ Quick reference for running tests and creating releases.
 
 1. **Verify DLL location**
   ```powershell
-  Test-Path "src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/tokenx_bridge.dll"
+  Test-Path "src/ErgoX.VecraX.ML.NLP.Tokenizers/HuggingFace/runtimes/win-x64/native/tokenx_bridge.dll"
   ```
 
 2. **Check DLL size** (should be ~4.3 MB)
@@ -245,7 +245,7 @@ Quick reference for running tests and creating releases.
 cd .ext/tokenizers/bindings/c && cargo build --release
 
 # Copy DLL (Windows)
-Copy-Item src/_hf_bridge/target/release/tokenx_bridge.dll src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/ -Force
+Copy-Item src/_hf_bridge/target/release/tokenx_bridge.dll src/ErgoX.VecraX.ML.NLP.Tokenizers/HuggingFace/runtimes/win-x64/native/ -Force
 
 # .NET
 dotnet build --configuration Release

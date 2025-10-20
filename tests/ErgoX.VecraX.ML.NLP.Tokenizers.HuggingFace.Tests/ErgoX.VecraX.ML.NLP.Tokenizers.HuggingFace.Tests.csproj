@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj" />
+    <ProjectReference Include="..\..\src\ErgoX.VecraX.ML.NLP.Tokenizers\ErgoX.VecraX.ML.NLP.Tokenizers.csproj" />
   </ItemGroup>
 
   <ItemGroup>

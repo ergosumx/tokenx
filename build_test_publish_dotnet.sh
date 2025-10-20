@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${SCRIPT_DIR}"
 
-PROJECT="${REPO_ROOT}/src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj"
+PROJECT="${REPO_ROOT}/src/ErgoX.VecraX.ML.NLP.Tokenizers/ErgoX.VecraX.ML.NLP.Tokenizers.csproj"
 TEST_PROJECT="${REPO_ROOT}/tests/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.csproj"
 DOWNLOAD_SCRIPT="${REPO_ROOT}/tests/Py/Huggingface/download_tests_data.py"
 BENCHMARK_SCRIPT="${REPO_ROOT}/tests/Py/Huggingface/generate_benchmarks.py"
@@ -27,7 +27,7 @@ resolve_python() {
 PYTHON="$(resolve_python "${REPO_ROOT}")"
 
 echo "Using python interpreter: ${PYTHON}"
-echo "===> Building ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace project"
+echo "===> Building ErgoX.VecraX.ML.NLP.Tokenizers project"
 dotnet build "${PROJECT}"
 
 if [[ "${SKIP_UNIT_TESTS:-0}" != "1" ]]; then

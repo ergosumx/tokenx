@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <AssemblyName>ErgoX.VecraX.ML.NLP.Tokenizers</AssemblyName>
+  <RootNamespace>ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  <PackageId>ErgoX.VecraX.ML.NLP.Tokenizers</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>VecraX</Authors>
+    <Company>VecraX</Company>
+    <PackageDescription>.NET Consumer Library for Hugging Face Tokenizers - Load and use pre-trained tokenizers.</PackageDescription>
+    <PackageTags>tokenizer;huggingface;nlp;bpe;wordpiece;unigram</PackageTags>
+    <RepositoryUrl>https://github.com/vecrax/tokenizers</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>true</Pack>
+      <PackagePath></PackagePath>
+      <Link>README.md</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="HuggingFace\runtimes\win-x64\native\tokenx_bridge.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native</PackagePath>
+      <Link>runtimes\win-x64\native\tokenx_bridge.dll</Link>
+    </None>
+    <None Include="HuggingFace\runtimes\win-x64\native\tokenx_bridge.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native</PackagePath>
+      <Link>runtimes\win-x64\native\tokenx_bridge.pdb</Link>
+    </None>
+    <None Include="HuggingFace\runtimes\linux-x64\native\libtokenx_bridge.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-x64/native</PackagePath>
+      <Link>runtimes\linux-x64\native\libtokenx_bridge.so</Link>
+    </None>
+    <None Include="HuggingFace\runtimes\osx-x64\native\libtokenx_bridge.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-x64/native</PackagePath>
+      <Link>runtimes\osx-x64\native\libtokenx_bridge.dylib</Link>
+    </None>
+    <None Include="HuggingFace\runtimes\osx-arm64\native\libtokenx_bridge.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-arm64/native</PackagePath>
+      <Link>runtimes\osx-arm64\native\libtokenx_bridge.dylib</Link>
+    </None>
+    <None Include="HuggingFace\runtimes\android-arm64\native\libtokenx_bridge.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/android-arm64/native</PackagePath>
+      <Link>runtimes\android-arm64\native\libtokenx_bridge.so</Link>
+    </None>
+    <None Include="HuggingFace\runtimes\ios-arm64\native\libtokenx_bridge.a">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/ios-arm64/native</PackagePath>
+      <Link>runtimes\ios-arm64\native\libtokenx_bridge.a</Link>
+    </None>
+  </ItemGroup>
+
+</Project>

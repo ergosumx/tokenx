@@ -86,3 +86,5 @@ _TestData
 coverage
 crossbeam_utils/**
 **/target/doc
+.ext/hf_bridge/target/
+.runtimes

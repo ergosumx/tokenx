@@ -66,14 +66,15 @@ Console.WriteLine($"Decoded: {decoded}");
 
 ```bash
 # Build Rust library
-cd src/_hf_bridge
+cd .ext/hf_bridge
 cargo build --release
 
 # Copy to .NET runtime folder
-Copy-Item target/release/tokenx_bridge.dll ../ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/runtimes/win-x64/native/ -Force
+Copy-Item target/release/tokenx_bridge.dll ../src/ErgoX.VecraX.ML.NLP.Tokenizers/HuggingFace/runtimes/win-x64/native/ -Force
 
 # Build .NET project
-cd ../../../..
+cd ..
+cd ..
 dotnet build --configuration Release
 ```
 
@@ -81,7 +82,7 @@ dotnet build --configuration Release
 
 ```bash
 # Run Rust tests
-cd src/_hf_bridge
+cd .ext/hf_bridge
 cargo test --release
 
 # Run .NET tests
@@ -157,14 +158,18 @@ ErgoX.VecraX.ML.NLP.Tokenizers/
 │   │   └── release-c-bindings.yml # Multi-platform release
 │   ├── CI-CD-WORKFLOWS.md        # CI/CD documentation
 │   └── TESTING-CHECKLIST.md      # Quick reference
+├── .ext/
+│   └── hf_bridge/             # Native bridge crate (Rust)
+│       ├── Cargo.toml
+│       └── src/lib.rs
 └── src/
-   ├── _hf_bridge/  # Native bridge crate (Rust)
-   │   ├── Cargo.toml
-   │   └── src/lib.rs
-   ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/
-   │   ├── Tokenizer.cs          # Main tokenizer class
-   │   ├── NativeMethods.cs      # P/Invoke declarations
-   │   └── runtimes/             # Native libraries
+   ├── ErgoX.VecraX.ML.NLP.Tokenizers/
+   │   ├── HuggingFace/
+   │   │   ├── Tokenizer.cs      # Main tokenizer class
+   │   │   ├── NativeMethods.cs  # P/Invoke declarations
+   │   │   └── runtimes/         # Native libraries
+   │   ├── Google/
+   │   └── Tiktoken/
    └── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
       └── Encoding/             # Integration tests
 ```

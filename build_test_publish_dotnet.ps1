@@ -32,14 +32,14 @@ $repoRoot = if ([string]::IsNullOrWhiteSpace($scriptRoot)) { Get-Location } else
 
 Write-Host "Repository root: $repoRoot"
 
-$project = Join-Path $repoRoot 'src/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj'
+$project = Join-Path $repoRoot 'src/ErgoX.VecraX.ML.NLP.Tokenizers/ErgoX.VecraX.ML.NLP.Tokenizers.csproj'
 $testProject = Join-Path $repoRoot 'tests/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.csproj'
 $downloadScript = Join-Path $repoRoot 'tests/Py/Huggingface/download_tests_data.py'
 $benchmarkScript = Join-Path $repoRoot 'tests/Py/Huggingface/generate_benchmarks.py'
 $python = Resolve-PythonInterpreter $repoRoot
 
 Write-Host "Using python interpreter: $python"
-Write-Host '===> Building ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace project'
+Write-Host '===> Building ErgoX.VecraX.ML.NLP.Tokenizers project'
 dotnet build $project
 
 if (-not $SkipUnitTests.IsPresent) {
