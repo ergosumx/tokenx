@@ -6,6 +6,7 @@ set -euo pipefail
 
 PREFIX="rust"
 VERSION="${1:-0.0.1}"
+DRY_RUN=0
 
 # Parse named arguments --prefix/-p and --version/-v while also supporting positional
 while [[ $# -gt 0 ]]; do
@@ -18,6 +19,10 @@ while [[ $# -gt 0 ]]; do
       VERSION="$2"
       _VERSION_FLAG_SET=1
       shift 2
+      ;;
+    --dry-run|-n)
+      DRY_RUN=1
+      shift
       ;;
     --)
       shift
@@ -48,9 +53,13 @@ TAG="${PREFIX}-v${VERSION}"
 echo "Preparing release with tag: ${TAG}"
 
 echo "Creating tag ${TAG} (force)"
-git tag -a "$TAG" -m "Release ${PREFIX} bridge ${TAG}" -f
-
-echo "Pushing tag ${TAG} to origin (force)"
-git push origin "refs/tags/${TAG}:refs/tags/${TAG}" --force
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "DRY RUN: git tag -a \"${TAG}\" -m \"Release ${PREFIX} bridge ${TAG}\" -f"
+  echo "DRY RUN: git push origin \"refs/tags/${TAG}:refs/tags/${TAG}\" --force"
+else
+  git tag -a "$TAG" -m "Release ${PREFIX} bridge ${TAG}" -f
+  echo "Pushing tag ${TAG} to origin (force)"
+  git push origin "refs/tags/${TAG}:refs/tags/${TAG}" --force
+fi
 
 echo "Release script completed for ${TAG}"

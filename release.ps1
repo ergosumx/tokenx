@@ -1,6 +1,7 @@
 param(
 	[string]$Prefix = "rust",
-	[string]$Version = "0.0.1"
+	[string]$Version = "0.0.1",
+	[switch]$DryRun
 )
 
 # Support POSIX-style arguments --prefix and --version when passed in $args
@@ -10,6 +11,8 @@ for ($i = 0; $i -lt $args.Count; $i++) {
 		'-p' { if ($i + 1 -lt $args.Count) { $Prefix = $args[$i + 1]; $i++ } }
 		'--version' { if ($i + 1 -lt $args.Count) { $Version = $args[$i + 1]; $i++ } }
 		'-v' { if ($i + 1 -lt $args.Count) { $Version = $args[$i + 1]; $i++ } }
+		'--dry-run' { $DryRun = $true }
+		'-n' { $DryRun = $true }
 		default { }
 	}
 }
@@ -24,7 +27,12 @@ Write-Host "Preparing release with tag: $tag"
 
 Write-Host "Creating tag $tag (force)"
 # Create (or update) annotated tag. Use -f to replace existing tag if present.
-git tag -a $tag -m "Release $Prefix bridge $tag" -f
+if ($DryRun) {
+	Write-Host "DRY RUN: git tag -a $tag -m 'Release $Prefix bridge $tag' -f"
+} else {
+	git tag -a $tag -m "Release $Prefix bridge $tag" -f
+}
+
 
 Write-Host "Pushing tag $tag to origin (force)"
 
@@ -36,7 +44,11 @@ if (-not $remoteExists) {
 	# Push by tag name -- simpler and avoids manually assembling refspecs that can duplicate segments.
 	$pushCmd = "git push origin $tag --force"
 	Write-Host "Running: $pushCmd"
-	Invoke-Expression $pushCmd
+	if ($DryRun) {
+		Write-Host "DRY RUN: $pushCmd"
+	} else {
+		Invoke-Expression $pushCmd
+	}
 }
 
 Write-Host "Release script completed for $tag"
