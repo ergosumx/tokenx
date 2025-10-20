@@ -10,3 +10,5 @@
 - [x] Run formatting and unit tests for Rust bridge
 - [x] Implement .NET bindings for tokenizer models and decoders
 - [x] Add .NET unit tests exceeding 85% coverage
+- [x] Apply rustfmt to `lifecycle.rs` and `models.rs`
+- [x] Re-run CI formatting checks and verify pipeline passes

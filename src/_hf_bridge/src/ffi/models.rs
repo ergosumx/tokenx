@@ -62,7 +62,9 @@ pub unsafe extern "C" fn tokenizers_model_bpe_from_files(
     let vocab_path = match read_required_utf8(vocab_path) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_bpe_from_files failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_bpe_from_files failed: {message}"
+            ));
             set_status(status, 1);
             return ptr::null_mut();
         }
@@ -71,7 +73,9 @@ pub unsafe extern "C" fn tokenizers_model_bpe_from_files(
     let merges_path = match read_required_utf8(merges_path) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_bpe_from_files failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_bpe_from_files failed: {message}"
+            ));
             set_status(status, 1);
             return ptr::null_mut();
         }
@@ -86,7 +90,9 @@ pub unsafe extern "C" fn tokenizers_model_bpe_from_files(
     let unk_token = match read_optional_utf8(unk_token) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_bpe_from_files failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_bpe_from_files failed: {message}"
+            ));
             set_status(status, 3);
             return ptr::null_mut();
         }
@@ -99,7 +105,9 @@ pub unsafe extern "C" fn tokenizers_model_bpe_from_files(
     let continuing_subword_prefix = match read_optional_utf8(continuing_subword_prefix) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_bpe_from_files failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_bpe_from_files failed: {message}"
+            ));
             set_status(status, 3);
             return ptr::null_mut();
         }
@@ -112,7 +120,9 @@ pub unsafe extern "C" fn tokenizers_model_bpe_from_files(
     let end_of_word_suffix = match read_optional_utf8(end_of_word_suffix) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_bpe_from_files failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_bpe_from_files failed: {message}"
+            ));
             set_status(status, 3);
             return ptr::null_mut();
         }
@@ -131,7 +141,9 @@ pub unsafe extern "C" fn tokenizers_model_bpe_from_files(
             Box::into_raw(Box::new(CModel::new(ModelWrapper::BPE(model))))
         }
         Err(err) => {
-            store_error(&format!("tokenizers_model_bpe_from_files failed to build: {err}"));
+            store_error(&format!(
+                "tokenizers_model_bpe_from_files failed to build: {err}"
+            ));
             set_status(status, 4);
             ptr::null_mut()
         }
@@ -152,7 +164,9 @@ pub unsafe extern "C" fn tokenizers_model_wordpiece_from_file(
     let vocab_path = match read_required_utf8(vocab_path) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_wordpiece_from_file failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_wordpiece_from_file failed: {message}"
+            ));
             set_status(status, 1);
             return ptr::null_mut();
         }
@@ -161,7 +175,9 @@ pub unsafe extern "C" fn tokenizers_model_wordpiece_from_file(
     let unk_token = match read_required_utf8(unk_token) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_wordpiece_from_file failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_wordpiece_from_file failed: {message}"
+            ));
             set_status(status, 1);
             return ptr::null_mut();
         }
@@ -174,7 +190,9 @@ pub unsafe extern "C" fn tokenizers_model_wordpiece_from_file(
     let continuing_prefix = match read_optional_utf8(continuing_subword_prefix) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_wordpiece_from_file failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_wordpiece_from_file failed: {message}"
+            ));
             set_status(status, 2);
             return ptr::null_mut();
         }
@@ -195,7 +213,9 @@ pub unsafe extern "C" fn tokenizers_model_wordpiece_from_file(
             Box::into_raw(Box::new(CModel::new(ModelWrapper::WordPiece(model))))
         }
         Err(err) => {
-            store_error(&format!("tokenizers_model_wordpiece_from_file failed to build: {err}"));
+            store_error(&format!(
+                "tokenizers_model_wordpiece_from_file failed to build: {err}"
+            ));
             set_status(status, 3);
             ptr::null_mut()
         }
@@ -212,7 +232,9 @@ pub unsafe extern "C" fn tokenizers_model_unigram_from_file(
     let model_path = match read_required_utf8(model_path) {
         Ok(value) => value,
         Err(message) => {
-            store_error(&format!("tokenizers_model_unigram_from_file failed: {message}"));
+            store_error(&format!(
+                "tokenizers_model_unigram_from_file failed: {message}"
+            ));
             set_status(status, 1);
             return ptr::null_mut();
         }
