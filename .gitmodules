@@ -1,0 +1,3 @@
+[submodule ".ext/sentencepiece"]
+	path = .ext/sentencepiece
+	url = git@github.com:google/sentencepiece.git
