@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
-public sealed class ChatContractsUnitTests
+public sealed class ChatContractsUnitTests : HuggingFaceTestBase
 {
     [Fact]
     public void ChatMessage_from_text_assigns_defaults()

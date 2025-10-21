@@ -6,11 +6,12 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
-public sealed class GenerationContractsUnitTests
+public sealed class GenerationContractsUnitTests : HuggingFaceTestBase
 {
     [Fact]
     public void LogitsBinding_Throws_WhenCategoryMissing()

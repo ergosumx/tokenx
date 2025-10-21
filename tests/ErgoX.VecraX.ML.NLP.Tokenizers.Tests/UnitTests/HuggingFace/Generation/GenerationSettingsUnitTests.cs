@@ -6,11 +6,12 @@ using System.Text.Json.Nodes;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
-public sealed class GenerationSettingsUnitTests
+public sealed class GenerationSettingsUnitTests : HuggingFaceTestBase
 {
     [Fact]
     public void BuildSettings_WithSimpleJson_ComputesBindingsAndCriteria()
@@ -96,7 +97,7 @@ public sealed class GenerationSettingsUnitTests
         Assert.Equal(0.4, settings.Temperature);
         Assert.Null(settings.TopP);
         Assert.Equal(128, settings.MaxNewTokens);
-        Assert.Equal(false, settings.DoSample);
+    Assert.False(settings.DoSample);
         Assert.Equal(new[] { "CUSTOM" }, settings.StopSequences);
         Assert.True(settings.TryGetRawParameter("custom_parameter", out var raw));
         Assert.Equal(17, raw!.GetValue<int>());

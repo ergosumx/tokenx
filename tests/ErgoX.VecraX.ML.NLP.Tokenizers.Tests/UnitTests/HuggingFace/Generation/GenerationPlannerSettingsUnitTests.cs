@@ -4,11 +4,12 @@ using System;
 using System.Linq;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
-public sealed class GenerationPlannerSettingsUnitTests
+public sealed class GenerationPlannerSettingsUnitTests : HuggingFaceTestBase
 {
     [Fact]
     public void GenerationConfig_WithTemperature_CreatesWarperBinding()

@@ -3,11 +3,12 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Generation;
 using System;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
-public sealed class GenerationPlannerContractsUnitTests
+public sealed class GenerationPlannerContractsUnitTests : HuggingFaceTestBase
 {
     [Fact]
     public void LogitsBinding_ValidatesCategory()

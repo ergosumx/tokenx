@@ -7,10 +7,11 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using Xunit;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
-public sealed class OptionsContractsUnitTests
+public sealed class OptionsContractsUnitTests : HuggingFaceTestBase
 {
     [Fact]
     public void AddedToken_validates_and_clones()
