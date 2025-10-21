@@ -1,3 +1,6 @@
 [submodule ".ext/sentencepiece"]
 	path = .ext/sentencepiece
 	url = https://github.com/ergosumx/sentencepiece.git
+[submodule ".ext/tiktoken"]
+	path = .ext/tiktoken
+	url = https://github.com/openai/tiktoken.git
