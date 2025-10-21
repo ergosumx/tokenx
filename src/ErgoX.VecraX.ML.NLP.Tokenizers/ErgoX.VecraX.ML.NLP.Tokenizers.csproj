@@ -46,6 +46,12 @@
       <PackagePath>runtimes/$([System.String]::Copy('%(RecursiveDir)').Replace('\\','/'))</PackagePath>
       <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </None>
+    <None Include="Tiktoken\runtimes\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/$([System.String]::Copy('%(RecursiveDir)').Replace('\\','/'))</PackagePath>
+      <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </None>
   </ItemGroup>
 
 </Project>

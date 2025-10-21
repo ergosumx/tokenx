@@ -1,0 +1,15 @@
+[package]
+name = "tt-bridge"
+version = "0.1.0"
+edition = "2021"
+authors = ["VecraX TokenX Team"]
+license = "Apache-2.0"
+
+[lib]
+name = "tt_bridge"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+anyhow = "1.0"
+regex = "1.10"
+tiktoken = { path = "../tiktoken" }
