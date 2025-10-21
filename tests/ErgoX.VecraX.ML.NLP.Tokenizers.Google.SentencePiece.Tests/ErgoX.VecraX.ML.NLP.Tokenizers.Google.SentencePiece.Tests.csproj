@@ -25,10 +25,11 @@
   <ItemGroup>
     <ProjectReference Include="..\ErgoX.VecraX.ML.NLP.Tokenizers.Testing\ErgoX.VecraX.ML.NLP.Tokenizers.Testing.csproj" />
     <ProjectReference Include="..\..\src\Common\ErgoX.VecraX.ML.NLP.Tokenizers.Common.csproj" />
-    <ProjectReference Include="..\..\src\HuggingFace\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj" />
+    <ProjectReference Include="..\..\src\Google\SentencePiece\ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="TestData\**\*" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\_testdata\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
