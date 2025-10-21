@@ -2,15 +2,16 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests;
 
 using System;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
 public sealed class SentencePieceModelFixture : IAsyncLifetime
 {
-    private static readonly Assembly ResourceAssembly = typeof(SentencePieceModelFixture).Assembly;
-    private static readonly string DataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData", "Google", "SentencePiece");
+    private static readonly string Mt5ModelPath = RepositoryTestData.GetPath("google-mt5-small", "spiece.model");
+    private static readonly string T5ModelPath = RepositoryTestData.GetPath("t5-small", "spiece.model");
+    private static readonly string LlamaModelPath = RepositoryTestData.GetPath("openchat-3.5-1210", "tokenizer.model");
 
     public ReadOnlyMemory<byte> Mt5SmallModel { get; private set; }
 
@@ -20,9 +21,9 @@ public sealed class SentencePieceModelFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        Mt5SmallModel = await LoadModelAsync("t5-efficient-tiny-spiece.model").ConfigureAwait(false);
-        T5SmallModel = await LoadModelAsync("tiny-mbart-sentencepiece.bpe.model").ConfigureAwait(false);
-        LlamaModel = await LoadModelAsync("llama-tokenizer.model").ConfigureAwait(false);
+        Mt5SmallModel = await LoadModelAsync(Mt5ModelPath).ConfigureAwait(false);
+        T5SmallModel = await LoadModelAsync(T5ModelPath).ConfigureAwait(false);
+        LlamaModel = await LoadModelAsync(LlamaModelPath).ConfigureAwait(false);
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -34,40 +35,18 @@ public sealed class SentencePieceModelFixture : IAsyncLifetime
         return processor;
     }
 
-    private static async Task<ReadOnlyMemory<byte>> LoadModelAsync(string fileName)
+    private static async Task<ReadOnlyMemory<byte>> LoadModelAsync(string absolutePath)
     {
-        var path = Path.Combine(DataDirectory, fileName);
-        if (File.Exists(path))
+        if (string.IsNullOrWhiteSpace(absolutePath))
         {
-            return await File.ReadAllBytesAsync(path).ConfigureAwait(false);
+            throw new ArgumentException("Model asset path must be provided.", nameof(absolutePath));
         }
 
-        var resourceName = ResourceAssembly.GetManifestResourceNames();
-        foreach (var candidate in resourceName)
+        if (!File.Exists(absolutePath))
         {
-            if (!candidate.EndsWith(fileName, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            using var stream = ResourceAssembly.GetManifestResourceStream(candidate) ?? throw new FileNotFoundException($"Embedded SentencePiece model '{fileName}' could not be opened.", fileName);
-            using var memory = new MemoryStream();
-            await stream.CopyToAsync(memory).ConfigureAwait(false);
-            var data = memory.ToArray();
-
-            try
-            {
-                Directory.CreateDirectory(DataDirectory);
-                await File.WriteAllBytesAsync(path, data).ConfigureAwait(false);
-            }
-            catch (Exception writeError) when (writeError is IOException or UnauthorizedAccessException)
-            {
-                GC.KeepAlive(writeError);
-            }
-
-            return data;
+            throw new FileNotFoundException($"SentencePiece model asset not found at '{absolutePath}'. Ensure tests/_TestData has been restored.", absolutePath);
         }
 
-        throw new FileNotFoundException($"SentencePiece model '{fileName}' was not found in the test assets.", path);
+        return await File.ReadAllBytesAsync(absolutePath).ConfigureAwait(false);
     }
 }

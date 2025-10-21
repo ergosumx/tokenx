@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestData\**\*" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\_testdata\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

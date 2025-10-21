@@ -95,7 +95,10 @@ dotnet test --configuration Release
 # This regenerates the benchmark JSON output using the archived assets.
 \.\.venv\Scripts\python.exe tests\Py\Huggingface\generate_benchmarks.py
 
-> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, and `huggingface_hub` packages so the generator can materialize tokenizer pipelines directly from each model's `tokenizer_config.json`.
+# Refresh SentencePiece parity fixtures
+\.\.venv\Scripts\python.exe tests\Py\Google\SentencePeice\generate_benchmarks.py
+
+> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `sentencepiece` packages so the generators can materialize tokenizer pipelines directly from each model asset.
 ```
 
 Running the .NET parity suite now also emits `dotnet-benchmark.json` alongside the Python fixtures in `tests/_TestData/<model>` so you can inspect the full decoded tokens produced by the managed implementation.
