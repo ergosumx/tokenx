@@ -3,10 +3,11 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Integration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
 using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
 using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
@@ -14,6 +15,8 @@ using Xunit;
 [Trait(TestCategories.Filter, TestCategories.Integration)]
 public sealed class SentencePiecePythonParityIntegrationTests
 {
+    private const string BenchmarkFileName = "python-sentencepiece-benchmark.json";
+
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNameCaseInsensitive = false
@@ -22,18 +25,20 @@ public sealed class SentencePiecePythonParityIntegrationTests
     public static IEnumerable<object[]> ModelIdentifiers()
     {
         var root = RepositoryTestData.GetRoot();
-        foreach (var directory in Directory.EnumerateDirectories(root))
+        if (!Directory.Exists(root))
         {
-            var modelId = Path.GetFileName(directory);
-            if (string.IsNullOrEmpty(modelId))
-            {
-                continue;
-            }
+            yield break;
+        }
 
-            var benchmarkPath = Path.Combine(directory, "python-sentencepiece-benchmark.json");
+        foreach (var modelId in Directory.EnumerateDirectories(root)
+                     .Select(Path.GetFileName)
+                     .Where(static value => !string.IsNullOrEmpty(value))
+                     .OrderBy(static value => value, StringComparer.Ordinal))
+        {
+            var benchmarkPath = Path.Combine(root, modelId!, BenchmarkFileName);
             if (File.Exists(benchmarkPath))
             {
-                yield return [modelId];
+                yield return new object[] { modelId! };
             }
         }
     }
@@ -49,134 +54,172 @@ public sealed class SentencePiecePythonParityIntegrationTests
 
         var dataRoot = RepositoryTestData.GetRoot();
         var modelRoot = Path.Combine(dataRoot, modelId);
-        var benchmarkPath = Path.Combine(modelRoot, "python-sentencepiece-benchmark.json");
+        var benchmarkPath = Path.Combine(modelRoot, BenchmarkFileName);
         Assert.True(File.Exists(benchmarkPath), $"Benchmark fixture missing for model '{modelId}'. Expected at {benchmarkPath}.");
 
-        SentencePiecePythonBenchmark benchmark;
+        PythonBenchmarkModel benchmark;
         using (var stream = File.OpenRead(benchmarkPath))
         {
-            benchmark = JsonSerializer.Deserialize<SentencePiecePythonBenchmark>(stream, SerializerOptions)
+            benchmark = JsonSerializer.Deserialize<PythonBenchmarkModel>(stream, SerializerOptions)
                 ?? throw new InvalidOperationException($"Failed to deserialize Python benchmark for model '{modelId}'.");
         }
 
-        if (!benchmark.Metadata.Assets.TryGetValue("model", out var modelFile))
-        {
-            throw new InvalidOperationException($"Python benchmark metadata for '{modelId}' is missing the 'model' asset entry.");
-        }
-
-        var modelPath = Path.Combine(modelRoot, modelFile);
-        Assert.True(File.Exists(modelPath), $"Model asset referenced by benchmark is missing: {modelPath}");
-
+        var modelPath = ResolveModelAsset(benchmark.Metadata, modelRoot);
         var modelBytes = File.ReadAllBytes(modelPath);
+
         using var processor = SentencePieceModelFixture.CreateProcessor(modelBytes);
 
         foreach (var testCase in benchmark.Cases)
         {
-            VerifySingle(processor, testCase);
-            VerifyBatch(processor, testCase);
+            ValidateSingle(processor, testCase);
+            ValidateBatch(processor, testCase);
         }
     }
 
-    private static void VerifySingle(SentencePieceProcessor processor, SentencePiecePythonBenchmarkCase testCase)
+    private static string ResolveModelAsset(PythonBenchmarkMetadata metadata, string modelRoot)
     {
-        var ids = processor.EncodeIds(testCase.Text);
-        Assert.Equal(testCase.Ids, ids);
+        if (!metadata.Assets.TryGetValue("model", out var relativePath))
+        {
+            throw new InvalidOperationException("Python benchmark metadata is missing the 'model' asset entry.");
+        }
 
-        var pieces = processor.EncodePieces(testCase.Text);
-        Assert.Equal(testCase.Pieces, pieces);
+        var candidate = Path.GetFullPath(Path.Combine(modelRoot, relativePath));
+        if (!File.Exists(candidate))
+        {
+            throw new FileNotFoundException($"Model asset referenced by benchmark is missing: {candidate}");
+        }
+
+        return candidate;
+    }
+
+    private static void ValidateSingle(SentencePieceProcessor processor, PythonBenchmarkCase testCase)
+    {
+        var single = testCase.Single;
+        Assert.Equal(single.TextHash, ParityHashUtilities.HashString(single.Text));
+
+        var ids = processor.EncodeIds(single.Text);
+        var pieces = processor.EncodePieces(single.Text);
+
+        var summary = CreateEncodingSummary(ids, pieces);
+        AssertEncodingSummary(single.Encoding, summary);
 
         var decodedFromIds = processor.DecodeIds(ids);
-        Assert.Equal(testCase.Decoded, decodedFromIds);
+        Assert.Equal(single.DecodedHash, ParityHashUtilities.HashString(decodedFromIds));
 
-        var decodedFromPieces = processor.DecodePieces(pieces);
-        Assert.Equal(testCase.Decoded, decodedFromPieces);
+    var decodedFromPieces = processor.DecodePieces(pieces);
+    Assert.Equal(single.TextHash, ParityHashUtilities.HashString(decodedFromPieces));
     }
 
-    private static void VerifyBatch(SentencePieceProcessor processor, SentencePiecePythonBenchmarkCase testCase)
+    private static void ValidateBatch(SentencePieceProcessor processor, PythonBenchmarkCase testCase)
     {
-        if (testCase.BatchTexts.Count == 0)
-        {
-            return;
-        }
+        var batch = testCase.Batch;
+        var batchTexts = BuildBatchInputs(testCase);
+        Assert.Equal(batch.Count, batchTexts.Count);
+        Assert.Equal(batch.TextsHash, ParityHashUtilities.HashStringSequence(batchTexts));
 
-        var idsBatch = processor.EncodeIds(testCase.BatchTexts);
-        Assert.Equal(testCase.BatchIds.Count, idsBatch.Count);
+        var idsBatch = processor.EncodeIds(batchTexts);
+        var piecesBatch = processor.EncodePieces(batchTexts);
+        Assert.Equal(batch.Encodings.Count, idsBatch.Count);
+
         for (var index = 0; index < idsBatch.Count; index++)
         {
-            Assert.Equal(testCase.BatchIds[index], idsBatch[index]);
-        }
-
-        var piecesBatch = processor.EncodePieces(testCase.BatchTexts);
-        Assert.Equal(testCase.BatchPieces.Count, piecesBatch.Count);
-        for (var index = 0; index < piecesBatch.Count; index++)
-        {
-            Assert.Equal(testCase.BatchPieces[index], piecesBatch[index]);
+            var encodingSummary = CreateEncodingSummary(idsBatch[index], piecesBatch[index]);
+            AssertEncodingSummary(batch.Encodings[index], encodingSummary);
         }
 
         var decodedFromIds = processor.DecodeIds(idsBatch);
-        Assert.Equal(testCase.BatchDecoded, decodedFromIds);
+        Assert.Equal(batch.DecodedHash, ParityHashUtilities.HashStringSequence(decodedFromIds));
 
-        var decodedFromPieces = processor.DecodePieces(piecesBatch);
-        Assert.Equal(testCase.BatchDecoded, decodedFromPieces);
+    var decodedFromPieces = processor.DecodePieces(piecesBatch).ToList();
+    Assert.Equal(batch.TextsHash, ParityHashUtilities.HashStringSequence(decodedFromPieces));
     }
 
-    private sealed record SentencePiecePythonBenchmark
+    private static IReadOnlyList<string> BuildBatchInputs(PythonBenchmarkCase testCase)
     {
-        [JsonPropertyName("metadata")]
-        public SentencePiecePythonBenchmarkMetadata Metadata { get; init; } = default!;
+        if (testCase.Batch.Texts.Count > 0)
+        {
+            return testCase.Batch.Texts;
+        }
 
-        [JsonPropertyName("cases")]
-        public IReadOnlyList<SentencePiecePythonBenchmarkCase> Cases { get; init; } = Array.Empty<SentencePiecePythonBenchmarkCase>();
+        var inputs = new string[testCase.Batch.Count];
+        for (var index = 0; index < inputs.Length; index++)
+        {
+            inputs[index] = $"{testCase.Single.Text} [sample:{index:D2}]";
+        }
+
+        return inputs;
     }
 
-    private sealed record SentencePiecePythonBenchmarkMetadata
+    private static EncodingSummary CreateEncodingSummary(IReadOnlyList<int> ids, IReadOnlyList<string> pieces)
     {
-        [JsonPropertyName("model")]
-        public string Model { get; init; } = string.Empty;
+        var length = ids.Count;
+        var typeIds = CreateFilledArray(length, 0u);
+        var attentionMask = CreateFilledArray(length, 1u);
+        var specialTokensMask = new uint[length];
+        var offsets = CreateOffsets(length);
+        var wordIds = new int?[length];
+        var sequenceIds = CreateSequenceIds(length);
 
-        [JsonPropertyName("display_name")]
-        public string DisplayName { get; init; } = string.Empty;
-
-        [JsonPropertyName("repo_id")]
-        public string? RepoId { get; init; }
-
-        [JsonPropertyName("generated_at")]
-        public string GeneratedAt { get; init; } = string.Empty;
-
-        [JsonPropertyName("sentencepiece_version")]
-        public string SentencePieceVersion { get; init; } = string.Empty;
-
-        [JsonPropertyName("assets")]
-        public IReadOnlyDictionary<string, string> Assets { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
+        return new EncodingSummary
+        {
+            Length = length,
+            IdsHash = ParityHashUtilities.HashInt32Sequence(ids),
+            TokensHash = ParityHashUtilities.HashStringSequence(pieces),
+            TypeIdsHash = ParityHashUtilities.HashUInt32Sequence(typeIds),
+            AttentionMaskHash = ParityHashUtilities.HashUInt32Sequence(attentionMask),
+            SpecialTokensMaskHash = ParityHashUtilities.HashUInt32Sequence(specialTokensMask),
+            OffsetsHash = ParityHashUtilities.HashOffsets(offsets),
+            WordIdsHash = ParityHashUtilities.HashOptionalInt32Sequence(wordIds),
+            SequenceIdsHash = ParityHashUtilities.HashOptionalInt32Sequence(sequenceIds),
+            Overflowing = Array.Empty<EncodingSummary>()
+        };
     }
 
-    private sealed record SentencePiecePythonBenchmarkCase
+    private static uint[] CreateFilledArray(int length, uint value)
     {
-        [JsonPropertyName("description")]
-        public string Description { get; init; } = string.Empty;
+        var buffer = new uint[length];
+        if (length == 0)
+        {
+            return buffer;
+        }
 
-        [JsonPropertyName("text")]
-        public string Text { get; init; } = string.Empty;
+        Array.Fill(buffer, value);
+        return buffer;
+    }
 
-        [JsonPropertyName("ids")]
-        public IReadOnlyList<int> Ids { get; init; } = Array.Empty<int>();
+    private static (int Start, int End)[] CreateOffsets(int length)
+    {
+        var offsets = new (int Start, int End)[length];
+        for (var index = 0; index < offsets.Length; index++)
+        {
+            offsets[index] = (0, 0);
+        }
 
-        [JsonPropertyName("pieces")]
-        public IReadOnlyList<string> Pieces { get; init; } = Array.Empty<string>();
+        return offsets;
+    }
 
-        [JsonPropertyName("decoded")]
-        public string Decoded { get; init; } = string.Empty;
+    private static int?[] CreateSequenceIds(int length)
+    {
+        var sequenceIds = new int?[length];
+        for (var index = 0; index < sequenceIds.Length; index++)
+        {
+            sequenceIds[index] = 0;
+        }
 
-        [JsonPropertyName("batchTexts")]
-        public IReadOnlyList<string> BatchTexts { get; init; } = Array.Empty<string>();
+        return sequenceIds;
+    }
 
-        [JsonPropertyName("batchIds")]
-        public IReadOnlyList<IReadOnlyList<int>> BatchIds { get; init; } = Array.Empty<IReadOnlyList<int>>();
-
-        [JsonPropertyName("batchPieces")]
-        public IReadOnlyList<IReadOnlyList<string>> BatchPieces { get; init; } = Array.Empty<IReadOnlyList<string>>();
-
-        [JsonPropertyName("batchDecoded")]
-        public IReadOnlyList<string> BatchDecoded { get; init; } = Array.Empty<string>();
+    private static void AssertEncodingSummary(EncodingSummary expected, EncodingSummary actual)
+    {
+        Assert.Equal(expected.Length, actual.Length);
+        Assert.Equal(expected.IdsHash, actual.IdsHash);
+        Assert.Equal(expected.TokensHash, actual.TokensHash);
+        Assert.Equal(expected.TypeIdsHash, actual.TypeIdsHash);
+        Assert.Equal(expected.AttentionMaskHash, actual.AttentionMaskHash);
+        Assert.Equal(expected.SpecialTokensMaskHash, actual.SpecialTokensMaskHash);
+        Assert.Equal(expected.OffsetsHash, actual.OffsetsHash);
+        Assert.Equal(expected.WordIdsHash, actual.WordIdsHash);
+        Assert.Equal(expected.SequenceIdsHash, actual.SequenceIdsHash);
+        Assert.Equal(expected.Overflowing.Count, actual.Overflowing.Count);
     }
 }

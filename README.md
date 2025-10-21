@@ -98,7 +98,7 @@ dotnet test --configuration Release
 # Refresh SentencePiece parity fixtures
 \.\.venv\Scripts\python.exe tests\Py\Google\SentencePeice\generate_benchmarks.py
 
-> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `sentencepiece` packages so the generators can materialize tokenizer pipelines directly from each model asset.
+> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `sentencepiece` packages so the generators can materialize tokenizer pipelines directly from each model asset. The SentencePiece generator scans `tests/_TestData` for every `*.model` vocabulary and refreshes the parity fixtures in one pass.
 ```
 
 Running the .NET parity suite now also emits `dotnet-benchmark.json` alongside the Python fixtures in `tests/_TestData/<model>` so you can inspect the full decoded tokens produced by the managed implementation.
