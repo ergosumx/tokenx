@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Loader;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
 
@@ -22,7 +21,7 @@ internal static class NativeLibraryLoader
     [System.Runtime.CompilerServices.ModuleInitializer]
     internal static void Initialize()
     {
-        NativeLibrary.SetDllImportResolver(typeof(NativeLibraryLoader).Assembly, Resolve);
+        ErgoX.VecraX.ML.NLP.Tokenizers.Internal.Interop.NativeLibraryResolverRegistry.Register(Resolve);
     }
 
     private static IntPtr Resolve(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
