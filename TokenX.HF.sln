@@ -27,6 +27,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tiktoken", "Tiktoken", "{3E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken", "src\OpenAI\Tiktoken\ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken.csproj", "{443292D7-B8F7-42B1-BE68-E95D0C7A9728}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests", "tests\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.csproj", "{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +101,18 @@ Global
 		{443292D7-B8F7-42B1-BE68-E95D0C7A9728}.Release|x64.Build.0 = Release|Any CPU
 		{443292D7-B8F7-42B1-BE68-E95D0C7A9728}.Release|x86.ActiveCfg = Release|Any CPU
 		{443292D7-B8F7-42B1-BE68-E95D0C7A9728}.Release|x86.Build.0 = Release|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Debug|x64.Build.0 = Debug|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Debug|x86.Build.0 = Debug|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Release|x64.ActiveCfg = Release|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Release|x64.Build.0 = Release|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Release|x86.ActiveCfg = Release|Any CPU
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,5 +128,6 @@ Global
 		{06BC3EED-F0DE-590E-1F20-A27240068F06} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{3E4AF635-2379-466D-A908-D7F0F3B22049} = {06BC3EED-F0DE-590E-1F20-A27240068F06}
 		{443292D7-B8F7-42B1-BE68-E95D0C7A9728} = {3E4AF635-2379-466D-A908-D7F0F3B22049}
+		{3B6E297D-C9A5-4CD9-BE10-BF4698F606E3} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
