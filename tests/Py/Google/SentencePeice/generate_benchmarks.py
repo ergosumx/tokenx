@@ -10,9 +10,7 @@ behaviour across every model that ships a SentencePiece vocabulary inside
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import struct
 import sys
 import time
 from dataclasses import dataclass
@@ -27,8 +25,20 @@ except ImportError as exc:  # pragma: no cover - dependency guard
     ) from exc
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tests.Py.Common.tokenization_contract import (
+    hash_int32_sequence,
+    hash_offsets,
+    hash_optional_int32_sequence,
+    hash_string,
+    hash_string_sequence,
+    hash_uint32_sequence,
+    load_tokenization_cases,
+)
+
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "tests" / "_TestData"
-SENTINEL_NONE = -0x80000000
 
 
 @dataclass(frozen=True)
@@ -40,95 +50,94 @@ class ModelSpec:
 
 @dataclass(frozen=True)
 class CaseDefinition:
+    contract_id: str
     length: str
     description: str
     text: str
     batch_texts: Sequence[str]
+    options: Dict[str, object]
+    pair_text: str | None = None
+    batch_pair_texts: Sequence[str] | None = None
 
 
-CASE_DEFINITIONS: Sequence[CaseDefinition] = (
-    CaseDefinition(
-        length="Short",
-        description="Short compliance update",
-        text="SentencePiece enables nightly compliance summaries for analysts.",
-        batch_texts=(
-            "SentencePiece enables nightly compliance summaries for analysts.",
-            "SentencePiece enables nightly incident summaries for analysts.",
-            "SentencePiece enables nightly compliance summaries for auditors.",
-        ),
-    ),
-    CaseDefinition(
-        length="Identifiers",
-        description="Hyphenated identifiers",
-        text="Queue-42 flagged policy-drift events during the 03:17 UTC window.",
-        batch_texts=(
-            "Queue-42 flagged policy-drift events during the 03:17 UTC window.",
-            "Queue-42 flagged policy-drift events during the 09:45 UTC window.",
-            "Queue-42 flagged policy-drift events during the 12:05 UTC window.",
-        ),
-    ),
-    CaseDefinition(
-        length="Telemetry",
-        description="Multi-sentence telemetry",
-        text=(
-            "Telemetry dashboards surface multilingual traces so reviewers can verify policy coverage. "
-            "Compliance leads archive the summaries for the morning briefing."
-        ),
-        batch_texts=(
-            "Telemetry dashboards surface multilingual traces so reviewers can verify policy coverage.",
-            "Compliance leads archive the summaries for the morning briefing.",
-            "Telemetry dashboards surface multilingual traces for nightly auditing responsibilities.",
-        ),
-    ),
-)
+def _load_case_definitions() -> Sequence[CaseDefinition]:
+    raw_cases = load_tokenization_cases("sentencepiece")
+    definitions: List[CaseDefinition] = []
+    for entry in raw_cases:
+        case_id = entry.get("id")
+        if not isinstance(case_id, str) or not case_id:
+            raise RuntimeError("Tokenization contract entry is missing an identifier.")
+        single = entry.get("single") or {}
+        batch = entry.get("batch") or {}
+        text = single.get("text")
+        batch_texts = batch.get("texts")
+        length = entry.get("length")
+        description = entry.get("description")
+        if not isinstance(text, str) or not isinstance(batch_texts, list):
+            raise RuntimeError("Tokenization contract entry is missing required sentencepiece fields.")
+        if not isinstance(length, str) or not isinstance(description, str):
+            raise RuntimeError("Tokenization contract entry is missing metadata for SentencePiece.")
 
+        text_hash = single.get("textHash")
+        if not isinstance(text_hash, str) or hash_string(text) != text_hash:
+            raise RuntimeError(f"SentencePiece contract case '{case_id}' single text hash mismatch.")
 
-def _hash_bytes(value: bytes) -> str:
-    return hashlib.sha256(value).hexdigest()
+        pair_text_value = single.get("pairText")
+        pair_text_hash = single.get("pairTextHash")
+        if pair_text_value is not None:
+            if not isinstance(pair_text_value, str) or not isinstance(pair_text_hash, str):
+                raise RuntimeError(f"SentencePiece contract case '{case_id}' pair payload is invalid.")
+            if hash_string(pair_text_value) != pair_text_hash:
+                raise RuntimeError(f"SentencePiece contract case '{case_id}' pair text hash mismatch.")
+            pair_text: str | None = pair_text_value
+        else:
+            pair_text = None
 
+        batch_count = batch.get("count")
+        if not isinstance(batch_count, int):
+            raise RuntimeError(f"SentencePiece contract case '{case_id}' batch count is invalid.")
 
-def _hash_string(value: str) -> str:
-    encoded = value.encode("utf-8")
-    return _hash_bytes(struct.pack("<I", len(encoded)) + encoded)
+        batch_text_list = [str(value) for value in batch_texts]
+        if len(batch_text_list) != batch_count:
+            raise RuntimeError(
+                f"SentencePiece contract case '{case_id}' batch length mismatch: declared {batch_count}, actual {len(batch_text_list)}."
+            )
 
+        texts_hash = batch.get("textsHash")
+        if not isinstance(texts_hash, str) or hash_string_sequence(batch_text_list) != texts_hash:
+            raise RuntimeError(f"SentencePiece contract case '{case_id}' batch text hash mismatch.")
 
-def _hash_string_sequence(values: Sequence[str]) -> str:
-    payload = bytearray()
-    for item in values:
-        encoded = item.encode("utf-8")
-        payload.extend(struct.pack("<I", len(encoded)))
-        payload.extend(encoded)
-    return _hash_bytes(payload)
+        pair_batch_raw = batch.get("pairTexts")
+        pair_batch: Sequence[str] | None = None
+        if isinstance(pair_batch_raw, list) and pair_batch_raw:
+            pair_batch_list = [str(value) for value in pair_batch_raw]
+            if len(pair_batch_list) != batch_count:
+                raise RuntimeError(
+                    f"SentencePiece contract case '{case_id}' batch pair length mismatch: declared {batch_count}, actual {len(pair_batch_list)}."
+                )
+            pair_hash = batch.get("pairTextsHash")
+            if not isinstance(pair_hash, str) or hash_string_sequence(pair_batch_list) != pair_hash:
+                raise RuntimeError(f"SentencePiece contract case '{case_id}' batch pair hash mismatch.")
+            pair_batch = tuple(pair_batch_list)
 
-
-def _hash_int32_sequence(values: Sequence[int]) -> str:
-    payload = bytearray()
-    for value in values:
-        payload.extend(struct.pack("<i", int(value)))
-    return _hash_bytes(payload)
-
-
-def _hash_uint32_sequence(values: Sequence[int]) -> str:
-    payload = bytearray()
-    for value in values:
-        payload.extend(struct.pack("<I", int(value)))
-    return _hash_bytes(payload)
-
-
-def _hash_optional_int32_sequence(values: Sequence[int | None]) -> str:
-    payload = bytearray()
-    for value in values:
-        encoded = SENTINEL_NONE if value is None else int(value)
-        payload.extend(struct.pack("<i", encoded))
-    return _hash_bytes(payload)
-
-
-def _hash_offsets(values: Sequence[tuple[int, int]]) -> str:
-    payload = bytearray()
-    for start, end in values:
-        payload.extend(struct.pack("<i", int(start)))
-        payload.extend(struct.pack("<i", int(end)))
-    return _hash_bytes(payload)
+        options: Dict[str, object] = {
+            "addSpecialTokens": False,
+            "decodeSkipSpecialTokens": True,
+        }
+        options.update(entry.get("options") or {})
+        definitions.append(
+            CaseDefinition(
+                contract_id=case_id,
+                length=length,
+                description=description,
+                text=text,
+                batch_texts=tuple(batch_text_list),
+                options=options,
+                pair_text=pair_text,
+                batch_pair_texts=pair_batch,
+            )
+        )
+    return definitions
 
 
 def discover_model_specs(output_dir: Path) -> Dict[str, ModelSpec]:
@@ -185,14 +194,14 @@ def summarize_encoding(ids: Sequence[int], pieces: Sequence[str]) -> Dict[str, o
 
     return {
         "length": length,
-        "idsHash": _hash_int32_sequence(ids),
-        "tokensHash": _hash_string_sequence(pieces),
-        "typeIdsHash": _hash_uint32_sequence(type_ids),
-        "attentionMaskHash": _hash_uint32_sequence(attention_mask),
-        "specialTokensMaskHash": _hash_uint32_sequence(special_tokens_mask),
-        "offsetsHash": _hash_offsets(offsets),
-        "wordIdsHash": _hash_optional_int32_sequence(word_ids),
-        "sequenceIdsHash": _hash_optional_int32_sequence(sequence_ids),
+        "idsHash": hash_int32_sequence(ids),
+        "tokensHash": hash_string_sequence(pieces),
+        "typeIdsHash": hash_uint32_sequence(type_ids),
+        "attentionMaskHash": hash_uint32_sequence(attention_mask),
+        "specialTokensMaskHash": hash_uint32_sequence(special_tokens_mask),
+        "offsetsHash": hash_offsets(offsets),
+        "wordIdsHash": hash_optional_int32_sequence(word_ids),
+        "sequenceIdsHash": hash_optional_int32_sequence(sequence_ids),
         "overflowing": [],
     }
 
@@ -209,33 +218,38 @@ def generate_case_payload(processor: spm.SentencePieceProcessor, case: CaseDefin
 
     single_payload = {
         "text": case.text,
-        "textHash": _hash_string(case.text),
+        "textHash": hash_string(case.text),
         "encoding": summarize_encoding(single_ids, single_pieces),
-        "decodedHash": _hash_string(single_decoded),
+        "decodedHash": hash_string(single_decoded),
     }
+    if case.pair_text is not None:
+        single_payload["pairText"] = case.pair_text
+        single_payload["pairTextHash"] = hash_string(case.pair_text)
 
     batch_payload = {
         "count": len(batch_texts),
         "texts": batch_texts,
-        "textsHash": _hash_string_sequence(batch_texts),
+        "textsHash": hash_string_sequence(batch_texts),
         "encodings": [summarize_encoding(ids, pieces) for ids, pieces in zip(batch_ids, batch_pieces)],
-        "decodedHash": _hash_string_sequence(batch_decoded),
+        "decodedHash": hash_string_sequence(batch_decoded),
     }
+    if case.batch_pair_texts:
+        pair_batch = list(case.batch_pair_texts)
+        batch_payload["pairTexts"] = pair_batch
+        batch_payload["pairTextsHash"] = hash_string_sequence(pair_batch)
 
     return {
+        "contractId": case.contract_id,
         "length": case.length,
         "description": case.description,
-        "options": {
-            "addSpecialTokens": False,
-            "decodeSkipSpecialTokens": True,
-        },
+        "options": case.options,
         "single": single_payload,
         "batch": batch_payload,
     }
 
 
 def build_payload(processor: spm.SentencePieceProcessor) -> List[Dict[str, object]]:
-    return [generate_case_payload(processor, case) for case in CASE_DEFINITIONS]
+    return [generate_case_payload(processor, case) for case in _load_case_definitions()]
 
 
 def write_fixture(model: str, spec: ModelSpec, output_dir: Path, payload: Iterable[Dict[str, object]]) -> Path:

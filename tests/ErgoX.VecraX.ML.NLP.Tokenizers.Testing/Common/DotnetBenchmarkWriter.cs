@@ -101,6 +101,7 @@ public static class DotnetBenchmarkWriter
 
         return new DotnetBenchmarkCaseSnapshot
         {
+            ContractId = testCase.ContractId,
             Length = testCase.Length,
             Description = testCase.Description,
             Options = testCase.Options,
@@ -148,6 +149,9 @@ public sealed record DotnetBenchmarkModelSnapshot
 
 public sealed record DotnetBenchmarkCaseSnapshot
 {
+    [JsonPropertyName("contractId")]
+    public string? ContractId { get; init; }
+
     [JsonPropertyName("length")]
     public required string Length { get; init; }
 

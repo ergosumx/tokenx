@@ -19,8 +19,7 @@ import traceback
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from random import Random
-from typing import Any, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple
 
 try:
     from tokenizers import Encoding, Tokenizer, __version__ as TOKENIZERS_VERSION
@@ -63,6 +62,12 @@ except ImportError as exc:  # pragma: no cover - chat template evaluation safety
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "tests" / "_TestData"
 DEFAULT_VENV = REPO_ROOT / ".venv"
+CONTRACT_TARGET = "huggingface"
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tests.Py.Common.tokenization_contract import load_tokenization_cases
 
 
 class SequenceLength(Enum):
@@ -91,6 +96,7 @@ class CaseOptions:
 
 @dataclass(frozen=True)
 class BenchmarkCase:
+    contract_id: str
     length: SequenceLength
     description: str
     text: str
@@ -450,28 +456,6 @@ CHAT_MODEL_SCENARIOS: Dict[str, List[ChatScenario]] = {
     "openchat-3.5-1210": _build_standard_chat_scenarios(),
 }
 
-BASE_SENTENCE = (
-    "In a distant research lab, engineers tuned transformers while monitoring streaming telemetry "
-    "from multilingual datasets."
-)
-SUPPLEMENTARY_SENTENCES = [
-    "The models adapted to sudden domain shifts as analysts injected noisy transcripts into the queue.",
-    "Meanwhile, the observability stack captured latency spikes and surfaced alerts to the on-call rotation.",
-    "A compliance auditor reviewed masked payloads to ensure privacy constraints remained intact.",
-    "After midnight, an A/B experiment introduced synthetic dialogue to probe robustness against adversarial prompts.",
-    "Statisticians summarized the nightly run, documenting throughput, token distributions, and error trends.",
-]
-
-CASE_SPECS = (
-    (SequenceLength.TINY, "Tiny (~16 tokens)", 1, 2, 16),
-    (SequenceLength.SHORT, "Short (~32 tokens)", 1, 4, 32),
-    (SequenceLength.MEDIUM, "Medium (~128 tokens)", 4, 6, 32),
-    (SequenceLength.LONG, "Long (~512 tokens)", 16, 8, 32),
-    (SequenceLength.EXTRA_LONG, "Extra Long (~1024 tokens)", 32, 12, 32),
-    (SequenceLength.MASSIVE, "Massive (~2048 tokens)", 64, 16, 16),
-)
-
-
 def ensure_repo_venv(require_repo_venv: bool) -> None:
     if not require_repo_venv:
         return
@@ -485,73 +469,193 @@ def ensure_repo_venv(require_repo_venv: bool) -> None:
             )
 
 
-def build_cases() -> List[BenchmarkCase]:
+def load_cases_from_contract(target: str = CONTRACT_TARGET) -> List[BenchmarkCase]:
+    raw_cases = load_tokenization_cases(target)
     cases: List[BenchmarkCase] = []
-    for length, description, base_repeats, shuffle_seed, batch_size in CASE_SPECS:
-        random = Random(shuffle_seed)
-        segments: List[str] = []
-        for _ in range(base_repeats):
-            segments.append(BASE_SENTENCE)
-            shuffled = list(SUPPLEMENTARY_SENTENCES)
-            random.shuffle(shuffled)
-            segments.extend(shuffled)
-        text = " ".join(segments)
-        batch = [f"{text} [sample:{index:02d}]" for index in range(batch_size)]
+    seen_ids: Set[str] = set()
+
+    for entry in raw_cases:
+        case_id = _require_non_empty_string(entry, "id", "Tokenization contract case is missing an 'id'.")
+        if case_id in seen_ids:
+            raise RuntimeError(f"Duplicate tokenization contract identifier '{case_id}'.")
+        seen_ids.add(case_id)
+
+        length_value = _require_non_empty_string(entry, "length", f"Case '{case_id}' is missing 'length'.")
+        try:
+            length = SequenceLength(length_value)
+        except ValueError as exc:
+            raise RuntimeError(f"Unsupported sequence length '{length_value}' in contract case '{case_id}'.") from exc
+
+        description = _require_non_empty_string(entry, "description", f"Case '{case_id}' is missing 'description'.")
+
+        single_node = _require_mapping(entry, "single", f"Case '{case_id}' is missing the 'single' payload.")
+        batch_node = _require_mapping(entry, "batch", f"Case '{case_id}' is missing the 'batch' payload.")
+
+        text = _require_non_empty_string(single_node, "text", f"Case '{case_id}' is missing single text.")
+        text_hash = _require_non_empty_string(
+            single_node,
+            "textHash",
+            f"Case '{case_id}' single payload is missing 'textHash'.",
+        )
+        if _hash_string(text) != text_hash:
+            raise RuntimeError(f"Case '{case_id}' single text hash mismatch.")
+
+        pair_text = _optional_string(single_node, "pairText")
+        pair_text_hash = _optional_string(single_node, "pairTextHash")
+        if pair_text is not None:
+            if pair_text_hash is None:
+                raise RuntimeError(f"Case '{case_id}' is missing 'pairTextHash'.")
+            if _hash_string(pair_text) != pair_text_hash:
+                raise RuntimeError(f"Case '{case_id}' pair text hash mismatch.")
+        elif pair_text_hash is not None and pair_text_hash != "":
+            raise RuntimeError(f"Case '{case_id}' supplies 'pairTextHash' without 'pairText'.")
+
+        _require_non_empty_string(
+            single_node,
+            "decodedHash",
+            f"Case '{case_id}' single payload is missing 'decodedHash'.",
+        )
+
+        count = _require_int(batch_node, "count", f"Case '{case_id}' batch payload is missing 'count'.")
+        if count < 0:
+            raise RuntimeError(f"Case '{case_id}' batch count cannot be negative.")
+
+        texts = _require_string_list(batch_node, "texts", f"Case '{case_id}' batch payload is missing 'texts'.")
+        if len(texts) != count:
+            raise RuntimeError(
+                f"Case '{case_id}' batch text count mismatch: declared {count}, actual {len(texts)}."
+            )
+
+        texts_hash = _require_non_empty_string(
+            batch_node,
+            "textsHash",
+            f"Case '{case_id}' batch payload is missing 'textsHash'.",
+        )
+        if _hash_string_sequence(texts) != texts_hash:
+            raise RuntimeError(f"Case '{case_id}' batch texts hash mismatch.")
+
+        _require_non_empty_string(
+            batch_node,
+            "decodedHash",
+            f"Case '{case_id}' batch payload is missing 'decodedHash'.",
+        )
+
+        pair_texts = _optional_string_list(batch_node, "pairTexts")
+        pair_texts_hash = _optional_string(batch_node, "pairTextsHash")
+        if pair_texts is not None and len(pair_texts) > 0:
+            if pair_texts_hash is None:
+                raise RuntimeError(f"Case '{case_id}' is missing 'pairTextsHash'.")
+            if len(pair_texts) != count:
+                raise RuntimeError(
+                    f"Case '{case_id}' batch pair count mismatch: declared {count}, actual {len(pair_texts)}."
+                )
+            if _hash_string_sequence(pair_texts) != pair_texts_hash:
+                raise RuntimeError(f"Case '{case_id}' batch pair texts hash mismatch.")
+        else:
+            pair_texts = None
+
+        options = _parse_case_options(entry.get("options"))
+
         cases.append(
             BenchmarkCase(
+                contract_id=case_id,
                 length=length,
                 description=description,
                 text=text,
-                batch=batch,
+                batch=tuple(texts),
+                options=options,
+                pair_text=pair_text,
+                batch_pair_texts=tuple(pair_texts) if pair_texts is not None else None,
             )
         )
-    cases.extend(build_advanced_cases())
+
+    if not cases:
+        raise RuntimeError(f"No tokenization cases available for target '{target}'.")
+
     return cases
 
 
-def build_advanced_cases() -> List[BenchmarkCase]:
-    advanced: List[BenchmarkCase] = []
+def _require_mapping(node: Dict[str, Any], key: str, message: str) -> Dict[str, Any]:
+    value = node.get(key)
+    if not isinstance(value, dict):
+        raise RuntimeError(message)
+    return value
 
-    pair_text = (
-        "Summary: Compliance auditors consolidate redacted findings while moderators "
-        "triage multilingual incidents across distributed queues."
-    )
-    pair_base = " ".join([BASE_SENTENCE, SUPPLEMENTARY_SENTENCES[0], SUPPLEMENTARY_SENTENCES[2]])
-    pair_batch = [f"{pair_base} [pair-doc:{index:02d}]" for index in range(8)]
-    pair_batch_pairs = [f"{pair_text} [pair-summary:{index:02d}]" for index in range(8)]
-    advanced.append(
-        BenchmarkCase(
-            length=SequenceLength.ADVANCED_PAIR,
-            description="Pair encoding with special tokens for document and summary inputs.",
-            text=pair_base,
-            batch=pair_batch,
-            options=CaseOptions(add_special_tokens=True, decode_skip_special_tokens=False),
-            pair_text=pair_text,
-            batch_pair_texts=pair_batch_pairs,
-        )
-    )
 
-    overflow_segments: List[str] = []
-    for _ in range(12):
-        overflow_segments.append(BASE_SENTENCE)
-        overflow_segments.extend(SUPPLEMENTARY_SENTENCES)
-    overflow_text = " ".join(overflow_segments)
-    overflow_batch = [f"{overflow_text} [overflow:{index:02d}]" for index in range(6)]
-    advanced.append(
-        BenchmarkCase(
-            length=SequenceLength.ADVANCED_TRUNCATION,
-            description="Truncation with stride generates deterministic overflow encodings.",
-            text=overflow_text,
-            batch=overflow_batch,
-            options=CaseOptions(
-                add_special_tokens=True,
-                decode_skip_special_tokens=False,
-                truncation=TruncationConfig(max_length=256, stride=48),
-            ),
-        )
-    )
+def _require_non_empty_string(node: Dict[str, Any], key: str, message: str) -> str:
+    value = node.get(key)
+    if not isinstance(value, str) or not value:
+        raise RuntimeError(message)
+    return value
 
-    return advanced
+
+def _optional_string(node: Dict[str, Any], key: str) -> str | None:
+    value = node.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise RuntimeError(f"Optional field '{key}' must be a string if provided.")
+    return value
+
+
+def _require_int(node: Dict[str, Any], key: str, message: str) -> int:
+    value = node.get(key)
+    if not isinstance(value, int):
+        raise RuntimeError(message)
+    return value
+
+
+def _require_string_list(node: Dict[str, Any], key: str, message: str) -> List[str]:
+    value = node.get(key)
+    if not isinstance(value, list):
+        raise RuntimeError(message)
+
+    result: List[str] = []
+    for index, item in enumerate(value):
+        if not isinstance(item, str):
+            raise RuntimeError(f"Element {index} in '{key}' must be a string.")
+        result.append(item)
+    return result
+
+
+def _optional_string_list(node: Dict[str, Any], key: str) -> List[str] | None:
+    value = node.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, list):
+        raise RuntimeError(f"Optional field '{key}' must be a list if provided.")
+
+    result: List[str] = []
+    for index, item in enumerate(value):
+        if not isinstance(item, str):
+            raise RuntimeError(f"Element {index} in optional list '{key}' must be a string.")
+        result.append(item)
+    return result
+
+
+def _parse_case_options(payload: Any) -> CaseOptions:
+    if not isinstance(payload, dict):
+        return CaseOptions()
+
+    add_special_tokens = bool(payload.get("addSpecialTokens", False))
+    decode_skip_special_tokens = bool(payload.get("decodeSkipSpecialTokens", True))
+
+    truncation_payload = payload.get("truncation")
+    truncation: TruncationConfig | None = None
+    if truncation_payload is not None:
+        if not isinstance(truncation_payload, dict):
+            raise RuntimeError("Truncation configuration must be an object when provided.")
+        max_length = truncation_payload.get("maxLength")
+        stride = truncation_payload.get("stride")
+        if not isinstance(max_length, int) or not isinstance(stride, int):
+            raise RuntimeError("Truncation options require integer 'maxLength' and 'stride'.")
+        truncation = TruncationConfig(max_length=max_length, stride=stride)
+
+    return CaseOptions(
+        add_special_tokens=add_special_tokens,
+        decode_skip_special_tokens=decode_skip_special_tokens,
+        truncation=truncation,
+    )
 
 
 COMMON_OPTIONAL_FILES: Tuple[str, ...] = (
@@ -1031,6 +1135,7 @@ def _generate_case_payload(tokenizer: Tokenizer, case: BenchmarkCase) -> Dict[st
             batch_payload["pairTextsHash"] = _hash_string_sequence(pair_batch)
 
         return {
+            "contractId": case.contract_id,
             "length": case.length.value,
             "description": case.description,
             "options": serialize_case_options(case.options),
@@ -1073,7 +1178,7 @@ def write_output(model: str, spec: ModelSpec, resolved_assets: Dict[str, Path], 
 
 def run(models: Sequence[str], output_dir: Path, force_download: bool, require_repo_venv: bool) -> None:
     ensure_repo_venv(require_repo_venv)
-    cases = build_cases()
+    cases = load_cases_from_contract()
     for model in models:
         spec = MODEL_SPECS[model]
         if not spec.supports_fast_tokenizer:

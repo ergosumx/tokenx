@@ -39,6 +39,9 @@ public sealed record PythonBenchmarkMetadata
 
 public sealed record PythonBenchmarkCase
 {
+    [JsonPropertyName("contractId")]
+    public string? ContractId { get; init; }
+
     [JsonPropertyName("length")]
     public required string Length { get; init; }
 
