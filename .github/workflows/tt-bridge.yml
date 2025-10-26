@@ -1,4 +1,4 @@
-name: TikToken Bridge Build & Release
+name: TikToken Bridge Artifacts
 
 on:
   push:
@@ -15,7 +15,7 @@ env:
   CARGO_TERM_COLOR: always
   CRATE_DIR: .ext/tt_bridge
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   prepare:
@@ -391,7 +391,9 @@ jobs:
         working-directory: ${{ env.CRATE_DIR }}
         run: |
           mkdir -p artifacts
-          cp target/${TARGET}/release/libtt_bridge.a artifacts/
+          cp target/${TARGET}/release/libtt_bridge.a artifacts/ 2>/dev/null || true
+          cp target/${TARGET}/release/libtt_bridge.dylib artifacts/ 2>/dev/null || true
+          cp target/${TARGET}/release/libtt_bridge.rlib artifacts/ 2>/dev/null || true
           if [ -z "$(ls -A artifacts)" ]; then
             echo "No build outputs found to package." >&2
             exit 1
@@ -469,55 +471,3 @@ jobs:
           path: ${{ env.CRATE_DIR }}/tokenx-tt-bridge-${{ env.VERSION }}-${{ env.TARGET }}.tar.gz
           if-no-files-found: error
 
-  release:
-    name: Publish Release
-    runs-on: ubuntu-latest
-    needs:
-      - prepare
-      - coverage
-      - build-linux
-      - build-windows
-      - build-macos
-      - build-ios
-      - build-android
-    if: github.ref_type == 'tag'
-    env:
-      VERSION: ${{ needs.prepare.outputs.version }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-
-      - name: List packaged artifacts
-        run: |
-          echo "Collected artifacts:"
-          ls -R dist
-
-      - name: Generate release notes
-        run: |
-          cat <<EOF > release-notes.md
-          ## TikToken Bridge $VERSION
-
-          - Built from tag ${{ github.ref_name }}
-          - Targets: Linux x86_64, Windows x86_64, macOS x86_64, macOS arm64, iOS arm64, Android arm64
-          - Includes unit test coverage artifacts (tarpaulin XML/HTML/LCOV)
-
-          EOF
-
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: tokenx-tt-bridge v${{ env.VERSION }}
-          body_path: release-notes.md
-          files: |
-            dist/**/*.tar.gz
-            dist/**/*.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
