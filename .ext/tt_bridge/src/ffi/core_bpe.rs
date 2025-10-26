@@ -55,7 +55,10 @@ fn read_cstr(ptr: *const c_char) -> Result<String> {
         anyhow::bail!("Received null pointer for string");
     }
     let value = unsafe { CStr::from_ptr(ptr) };
-    Ok(value.to_str().context("String was not valid UTF-8")?.to_owned())
+    Ok(value
+        .to_str()
+        .context("String was not valid UTF-8")?
+        .to_owned())
 }
 
 fn convert_merges(raw: *const TtMergeEntry, len: usize) -> Result<Vec<(Vec<u8>, Rank)>> {
@@ -323,7 +326,6 @@ pub extern "C" fn ttk_core_bpe_decode_bytes(
     })
     .unwrap_or(ptr::null_mut())
 }
-
 
 #[no_mangle]
 pub extern "C" fn ttk_encoding_get_len(encoding: *const TtEncoding) -> usize {
