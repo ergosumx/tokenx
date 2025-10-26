@@ -1,4 +1,4 @@
-name: HuggingFace Bridge Build & Release
+name: HuggingFace Bridge Artifacts
 
 on:
   push:

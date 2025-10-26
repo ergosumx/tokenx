@@ -1,4 +1,4 @@
-name: Build Multi-Platform SentencePiece
+name: Google SentencePeice Bridge Artifacts
 
 on:
   push:
