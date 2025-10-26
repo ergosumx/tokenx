@@ -184,7 +184,7 @@ pub extern "C" fn ttk_core_bpe_new(
         if highest_rank + 1 != explicit_vocab_size {
             store_error(&format!(
                 "explicit vocabulary size requires highest rank {expected_minus_one}, got {highest_rank}",
-                expected_minus_one = explicit_vocab_size.checked_sub(1).unwrap_or(0)
+                expected_minus_one = explicit_vocab_size.saturating_sub(1)
             ));
             return ptr::null_mut();
         }
@@ -210,11 +210,13 @@ pub extern "C" fn ttk_core_bpe_new(
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_core_bpe_free(handle: *mut CoreBpeHandle) {
+/// # Safety
+/// Caller must pass a handle created by `ttk_core_bpe_new` that has not already been freed.
+pub unsafe extern "C" fn ttk_core_bpe_free(handle: *mut CoreBpeHandle) {
     if handle.is_null() {
         return;
     }
-    unsafe { drop(Box::from_raw(handle)) };
+    drop(Box::from_raw(handle));
 }
 
 #[no_mangle]
@@ -273,7 +275,10 @@ pub extern "C" fn ttk_core_bpe_encode(
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_core_bpe_decode(
+/// # Safety
+/// Caller must supply a valid `CoreBpeHandle`.
+/// A null tokens pointer is only allowed when `tokens_len == 0`; otherwise provide a buffer with at least `tokens_len` elements.
+pub unsafe extern "C" fn ttk_core_bpe_decode(
     handle: *const CoreBpeHandle,
     tokens: *const u32,
     tokens_len: usize,
@@ -285,7 +290,7 @@ pub extern "C" fn ttk_core_bpe_decode(
     let slice = if tokens_len == 0 {
         &[]
     } else {
-        unsafe { slice::from_raw_parts(tokens, tokens_len) }
+        slice::from_raw_parts(tokens, tokens_len)
     };
 
     with_handle(handle, |core| {
@@ -302,7 +307,10 @@ pub extern "C" fn ttk_core_bpe_decode(
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_core_bpe_decode_bytes(
+/// # Safety
+/// Caller must supply a valid `CoreBpeHandle`.
+/// A null tokens pointer is only allowed when `tokens_len == 0`; otherwise provide a buffer with at least `tokens_len` elements.
+pub unsafe extern "C" fn ttk_core_bpe_decode_bytes(
     handle: *const CoreBpeHandle,
     tokens: *const u32,
     tokens_len: usize,
@@ -314,7 +322,7 @@ pub extern "C" fn ttk_core_bpe_decode_bytes(
     let slice = if tokens_len == 0 {
         &[]
     } else {
-        unsafe { slice::from_raw_parts(tokens, tokens_len) }
+        slice::from_raw_parts(tokens, tokens_len)
     };
 
     with_handle(handle, |core| {
@@ -328,16 +336,20 @@ pub extern "C" fn ttk_core_bpe_decode_bytes(
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_encoding_get_len(encoding: *const TtEncoding) -> usize {
+/// # Safety
+/// Caller must pass a pointer obtained from this module or supply null to receive 0.
+pub unsafe extern "C" fn ttk_encoding_get_len(encoding: *const TtEncoding) -> usize {
     if encoding.is_null() {
         return 0;
     }
-    let encoding = unsafe { &*encoding };
+    let encoding = &*encoding;
     encoding.tokens.len()
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_encoding_try_copy_tokens(
+/// # Safety
+/// Caller must provide valid pointers and ensure `dest` references a buffer with capacity for `len` elements.
+pub unsafe extern "C" fn ttk_encoding_try_copy_tokens(
     encoding: *const TtEncoding,
     dest: *mut u32,
     len: usize,
@@ -345,35 +357,39 @@ pub extern "C" fn ttk_encoding_try_copy_tokens(
     if encoding.is_null() || dest.is_null() {
         return false;
     }
-    let encoding = unsafe { &*encoding };
+    let encoding = &*encoding;
     if encoding.tokens.len() != len {
         return false;
     }
-    unsafe {
-        ptr::copy_nonoverlapping(encoding.tokens.as_ptr(), dest, len);
-    }
+    ptr::copy_nonoverlapping(encoding.tokens.as_ptr(), dest, len);
     true
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_encoding_free(encoding: *mut TtEncoding) {
+/// # Safety
+/// Caller must pass a pointer returned by the encoding APIs that has not been freed already.
+pub unsafe extern "C" fn ttk_encoding_free(encoding: *mut TtEncoding) {
     if encoding.is_null() {
         return;
     }
-    unsafe { drop(Box::from_raw(encoding)) };
+    drop(Box::from_raw(encoding));
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_string_get_len(value: *const TtString) -> usize {
+/// # Safety
+/// Caller must pass a pointer produced by the decoding APIs or supply null to receive 0.
+pub unsafe extern "C" fn ttk_string_get_len(value: *const TtString) -> usize {
     if value.is_null() {
         return 0;
     }
-    let value = unsafe { &*value };
+    let value = &*value;
     value.value.len()
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_string_try_copy_bytes(
+/// # Safety
+/// Caller must provide valid pointers and ensure `dest` references a buffer with capacity for `len` bytes.
+pub unsafe extern "C" fn ttk_string_try_copy_bytes(
     value: *const TtString,
     dest: *mut u8,
     len: usize,
@@ -381,18 +397,20 @@ pub extern "C" fn ttk_string_try_copy_bytes(
     if value.is_null() || dest.is_null() {
         return false;
     }
-    let value = unsafe { &*value };
+    let value = &*value;
     if value.value.len() != len {
         return false;
     }
-    unsafe { ptr::copy_nonoverlapping(value.value.as_ptr(), dest, len) };
+    ptr::copy_nonoverlapping(value.value.as_ptr(), dest, len);
     true
 }
 
 #[no_mangle]
-pub extern "C" fn ttk_string_free(value: *mut TtString) {
+/// # Safety
+/// Caller must pass a pointer returned by the decoding APIs that has not been freed already.
+pub unsafe extern "C" fn ttk_string_free(value: *mut TtString) {
     if value.is_null() {
         return;
     }
-    unsafe { drop(Box::from_raw(value)) };
+    drop(Box::from_raw(value));
 }
