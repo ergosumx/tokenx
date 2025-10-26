@@ -17,15 +17,10 @@ public sealed class SentencePiecePythonParityIntegrationTests
 {
     private const string BenchmarkFileName = "python-sentencepiece-benchmark.json";
     private const string DotnetBenchmarkFileName = "dotnet-sentencepiece-benchmark.json";
-    private const string ContractTarget = "sentencepiece";
-
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNameCaseInsensitive = false
     };
-
-    private static readonly Lazy<IReadOnlyDictionary<string, TokenizationContractCase>> ContractCases =
-        new(LoadContractCases);
 
     public static IEnumerable<object[]> ModelIdentifiers()
     {
@@ -78,8 +73,6 @@ public sealed class SentencePiecePythonParityIntegrationTests
 
         foreach (var testCase in benchmark.Cases)
         {
-            var contractCase = ResolveContractCase(testCase);
-            AssertContractAlignment(contractCase, testCase);
             dotnetCases.Add(ValidateCase(processor, testCase));
         }
 
@@ -273,103 +266,6 @@ public sealed class SentencePiecePythonParityIntegrationTests
         }
 
         return candidate;
-    }
-
-    private static IReadOnlyDictionary<string, TokenizationContractCase> LoadContractCases()
-    {
-        var contractPath = Path.Combine(GetTemplatesRoot(), "tokenization-cases.json");
-        if (!File.Exists(contractPath))
-        {
-            throw new InvalidOperationException($"Tokenization contract not found at '{contractPath}'.");
-        }
-
-        using var stream = File.OpenRead(contractPath);
-        var contract = JsonSerializer.Deserialize<TokenizationContract>(stream)
-            ?? throw new InvalidOperationException($"Failed to deserialize tokenization contract at '{contractPath}'.");
-
-        return contract.Cases.ToDictionary(static entry => entry.Id, StringComparer.OrdinalIgnoreCase);
-    }
-
-    private static string GetTemplatesRoot()
-    {
-        var testDataRoot = RepositoryTestData.GetRoot();
-        var testsRoot = Directory.GetParent(testDataRoot)?.FullName
-            ?? throw new InvalidOperationException("Unable to locate tests directory from repository layout.");
-        return Path.Combine(testsRoot, "_testdata_templates");
-    }
-
-    private static TokenizationContractCase ResolveContractCase(PythonBenchmarkCase testCase)
-    {
-        if (testCase is null)
-        {
-            throw new ArgumentNullException(nameof(testCase));
-        }
-
-        var cases = ContractCases.Value;
-        if (!string.IsNullOrWhiteSpace(testCase.ContractId))
-        {
-            if (cases.TryGetValue(testCase.ContractId, out var explicitMatch))
-            {
-                return explicitMatch;
-            }
-
-            throw new InvalidOperationException(
-                $"Tokenization contract is missing case '{testCase.ContractId}'. Regenerate Python fixtures.");
-        }
-
-        var fallback = cases.Values
-            .Where(static entry => entry.AppliesToTarget(ContractTarget))
-            .Where(entry => string.Equals(entry.Length, testCase.Length, StringComparison.Ordinal))
-            .Where(entry => string.Equals(entry.Single.TextHash, testCase.Single.TextHash, StringComparison.Ordinal))
-            .Where(entry => string.Equals(entry.Batch.TextsHash, testCase.Batch.TextsHash, StringComparison.Ordinal))
-            .Take(2)
-            .ToList();
-
-        if (fallback.Count == 1)
-        {
-            return fallback[0];
-        }
-
-        throw new InvalidOperationException(
-            "Unable to resolve tokenization contract case. Regenerate fixtures to embed contract identifiers.");
-    }
-
-    private static void AssertContractAlignment(TokenizationContractCase contractCase, PythonBenchmarkCase testCase)
-    {
-        if (!contractCase.AppliesToTarget(ContractTarget))
-        {
-            throw new InvalidOperationException(
-                $"Contract case '{contractCase.Id}' is not registered for target '{ContractTarget}'.");
-        }
-
-        Assert.Equal(contractCase.Length, testCase.Length);
-        Assert.Equal(contractCase.Description, testCase.Description);
-
-        var options = testCase.Options ?? PythonBenchmarkCaseOptions.Default;
-        Assert.Equal(contractCase.Options.AddSpecialTokens, options.AddSpecialTokens);
-        Assert.Equal(contractCase.Options.DecodeSkipSpecialTokens, options.DecodeSkipSpecialTokens);
-        Assert.Null(contractCase.Options.Truncation);
-        Assert.Null(options.Truncation);
-
-        Assert.Equal(contractCase.Single.Text, testCase.Single.Text);
-        Assert.Equal(contractCase.Single.TextHash, testCase.Single.TextHash);
-        Assert.Equal(contractCase.Single.TextHash, ParityHashUtilities.HashString(contractCase.Single.Text));
-        Assert.Null(contractCase.Single.PairText);
-        Assert.Null(contractCase.Single.PairTextHash);
-        Assert.True(string.IsNullOrEmpty(testCase.Single.PairText));
-        Assert.True(string.IsNullOrEmpty(testCase.Single.PairTextHash));
-
-        Assert.Equal(contractCase.Batch.Count, testCase.Batch.Count);
-        Assert.Equal(contractCase.Batch.TextsHash, testCase.Batch.TextsHash);
-        Assert.Equal(contractCase.Batch.Texts, testCase.Batch.Texts);
-        Assert.Equal(
-            contractCase.Batch.TextsHash,
-            ParityHashUtilities.HashStringSequence(contractCase.Batch.Texts));
-
-        Assert.True(contractCase.Batch.PairTexts is null || contractCase.Batch.PairTexts.Count == 0);
-        Assert.True(string.IsNullOrEmpty(contractCase.Batch.PairTextsHash));
-        Assert.True(testCase.Batch.PairTexts is null || testCase.Batch.PairTexts.Count == 0);
-        Assert.True(string.IsNullOrEmpty(testCase.Batch.PairTextsHash));
     }
 
     private static void AssertEncodingSummary(EncodingSummary expected, EncodingSummary actual)

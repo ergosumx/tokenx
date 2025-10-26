@@ -33,7 +33,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--output-dir",
         type=Path,
         default=DEFAULT_OUTPUT_DIR,
-        help="Destination directory for downloaded assets (defaults to tests/_TestData).",
+    help="Destination directory for downloaded assets (defaults to tests/_testdata_huggingface).",
     )
     parser.add_argument(
         "--force-download",

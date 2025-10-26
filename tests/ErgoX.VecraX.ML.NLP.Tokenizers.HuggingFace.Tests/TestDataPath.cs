@@ -24,7 +24,23 @@ internal static class TestDataPath
         return Path.Combine(root, "tokenizer.json");
     }
 
+    public static string GetModelValidationManifestPath(string modelFolder)
+    {
+        var root = GetModelRoot(modelFolder);
+        return Path.Combine(root, "tokenx-tests-validation.json");
+    }
+
     public static string GetBenchmarksDataRoot()
+    {
+        return Path.Combine(GetRepositoryRoot(), "tests", "_huggingface");
+    }
+
+    public static string GetTokenizationTemplatesRoot()
+    {
+        return Path.Combine(GetRepositoryRoot(), "tests", "__templates");
+    }
+
+    private static string GetRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null)
@@ -32,7 +48,7 @@ internal static class TestDataPath
             var solutionCandidate = Path.Combine(directory.FullName, SolutionFileName);
             if (File.Exists(solutionCandidate))
             {
-                return Path.Combine(directory.FullName, "tests", "_TestData");
+                return directory.FullName;
             }
 
             directory = directory.Parent;

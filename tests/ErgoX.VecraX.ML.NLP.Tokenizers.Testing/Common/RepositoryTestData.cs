@@ -15,7 +15,7 @@ public static class RepositoryTestData
             var solutionCandidate = Path.Combine(directory.FullName, SolutionFileName);
             if (File.Exists(solutionCandidate))
             {
-                return Path.Combine(directory.FullName, "tests", "_TestData");
+                return Path.Combine(directory.FullName, "tests", "_testdata_sentencepeice");
             }
 
             directory = directory.Parent;

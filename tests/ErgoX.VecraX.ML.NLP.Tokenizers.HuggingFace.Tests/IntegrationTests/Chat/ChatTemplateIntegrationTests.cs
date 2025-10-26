@@ -150,7 +150,7 @@ public sealed class ChatTemplateIntegrationTests
             var solutionCandidate = Path.Combine(directory.FullName, SolutionFileName);
             if (File.Exists(solutionCandidate))
             {
-                return Path.Combine(directory.FullName, "tests", "_TestData");
+                return Path.Combine(directory.FullName, "tests", "_huggingface");
             }
 
             directory = directory.Parent;

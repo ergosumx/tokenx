@@ -102,13 +102,13 @@ dotnet test --configuration Release
 \.\.venv\Scripts\python.exe -m pip install -q tiktoken
 \.\.venv\Scripts\python.exe tests\Py\OpenAI\Tiktoken\generate_benchmarks.py
 
-> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `sentencepiece` packages so the generators can materialize tokenizer pipelines directly from each model asset. The SentencePiece generator scans `tests/_TestData` for every `*.model` vocabulary and refreshes the parity fixtures in one pass.
+> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `sentencepiece` packages so the generators can materialize tokenizer pipelines directly from each model asset. The SentencePiece generator scans `tests/_testdata_sentencepeice` for every `*.model` vocabulary and refreshes the parity fixtures in one pass.
 
 TikToken fixtures are written to `tests/_TestData_Tiktoken/<encoding>` and power the .NET TikToken parity integration tests.
 Current fixtures cover the OpenAI encodings `gpt2`, `r50k_base`, `p50k_base`, `p50k_edit`, `cl100k_base`, `o200k_base`, and `o200k_harmony`.
 ```
 
-Running the .NET parity suite now also emits `dotnet-benchmark.json` alongside the Python fixtures in `tests/_TestData/<model>` so you can inspect the full decoded tokens produced by the managed implementation.
+Running the .NET parity suite now also emits `dotnet-benchmark.json` alongside the Python fixtures in `tests/_testdata_huggingface/<model>` so you can inspect the full decoded tokens produced by the managed implementation.
 
 **Expected Results**: 37 passed, 0 skipped, 0 failed
 

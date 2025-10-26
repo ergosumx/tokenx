@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_CASES_PATH = REPO_ROOT / "tests" / "_testdata_templates" / "tokenization-cases.json"
+DEFAULT_CASES_PATH = REPO_ROOT / "tests" / "_templates" / "tokenization-cases.json"
 SENTINEL_NONE = -0x80000000
 
 

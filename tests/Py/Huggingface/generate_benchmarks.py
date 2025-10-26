@@ -2,7 +2,7 @@
 """Generate reference benchmark corpora using the Hugging Face tokenizers package.
 
 The script mirrors the .NET benchmark scenarios so that Python parity data can be
-produced on demand. Assets are written under ``tests/_TestData/<model>``.
+produced on demand. Assets are written under ``tests/_testdata_huggingface/<model>``.
 """
 
 from __future__ import annotations
@@ -60,9 +60,10 @@ except ImportError as exc:  # pragma: no cover - chat template evaluation safety
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_OUTPUT_DIR = REPO_ROOT / "tests" / "_TestData"
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "tests" / "_huggingface"
 DEFAULT_VENV = REPO_ROOT / ".venv"
 CONTRACT_TARGET = "huggingface"
+TEMPLATES_DIR = REPO_ROOT / "tests" / "__templates"
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -104,6 +105,15 @@ class BenchmarkCase:
     options: CaseOptions = field(default_factory=CaseOptions)
     pair_text: str | None = None
     batch_pair_texts: Sequence[str] | None = None
+
+
+@dataclass(frozen=True)
+class TemplateCase:
+    identifier: str
+    length: SequenceLength
+    description: str
+    text: str
+    pair_text: str | None = None
 
 
 @dataclass(frozen=True)
@@ -573,6 +583,70 @@ def load_cases_from_contract(target: str = CONTRACT_TARGET) -> List[BenchmarkCas
         raise RuntimeError(f"No tokenization cases available for target '{target}'.")
 
     return cases
+
+
+def load_template_cases(target: str = CONTRACT_TARGET) -> List[TemplateCase]:
+    if not TEMPLATES_DIR.exists():
+        raise RuntimeError(f"Tokenization templates directory missing at '{TEMPLATES_DIR}'.")
+
+    templates: List[TemplateCase] = []
+    for template_path in sorted(TEMPLATES_DIR.glob("tokenization-*.json")):
+        payload = json.loads(template_path.read_text(encoding="utf-8"))
+
+        if not _template_should_include(payload, target):
+            continue
+
+        identifier = _require_template_string(payload, "id", template_path)
+        length_value = _require_template_string(payload, "length", template_path)
+        description = _require_template_string(payload, "description", template_path)
+
+        try:
+            length = SequenceLength(length_value)
+        except ValueError as exc:  # pragma: no cover - template validation guardrail
+            raise RuntimeError(
+                f"Unsupported sequence length '{length_value}' in template '{template_path.name}'."
+            ) from exc
+
+        single_payload = payload.get("single")
+        if not isinstance(single_payload, dict):
+            raise RuntimeError(f"Template '{template_path.name}' is missing a 'single' object.")
+
+        text = _require_template_string(single_payload, "text", template_path)
+        pair_text_value = single_payload.get("pairText")
+        pair_text = pair_text_value if isinstance(pair_text_value, str) and pair_text_value else None
+
+        templates.append(TemplateCase(identifier=identifier, length=length, description=description, text=text, pair_text=pair_text))
+
+    if not templates:
+        raise RuntimeError(f"No tokenization templates available for target '{target}'.")
+
+    return templates
+
+
+def _template_should_include(payload: Dict[str, Any], target: str) -> bool:
+    targets = payload.get("targets")
+    if not targets:
+        return True
+    if not isinstance(targets, list):
+        return False
+
+    target_lower = target.lower()
+    for candidate in targets:
+        if not isinstance(candidate, str):
+            continue
+        if candidate == "*" or candidate.lower() == target_lower:
+            return True
+
+    return False
+
+
+def _require_template_string(payload: Dict[str, Any], property_name: str, template_path: Path) -> str:
+    value = payload.get(property_name)
+    if not isinstance(value, str) or not value.strip():
+        raise RuntimeError(
+            f"Template '{template_path.name}' is missing required '{property_name}' property."
+        )
+    return value
 
 
 def _require_mapping(node: Dict[str, Any], key: str, message: str) -> Dict[str, Any]:
@@ -1049,6 +1123,71 @@ def summarize_encoding(encoding: Encoding) -> Dict[str, Any]:
     return summary
 
 
+def generate_template_snapshots(tokenizer: Tokenizer, cases: Sequence[TemplateCase]) -> Dict[str, Dict[str, str]]:
+    snapshots: Dict[str, Dict[str, str]] = {}
+
+    for template_case in cases:
+        tokenizer.no_truncation()
+        try:
+            if template_case.pair_text is not None:
+                encoding = tokenizer.encode(template_case.text, template_case.pair_text)
+            else:
+                encoding = tokenizer.encode(template_case.text)
+        except Exception as exc:  # pragma: no cover - surfaced for diagnostics only
+            raise RuntimeError(
+                f"Failed to encode template '{template_case.identifier}' using Hugging Face tokenizer."
+            ) from exc
+
+        summary = summarize_encoding(encoding)
+        snapshot = {
+            "text-hash": _hash_string(template_case.text),
+            "encoding-hash": _compute_encoding_hash(summary),
+        }
+
+        snapshots[template_case.identifier] = snapshot
+
+    return snapshots
+
+
+def _compute_encoding_hash(summary: Dict[str, Any]) -> str:
+    payload = json.dumps(summary, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def update_validation_manifest(model: str, output_root: Path, snapshots: Dict[str, Dict[str, str]]) -> Path:
+    manifest_path = output_root / model / "tokenx-tests-validation.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if manifest_path.exists():
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    else:
+        payload = {"version": 1, "model": model, "cases": {}}
+
+    payload["version"] = 1
+    payload["model"] = model
+
+    existing_cases = payload.get("cases")
+    if not isinstance(existing_cases, dict):
+        existing_cases = {}
+
+    for case_id, snapshot in sorted(snapshots.items()):
+        entry = existing_cases.get(case_id)
+        if not isinstance(entry, dict):
+            entry = {}
+
+        entry.pop("tokenx", None)
+        entry["py"] = snapshot
+        existing_cases[case_id] = entry
+
+    for entry in existing_cases.values():
+        if isinstance(entry, dict):
+            entry.pop("tokenx", None)
+
+    payload["cases"] = dict(sorted(existing_cases.items()))
+    manifest_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return manifest_path
+
+
 def generate_payload(tokenizer: Tokenizer, cases: Iterable[BenchmarkCase]) -> List[Dict[str, object]]:
     payload: List[Dict[str, object]] = []
     for case in cases:
@@ -1178,7 +1317,7 @@ def write_output(model: str, spec: ModelSpec, resolved_assets: Dict[str, Path], 
 
 def run(models: Sequence[str], output_dir: Path, force_download: bool, require_repo_venv: bool) -> None:
     ensure_repo_venv(require_repo_venv)
-    cases = load_cases_from_contract()
+    template_cases = load_template_cases()
     for model in models:
         spec = MODEL_SPECS[model]
         if not spec.supports_fast_tokenizer:
@@ -1194,12 +1333,13 @@ def run(models: Sequence[str], output_dir: Path, force_download: bool, require_r
 
         transformers_tokenizer, backend_tokenizer = load_tokenizers(output_dir / model, spec)
         try:
-            payload = generate_payload(backend_tokenizer, cases)
+            snapshots = generate_template_snapshots(backend_tokenizer, template_cases)
         except Exception as exc:  # pragma: no cover - diagnostic surface for CI
             traceback.print_exc()
-            raise RuntimeError(f"Failed to generate payload for model '{model}'") from exc
-        destination = write_output(model, spec, resolved_assets, payload, output_dir)
-        print(f"Generated {destination}")
+            raise RuntimeError(f"Failed to generate validation snapshots for model '{model}'") from exc
+
+        manifest_path = update_validation_manifest(model, output_dir, snapshots)
+        print(f"Updated {manifest_path.relative_to(REPO_ROOT)}")
 
         chat_destination = generate_chat_template_fixture(
             transformers_tokenizer,
@@ -1208,7 +1348,7 @@ def run(models: Sequence[str], output_dir: Path, force_download: bool, require_r
             output_dir,
         )
         if chat_destination is not None:
-            print(f"Generated {chat_destination}")
+            print(f"Generated {chat_destination.relative_to(REPO_ROOT)}")
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:

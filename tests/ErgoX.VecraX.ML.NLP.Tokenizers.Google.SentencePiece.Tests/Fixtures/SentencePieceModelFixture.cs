@@ -44,7 +44,7 @@ public sealed class SentencePieceModelFixture : IAsyncLifetime
 
         if (!File.Exists(absolutePath))
         {
-            throw new FileNotFoundException($"SentencePiece model asset not found at '{absolutePath}'. Ensure tests/_TestData has been restored.", absolutePath);
+            throw new FileNotFoundException($"SentencePiece model asset not found at '{absolutePath}'. Ensure tests/_testdata_sentencepeice has been restored.", absolutePath);
         }
 
         return await File.ReadAllBytesAsync(absolutePath).ConfigureAwait(false);

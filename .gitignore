@@ -82,11 +82,15 @@ scripts/local/**
 
 .env
 BenchmarkDotNet.Artifacts/results
-_TestData
-tests/_TestData/
 coverage
 crossbeam_utils/**
 **/target/doc
 .ext/hf_bridge/target/
 .runtimes
-tests/_testdata_tiktoken/**/*-benchmark.json
+runtimes/**
+tests/__templates
+tests/_tiktoken
+tests/_huggingface
+tests/_sentencepeice
+
+**/__pycache__/**

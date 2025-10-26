@@ -344,7 +344,7 @@ public class EncodingManipulationIntegrationTests : IDisposable
 
     private static string GetTokenizerPath()
     {
-        var root = GetBenchmarksDataRoot();
+    var root = GetBenchmarksDataRoot();
         return Path.Combine(root, "bert-base-uncased", "tokenizer.json");
     }
 
@@ -356,7 +356,7 @@ public class EncodingManipulationIntegrationTests : IDisposable
             var solutionCandidate = Path.Combine(directory.FullName, SolutionFileName);
             if (File.Exists(solutionCandidate))
             {
-                return Path.Combine(directory.FullName, "tests", "_TestData");
+                return Path.Combine(directory.FullName, "tests", "_huggingface");
             }
 
             directory = directory.Parent;

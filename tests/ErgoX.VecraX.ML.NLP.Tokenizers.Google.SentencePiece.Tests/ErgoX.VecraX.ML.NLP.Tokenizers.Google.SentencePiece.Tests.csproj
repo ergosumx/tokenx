@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\_testdata\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\_testdata_sentencepeice\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

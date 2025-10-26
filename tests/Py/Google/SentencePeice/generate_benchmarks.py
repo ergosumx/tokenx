@@ -4,7 +4,7 @@
 The emitted fixtures mirror the structure produced by the Hugging Face parity
 tooling so the .NET test suite can validate hashes, decoded payloads, and batch
 behaviour across every model that ships a SentencePiece vocabulary inside
-``tests/_TestData``.
+``tests/_testdata_sentencepeice``.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ from tests.Py.Common.tokenization_contract import (
     load_tokenization_cases,
 )
 
-DEFAULT_OUTPUT_DIR = REPO_ROOT / "tests" / "_TestData"
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "tests" / "_testdata_sentencepeice"
 
 
 @dataclass(frozen=True)
@@ -312,7 +312,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "--output-dir",
         type=Path,
         default=DEFAULT_OUTPUT_DIR,
-        help="Destination directory for generated assets (defaults to tests/_TestData).",
+    help="Destination directory for generated assets (defaults to tests/_testdata_sentencepeice).",
     )
     return parser.parse_args(argv)
 

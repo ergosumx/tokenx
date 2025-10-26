@@ -190,7 +190,7 @@ public sealed class GenerationConfigIntegrationTests : HuggingFaceTestBase
 
     private static string GetModelRoot(string model)
     {
-        var root = GetBenchmarksDataRoot();
+    var root = GetBenchmarksDataRoot();
         return Path.Combine(root, model);
     }
 
@@ -202,7 +202,7 @@ public sealed class GenerationConfigIntegrationTests : HuggingFaceTestBase
             var solutionCandidate = Path.Combine(directory.FullName, SolutionFileName);
             if (File.Exists(solutionCandidate))
             {
-                return Path.Combine(directory.FullName, "tests", "_TestData");
+                return Path.Combine(directory.FullName, "tests", "_huggingface");
             }
 
             directory = directory.Parent;
