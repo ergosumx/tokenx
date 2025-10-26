@@ -214,6 +214,12 @@ MODEL_SPECS: Dict[str, ModelSpec] = {
         required_files=("tokenizer.json",),
         optional_files=("vocab.json", "merges.txt", "special_tokens_map.json"),
     ),
+    "openai-whisper-small": ModelSpec(
+        name="OpenAI Whisper Small",
+        repo_id="openai/whisper-small",
+        required_files=("tokenizer.json",),
+        optional_files=("vocab.json", "merges.txt", "special_tokens_map.json"),
+    ),
     "openai-whisper-medium": ModelSpec(
         name="OpenAI Whisper Medium",
         repo_id="openai/whisper-medium",
@@ -1317,6 +1323,11 @@ def write_output(model: str, spec: ModelSpec, resolved_assets: Dict[str, Path], 
 
 def run(models: Sequence[str], output_dir: Path, force_download: bool, require_repo_venv: bool) -> None:
     ensure_repo_venv(require_repo_venv)
+    try:
+        benchmark_cases = load_cases_from_contract()
+    except RuntimeError as exc:
+        print(f"Warning: {exc}")
+        benchmark_cases = None
     template_cases = load_template_cases()
     for model in models:
         spec = MODEL_SPECS[model]
@@ -1332,6 +1343,15 @@ def run(models: Sequence[str], output_dir: Path, force_download: bool, require_r
             )
 
         transformers_tokenizer, backend_tokenizer = load_tokenizers(output_dir / model, spec)
+        if benchmark_cases is not None:
+            try:
+                payload = generate_payload(backend_tokenizer, benchmark_cases)
+            except Exception as exc:  # pragma: no cover - diagnostic surface for CI
+                traceback.print_exc()
+                raise RuntimeError(f"Failed to generate benchmark payload for model '{model}'") from exc
+
+            benchmark_path = write_output(model, spec, resolved_assets, payload, output_dir)
+            print(f"Generated {benchmark_path.relative_to(REPO_ROOT)}")
         try:
             snapshots = generate_template_snapshots(backend_tokenizer, template_cases)
         except Exception as exc:  # pragma: no cover - diagnostic surface for CI
