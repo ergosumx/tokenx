@@ -89,3 +89,4 @@ crossbeam_utils/**
 **/target/doc
 .ext/hf_bridge/target/
 .runtimes
+tests/_testdata_tiktoken/**/*-benchmark.json

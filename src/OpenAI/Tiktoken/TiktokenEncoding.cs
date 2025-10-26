@@ -211,10 +211,28 @@ public sealed class TiktokenEncoding : IDisposable
             return null;
         }
 
-        var maxRank = mergeableRanks.Count > 0 ? mergeableRanks.Max(r => r.Rank) : 0;
+        var maxRank = -1;
+        if (mergeableRanks.Count > 0)
+        {
+            maxRank = Math.Max(maxRank, mergeableRanks.Max(r => r.Rank));
+        }
+
         if (specialTokens.Count > 0)
         {
             maxRank = Math.Max(maxRank, specialTokens.Max(kvp => kvp.Value));
+        }
+
+        if (maxRank < 0)
+        {
+            return null;
+        }
+
+        var expectedMaxRank = mergeableRanks.Count + specialTokens.Count - 1;
+        if (expectedMaxRank < 0 || maxRank != expectedMaxRank)
+        {
+            // CoreBPE accepts sparse special-token ids (for example o200k_base assigns values beyond the merge set).
+            // When ranks are not contiguous we defer to the native constructor to compute the vocabulary size.
+            return null;
         }
 
         return (uint)(maxRank + 1);
