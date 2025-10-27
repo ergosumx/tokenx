@@ -4,14 +4,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
 using Xunit;
 
 public sealed class SentencePieceModelFixture : IAsyncLifetime
 {
-    private static readonly string Mt5ModelPath = RepositoryTestData.GetPath("google-mt5-small", "spiece.model");
-    private static readonly string T5ModelPath = RepositoryTestData.GetPath("t5-small", "spiece.model");
-    private static readonly string LlamaModelPath = RepositoryTestData.GetPath("openchat-3.5-1210", "tokenizer.model");
+    private static readonly string Mt5ModelPath = SentencePieceTestDataPath.GetModelPath("google-mt5-small", "spiece.model");
+    private static readonly string T5ModelPath = SentencePieceTestDataPath.GetModelPath("t5-small", "spiece.model");
+    private static readonly string LlamaModelPath = SentencePieceTestDataPath.GetModelPath("openchat-3.5-1210", "tokenizer.model");
 
     public ReadOnlyMemory<byte> Mt5SmallModel { get; private set; }
 
@@ -44,7 +43,7 @@ public sealed class SentencePieceModelFixture : IAsyncLifetime
 
         if (!File.Exists(absolutePath))
         {
-            throw new FileNotFoundException($"SentencePiece model asset not found at '{absolutePath}'. Ensure tests/_testdata_sentencepeice has been restored.", absolutePath);
+            throw new FileNotFoundException($"SentencePiece model asset not found at '{absolutePath}'. Ensure tests/_sentencepeice assets are available.", absolutePath);
         }
 
         return await File.ReadAllBytesAsync(absolutePath).ConfigureAwait(false);
