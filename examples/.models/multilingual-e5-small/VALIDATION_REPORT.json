@@ -1,0 +1,455 @@
+{
+  "files": [
+    "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/model_quantized.onnx",
+    "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/README.md",
+    "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/config.json",
+    "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/quant_config.json",
+    "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/special_tokens_map.json",
+    "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/tokenizer.json",
+    "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/tokenizer_config.json"
+  ],
+  "onnx_analysis": {
+    "model_path": "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/model_quantized.onnx",
+    "file_size_mb": 112.83,
+    "model_info": {
+      "ir_version": 6,
+      "producer_name": "onnx.quantize",
+      "producer_version": "0.1.0"
+    },
+    "inputs": [
+      {
+        "name": "input_ids",
+        "type": "int64",
+        "shape": [
+          "batch_size",
+          "sequence_length"
+        ]
+      },
+      {
+        "name": "attention_mask",
+        "type": "int64",
+        "shape": [
+          "batch_size",
+          "sequence_length"
+        ]
+      },
+      {
+        "name": "token_type_ids",
+        "type": "int64",
+        "shape": [
+          "batch_size",
+          "sequence_length"
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "last_hidden_state",
+        "type": "float32",
+        "shape": [
+          "batch_size",
+          "sequence_length",
+          384
+        ]
+      }
+    ],
+    "operators": {
+      "Constant": 285,
+      "Mul": 194,
+      "Add": 172,
+      "Gather": 100,
+      "Unsqueeze": 99,
+      "Shape": 97,
+      "Cast": 73,
+      "MatMulInteger": 72,
+      "ReduceMean": 50,
+      "Div": 49,
+      "DynamicQuantizeLinear": 48,
+      "Concat": 48,
+      "Reshape": 48,
+      "Transpose": 48,
+      "Sub": 26,
+      "Pow": 25,
+      "Sqrt": 25,
+      "MatMul": 24,
+      "Softmax": 12,
+      "Erf": 12,
+      "DequantizeLinear": 3,
+      "Slice": 1
+    },
+    "total_ops": 1511,
+    "initializers": {
+      "total_parameters": 117588870,
+      "total_size_mb": 112.43,
+      "num_initializers": 347,
+      "details": [
+        {
+          "name": "embeddings.LayerNorm.weight",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "embeddings.LayerNorm.bias",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "encoder.layer.0.attention.self.query.bias",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "encoder.layer.0.attention.self.key.bias",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "encoder.layer.0.attention.self.value.bias",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "encoder.layer.0.attention.output.dense.bias",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "encoder.layer.0.attention.output.LayerNorm.weight",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "encoder.layer.0.attention.output.LayerNorm.bias",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        },
+        {
+          "name": "encoder.layer.0.intermediate.dense.bias",
+          "shape": [
+            1536
+          ],
+          "dtype": "float32",
+          "num_params": 1536,
+          "size_mb": 0.0059
+        },
+        {
+          "name": "encoder.layer.0.output.dense.bias",
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "num_params": 384,
+          "size_mb": 0.0015
+        }
+      ]
+    },
+    "graph_structure": {
+      "num_nodes": 1511,
+      "num_inputs": 3,
+      "num_outputs": 1,
+      "num_initializers": 347,
+      "graph_depth": 32
+    }
+  },
+  "security_check": {
+    "model_path": "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/model_quantized.onnx",
+    "integrity": {
+      "valid_syntax": true,
+      "passes_checker": true,
+      "file_hash": "f80102d3f2a1229f387d3c81909990d8945513e347b0eab049f7de3c6f98c193",
+      "file_size_mb": 112.83,
+      "errors": []
+    },
+    "onnxruntime_compatibility": {
+      "compatible": true,
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "num_inputs": 3,
+      "num_outputs": 1,
+      "errors": [],
+      "inputs": [
+        {
+          "name": "input_ids",
+          "shape": [
+            "batch_size",
+            "sequence_length"
+          ],
+          "type": "tensor(int64)"
+        },
+        {
+          "name": "attention_mask",
+          "shape": [
+            "batch_size",
+            "sequence_length"
+          ],
+          "type": "tensor(int64)"
+        },
+        {
+          "name": "token_type_ids",
+          "shape": [
+            "batch_size",
+            "sequence_length"
+          ],
+          "type": "tensor(int64)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "last_hidden_state",
+          "shape": [
+            "batch_size",
+            "sequence_length",
+            384
+          ],
+          "type": "tensor(float)"
+        }
+      ]
+    },
+    "suspicious_operators": {
+      "total_operators": 1511,
+      "unique_operators": 22,
+      "suspicious_operators": [],
+      "unknown_operators": [
+        "Erf",
+        "DynamicQuantizeLinear",
+        "Shape",
+        "DequantizeLinear",
+        "MatMulInteger",
+        "Constant",
+        "ReduceMean",
+        "Pow"
+      ],
+      "risk_level": "medium",
+      "details": {
+        "Constant": 285,
+        "Shape": 97,
+        "DequantizeLinear": 3,
+        "ReduceMean": 50,
+        "Pow": 25,
+        "DynamicQuantizeLinear": 48,
+        "MatMulInteger": 72,
+        "Erf": 12
+      }
+    },
+    "weight_analysis": {
+      "num_initializers": 347,
+      "total_parameters": 4992,
+      "anomalies": [],
+      "weight_stats": {
+        "embeddings.LayerNorm.weight": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": 0.190673828125,
+          "max": 0.5380859375,
+          "mean": 0.4351736605167389,
+          "std": 0.02586384117603302
+        },
+        "embeddings.LayerNorm.bias": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": -0.287109375,
+          "max": 0.53857421875,
+          "mean": -0.004679362289607525,
+          "std": 0.06341589242219925
+        },
+        "encoder.layer.0.attention.self.query.bias": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": -0.88525390625,
+          "max": 0.919921875,
+          "mean": 0.008881594054400921,
+          "std": 0.33780980110168457
+        },
+        "encoder.layer.0.attention.self.key.bias": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": -2.369140625,
+          "max": 2.43359375,
+          "mean": -0.048652198165655136,
+          "std": 0.6915962100028992
+        },
+        "encoder.layer.0.attention.self.value.bias": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": -0.374267578125,
+          "max": 0.25,
+          "mean": 0.0031087237875908613,
+          "std": 0.06773097068071365
+        },
+        "encoder.layer.0.attention.output.dense.bias": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": -0.07647705078125,
+          "max": 0.057586669921875,
+          "mean": 0.0005140260909684002,
+          "std": 0.021801335737109184
+        },
+        "encoder.layer.0.attention.output.LayerNorm.weight": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": 0.51513671875,
+          "max": 1.43359375,
+          "mean": 0.5998458862304688,
+          "std": 0.07101727277040482
+        },
+        "encoder.layer.0.attention.output.LayerNorm.bias": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": -0.86572265625,
+          "max": 1.4052734375,
+          "mean": 0.019597159698605537,
+          "std": 0.19628040492534637
+        },
+        "encoder.layer.0.intermediate.dense.bias": {
+          "shape": [
+            1536
+          ],
+          "dtype": "float32",
+          "min": -0.52099609375,
+          "max": 0.324951171875,
+          "mean": -0.12821340560913086,
+          "std": 0.09726997464895248
+        },
+        "encoder.layer.0.output.dense.bias": {
+          "shape": [
+            384
+          ],
+          "dtype": "float32",
+          "min": -0.23193359375,
+          "max": 0.1407470703125,
+          "mean": -0.0011507216840982437,
+          "std": 0.04581741243600845
+        }
+      }
+    },
+    "overall_assessment": {
+      "status": "CAUTION",
+      "risk_level": "medium",
+      "has_errors": false,
+      "recommendation": "Model contains unknown operators or minor anomalies. Review carefully before deployment."
+    }
+  },
+  "validation": {
+    "compatible": true,
+    "providers": [
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "num_inputs": 3,
+    "num_outputs": 1,
+    "inputs": [
+      {
+        "name": "input_ids",
+        "shape": [
+          "batch_size",
+          "sequence_length"
+        ],
+        "type": "tensor(int64)"
+      },
+      {
+        "name": "attention_mask",
+        "shape": [
+          "batch_size",
+          "sequence_length"
+        ],
+        "type": "tensor(int64)"
+      },
+      {
+        "name": "token_type_ids",
+        "shape": [
+          "batch_size",
+          "sequence_length"
+        ],
+        "type": "tensor(int64)"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "last_hidden_state",
+        "shape": [
+          "batch_size",
+          "sequence_length",
+          384
+        ],
+        "type": "tensor(float)"
+      }
+    ]
+  },
+  "documentation": {
+    "readme": "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/README.md",
+    "security": "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/SECURITY_ASSESSMENT.md",
+    "architecture": "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/ARCHITECTURE.md"
+  },
+  "enhanced_security": {
+    "model_path": "/mnt/d/.models/onnx/download/multilingual-e5-small/qdq/model_quantized.onnx",
+    "timestamp": "2025-10-12T22:37:16.863975",
+    "checks": {
+      "source_provenance": {
+        "passed": true,
+        "details": {
+          "source_url": "https://huggingface.co/Xenova/multilingual-e5-small",
+          "publisher": "onnx-community",
+          "commit": "UNKNOWN",
+          "timestamp": "UNKNOWN"
+        },
+        "issues": []
+      }
+    },
+    "ai_bom": {},
+    "overall_status": "FAIL",
+    "risk_level": "CRITICAL",
+    "errors": [
+      "Critical error: 'str' object has no attribute 'name'"
+    ],
+    "warnings": []
+  }
+}

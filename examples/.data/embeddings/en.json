@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "id": "standard-tiny-en",
+  "targets": ["huggingface", "sentencepiece", "tiktoken"],
+  "length": "Tiny",
+  "description": "Tiny (~256 tokens)",
+  "single": {
+    "text": "Programming language paradigms define computational models: imperative (command sequences modifying state), functional (pure functions, immutability, higher-order functions), object-oriented (encapsulation, inheritance, polymorphism), declarative (specify what not how). Multi-paradigm languages (Python, Java, JavaScript) blend approaches."
+  }
+}

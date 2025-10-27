@@ -94,3 +94,4 @@ tests/_huggingface
 tests/_sentencepeice
 
 **/__pycache__/**
+*.onnx

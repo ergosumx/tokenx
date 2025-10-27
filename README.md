@@ -54,6 +54,20 @@ var decoded = tokenizer.Decode(encoding.Ids);
 Console.WriteLine($"Decoded: {decoded}");
 ```
 
+### Hugging Face Examples
+
+The repository ships ready-to-run console samples that exercise the `AutoTokenizer` pipeline against the archived assets in
+`examples/.models`:
+
+- `dotnet run --project examples/HuggingFace/AllMiniLmL6V2Console` – single sentence embedding with `all-minilm-l6-v2`.
+- `dotnet run --project examples/HuggingFace/E5SmallV2Console` – query/passage batching with `e5-small-v2`.
+- `dotnet run --project examples/HuggingFace/MultilingualE5SmallConsole` – multilingual inputs with `multilingual-e5-small`.
+- `dotnet run --project examples/HuggingFace/AutoTokenizerPipelineExplorer` – inspect tokenizer metadata across the models.
+- `dotnet run --project examples/HuggingFace/WhisperTinyConsole` – transcribe `.data/wav` audio snippets with the Whisper Tiny encoder and decoder ONNX pair.
+
+Each sample resolves `tokenizer_config.json`, `tokenizer.json`, special tokens, and optional generation defaults directly from the
+local model snapshot so they can be executed offline.
+
 ## Development
 
 ### Prerequisites

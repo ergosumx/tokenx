@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "id": "standard-tiny-es",
+  "targets": ["huggingface", "sentencepiece", "tiktoken"],
+  "length": "Tiny",
+  "description": "Tiny (~256 tokens) Spanish",
+  "single": {
+    "text": "Los paradigmas de programación definen modelos computacionales: imperativo (secuencias de comandos modificando estado), funcional (funciones puras, inmutabilidad, funciones de orden superior), orientado a objetos (encapsulación, herencia, polimorfismo), declarativo (especifique qué, no cómo). Los lenguajes multiparadigma (Python, Java, JavaScript) combinan diferentes enfoques."
+  }
+}

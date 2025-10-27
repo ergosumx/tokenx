@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "id": "standard-tiny-fr",
+  "targets": ["huggingface", "sentencepiece", "tiktoken"],
+  "length": "Tiny",
+  "description": "Tiny (~256 tokens) French",
+  "single": {
+    "text": "Les paradigmes de programmation définissent les modèles computationnels : impératif (séquences de commandes modifiant l'état), fonctionnel (fonctions pures, immuabilité, fonctions d'ordre supérieur), orienté objet (encapsulation, héritage, polymorphisme), déclaratif (spécifiez quoi, pas comment). Les langages multi-paradigmes (Python, Java, JavaScript) combinent différentes approches."
+  }
+}
