@@ -5,7 +5,7 @@ using System.IO;
 
 public static class RepositoryTestData
 {
-    private const string SolutionFileName = "TokenX.HF.sln";
+    private const string SolutionFileName = "TokenX.sln";
 
     public static string GetRoot()
     {

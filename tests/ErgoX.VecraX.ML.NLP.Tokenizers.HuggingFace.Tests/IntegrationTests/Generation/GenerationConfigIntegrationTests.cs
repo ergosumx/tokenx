@@ -17,7 +17,7 @@ using Xunit;
 [Trait(TestCategories.Filter, TestCategories.Integration)]
 public sealed class GenerationConfigIntegrationTests : HuggingFaceTestBase
 {
-    private const string SolutionFileName = "TokenX.HF.sln";
+    private const string SolutionFileName = "TokenX.sln";
 
     [Fact]
     public void LoadGenerationConfig_WhenPresent()

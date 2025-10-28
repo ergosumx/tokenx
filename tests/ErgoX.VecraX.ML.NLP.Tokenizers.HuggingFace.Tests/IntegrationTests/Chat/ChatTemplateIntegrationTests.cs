@@ -17,7 +17,7 @@ using Xunit;
 public sealed class ChatTemplateIntegrationTests
 {
     private const string ChatFixtureFileName = "chat-template.json";
-    private const string SolutionFileName = "TokenX.HF.sln";
+    private const string SolutionFileName = "TokenX.sln";
 
     public static IEnumerable<object[]> ModelIdentifiers()
     {

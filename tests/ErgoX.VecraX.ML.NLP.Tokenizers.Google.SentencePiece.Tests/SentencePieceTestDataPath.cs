@@ -5,7 +5,7 @@ using System.IO;
 
 internal static class SentencePieceTestDataPath
 {
-    private const string SolutionFileName = "TokenX.HF.sln";
+    private const string SolutionFileName = "TokenX.sln";
 
     public static string GetSentencePieceRoot()
     {

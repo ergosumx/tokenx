@@ -1,0 +1,62 @@
+theme: jekyll-theme-cayman
+title: ErgoX VecraX Tokenizers
+description: High-performance NLP tokenization for .NET
+show_downloads: false
+
+# Navigation
+navigation:
+  - title: Home
+    url: /
+  - title: HuggingFace
+    url: /huggingface/
+  - title: SentencePiece
+    url: /sentencepiece/
+  - title: TikToken
+    url: /tiktoken/
+  - title: Installation
+    url: /installation
+  - title: Examples
+    url: /examples
+
+# Build settings
+markdown: kramdown
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    default_lang: csharp
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+
+# Plugins
+plugins:
+  - jekyll-relative-links
+
+# Exclude
+exclude:
+  - .git
+  - .gitignore
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+
+# Relative links
+relative_links:
+  enabled: true
+  collections: false
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:path/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"

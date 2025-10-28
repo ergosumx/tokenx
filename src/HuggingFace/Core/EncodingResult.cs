@@ -110,6 +110,13 @@ public sealed partial class EncodingResult
         Overflowing = WrapReadOnly(overflowing);
     }
 
+    /// <summary>
+    /// Pads this encoding to the right to reach the target length.
+    /// </summary>
+    /// <param name="targetLength">The desired length after padding.</param>
+    /// <param name="padId">The token ID to use for padding.</param>
+    /// <param name="padToken">The token string to use for padding.</param>
+    /// <returns>A new <see cref="EncodingResult"/> with right-padded sequences, or this instance if already at target length.</returns>
     public EncodingResult WithPadding(int targetLength, int padId, string padToken)
     {
         if (Length >= targetLength)
@@ -131,6 +138,13 @@ public sealed partial class EncodingResult
         return new EncodingResult(paddedIds, paddedTokens, paddedOffsets);
     }
 
+    /// <summary>
+    /// Pads this encoding to the left to reach the target length.
+    /// </summary>
+    /// <param name="targetLength">The desired length after padding.</param>
+    /// <param name="padId">The token ID to use for padding.</param>
+    /// <param name="padToken">The token string to use for padding.</param>
+    /// <returns>A new <see cref="EncodingResult"/> with left-padded sequences, or this instance if already at target length.</returns>
     public EncodingResult WithLeftPadding(int targetLength, int padId, string padToken)
     {
         if (Length >= targetLength)

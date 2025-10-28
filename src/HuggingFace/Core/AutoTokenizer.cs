@@ -13,6 +13,14 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 
+/// <summary>
+/// Loads and manages HuggingFace tokenizer configurations, supporting encoding, decoding, chat templates, and generation defaults.
+/// </summary>
+/// <remarks>
+/// This class provides a unified interface to load tokenizer.json alongside optional configuration files
+/// (tokenizer_config.json, special_tokens_map.json, generation_config.json) from HuggingFace model directories.
+/// It handles padding, truncation, chat templates, and generation settings automatically.
+/// </remarks>
 public sealed class AutoTokenizer : IDisposable
 {
     private AutoTokenizer(
@@ -31,22 +39,71 @@ public sealed class AutoTokenizer : IDisposable
         Options = options;
     }
 
+    /// <summary>
+    /// Gets the underlying tokenizer instance for encoding and decoding operations.
+    /// </summary>
     public Tokenizer Tokenizer { get; }
 
+    /// <summary>
+    /// Gets the tokenizer configuration, including padding, truncation, and chat template settings.
+    /// May be null if tokenizer_config.json was not found or is empty.
+    /// </summary>
     public TokenizerConfig? TokenizerConfig { get; }
 
+    /// <summary>
+    /// Gets the special tokens map defining tokens like [CLS], [SEP], [PAD], etc.
+    /// May be null if special_tokens_map.json was not found or is empty.
+    /// </summary>
     public SpecialTokensMap? SpecialTokens { get; }
 
+    /// <summary>
+    /// Gets the generation configuration with model-specific defaults (e.g., max_length, top_k, temperature).
+    /// May be null if generation_config.json was not found or <see cref="AutoTokenizerLoadOptions.LoadGenerationConfig"/> was false.
+    /// </summary>
     public GenerationConfig? GenerationConfig { get; }
 
+    /// <summary>
+    /// Gets the base directory path from which tokenizer files were loaded.
+    /// </summary>
     public string BasePath { get; }
 
+    /// <summary>
+    /// Gets the load options that were applied when this tokenizer was instantiated.
+    /// </summary>
     public AutoTokenizerLoadOptions Options { get; }
 
+    /// <summary>
+    /// Gets a value indicating whether this tokenizer supports chat template rendering.
+    /// </summary>
     public bool SupportsChatTemplate => !string.IsNullOrEmpty(TokenizerConfig?.ChatTemplate);
 
+    /// <summary>
+    /// Gets a value indicating whether this tokenizer provides generation defaults.
+    /// </summary>
     public bool SupportsGenerationDefaults => GenerationConfig is not null;
 
+    /// <summary>
+    /// Loads a tokenizer synchronously from a file or directory path.
+    /// </summary>
+    /// <param name="location">
+    /// Path to a tokenizer.json file or a directory containing it.
+    /// Optional configuration files (tokenizer_config.json, special_tokens_map.json, generation_config.json)
+    /// will be loaded if present.
+    /// </param>
+    /// <param name="options">Load options controlling whether to apply defaults and load generation config.
+    /// Defaults to applying tokenizer defaults and loading generation config.</param>
+    /// <returns>An initialized <see cref="AutoTokenizer"/> instance.</returns>
+    /// <exception cref="FileNotFoundException">Thrown if the tokenizer.json file is not found.</exception>
+    /// <example>
+    /// <code>
+    /// // Load from a directory
+    /// using var tokenizer = AutoTokenizer.Load("path/to/model/directory");
+    ///
+    /// // Load with custom options
+    /// var options = new AutoTokenizerLoadOptions { ApplyTokenizerDefaults = false };
+    /// using var tokenizer = AutoTokenizer.Load("tokenizer.json", options);
+    /// </code>
+    /// </example>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Factory method returns the disposable instance to the caller.")]
     public static AutoTokenizer Load(string location, AutoTokenizerLoadOptions? options = null)
     {
@@ -54,6 +111,25 @@ public sealed class AutoTokenizer : IDisposable
         return tokenizer;
     }
 
+    /// <summary>
+    /// Loads a tokenizer asynchronously from a file or directory path.
+    /// </summary>
+    /// <param name="location">
+    /// Path to a tokenizer.json file or a directory containing it.
+    /// Optional configuration files (tokenizer_config.json, special_tokens_map.json, generation_config.json)
+    /// will be loaded if present.
+    /// </param>
+    /// <param name="options">Load options controlling whether to apply defaults and load generation config.
+    /// Defaults to applying tokenizer defaults and loading generation config.</param>
+    /// <param name="cancellationToken">Cancellation token for async operations.</param>
+    /// <returns>A task that resolves to an initialized <see cref="AutoTokenizer"/> instance.</returns>
+    /// <exception cref="FileNotFoundException">Thrown if the tokenizer.json file is not found.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if configuration files are malformed.</exception>
+    /// <example>
+    /// <code>
+    /// using var tokenizer = await AutoTokenizer.LoadAsync("model/directory", cancellationToken: ct);
+    /// </code>
+    /// </example>
     public static async Task<AutoTokenizer> LoadAsync(string location, AutoTokenizerLoadOptions? options = null, CancellationToken cancellationToken = default)
     {
         var resolvedOptions = options ?? new AutoTokenizerLoadOptions();
@@ -108,12 +184,32 @@ public sealed class AutoTokenizer : IDisposable
         }
     }
 
+    /// <summary>
+    /// Releases all resources associated with this tokenizer.
+    /// </summary>
     public void Dispose()
     {
         Tokenizer.Dispose();
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Applies a chat template to format messages into a single prompt string.
+    /// </summary>
+    /// <param name="messages">The chat messages to format.</param>
+    /// <param name="options">Optional chat template options (template override, add generation prompt, variables).</param>
+    /// <returns>The rendered prompt string.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the tokenizer does not support chat templates.</exception>
+    /// <example>
+    /// <code>
+    /// var messages = new[]
+    /// {
+    ///     new ChatMessage { Role = "user", Content = "Hello" },
+    ///     new ChatMessage { Role = "assistant", Content = "Hi there!" }
+    /// };
+    /// string prompt = tokenizer.ApplyChatTemplate(messages);
+    /// </code>
+    /// </example>
     public string ApplyChatTemplate(IEnumerable<ChatMessage> messages, ChatTemplateOptions? options = null)
     {
         var resolvedMessages = MaterializeMessages(messages);
@@ -121,6 +217,13 @@ public sealed class AutoTokenizer : IDisposable
         return RenderChatTemplate(resolvedMessages, resolvedOptions);
     }
 
+    /// <summary>
+    /// Applies a chat template and returns the result as an <see cref="EncodingResult"/> with token IDs.
+    /// </summary>
+    /// <param name="messages">The chat messages to format and encode.</param>
+    /// <param name="options">Optional chat template options.</param>
+    /// <returns>An <see cref="EncodingResult"/> containing token IDs for the formatted prompt.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the tokenizer does not support chat templates.</exception>
     public EncodingResult ApplyChatTemplateAsEncoding(IEnumerable<ChatMessage> messages, ChatTemplateOptions? options = null)
     {
         var resolvedMessages = MaterializeMessages(messages);
@@ -129,9 +232,29 @@ public sealed class AutoTokenizer : IDisposable
         return Tokenizer.Encode(prompt, addSpecialTokens: false);
     }
 
+    /// <summary>
+    /// Applies a chat template and returns only the token IDs.
+    /// </summary>
+    /// <param name="messages">The chat messages to format and encode.</param>
+    /// <param name="options">Optional chat template options.</param>
+    /// <returns>A list of token IDs.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the tokenizer does not support chat templates.</exception>
     public IReadOnlyList<int> ApplyChatTemplateAsTokenIds(IEnumerable<ChatMessage> messages, ChatTemplateOptions? options = null)
         => ApplyChatTemplateAsEncoding(messages, options).Ids;
 
+    /// <summary>
+    /// Initiates a generation request from a plain text prompt using generation settings.
+    /// </summary>
+    /// <param name="prompt">The input prompt text.</param>
+    /// <param name="generationOptions">Optional generation options (overrides generation config defaults).</param>
+    /// <returns>A <see cref="GenerationRequest"/> configured for text generation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if prompt is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if generation config is not available.</exception>
+    /// <example>
+    /// <code>
+    /// var request = tokenizer.Generate("Once upon a time", new GenerationOptions { MaxLength = 100 });
+    /// </code>
+    /// </example>
     public GenerationRequest Generate(string prompt, GenerationOptions? generationOptions = null)
     {
         if (prompt is null)
@@ -143,6 +266,14 @@ public sealed class AutoTokenizer : IDisposable
         return new GenerationRequest(prompt, settings, null);
     }
 
+    /// <summary>
+    /// Initiates a generation request from chat messages using generation settings.
+    /// </summary>
+    /// <param name="messages">The chat messages to format as a prompt.</param>
+    /// <param name="chatOptions">Optional chat template options.</param>
+    /// <param name="generationOptions">Optional generation options.</param>
+    /// <returns>A <see cref="GenerationRequest"/> configured for generation from a chat prompt.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if chat templates or generation config are not supported.</exception>
     public GenerationRequest Generate(
         IEnumerable<ChatMessage> messages,
         ChatTemplateOptions? chatOptions = null,
@@ -155,6 +286,14 @@ public sealed class AutoTokenizer : IDisposable
         return new GenerationRequest(prompt, settings, resolvedMessages);
     }
 
+    /// <summary>
+    /// Initiates a streaming generation request from a plain text prompt.
+    /// </summary>
+    /// <param name="prompt">The input prompt text.</param>
+    /// <param name="generationOptions">Optional generation options.</param>
+    /// <param name="streamOptions">Optional streaming-specific options.</param>
+    /// <returns>A <see cref="StreamingGenerationRequest"/> for token-by-token generation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if prompt is null.</exception>
     public StreamingGenerationRequest GenerateStream(
         string prompt,
         GenerationOptions? generationOptions = null,
@@ -170,6 +309,14 @@ public sealed class AutoTokenizer : IDisposable
         return new StreamingGenerationRequest(prompt, settings, null, skipSpecialTokens);
     }
 
+    /// <summary>
+    /// Initiates a streaming generation request from chat messages.
+    /// </summary>
+    /// <param name="messages">The chat messages to format as a prompt.</param>
+    /// <param name="chatOptions">Optional chat template options.</param>
+    /// <param name="generationOptions">Optional generation options.</param>
+    /// <param name="streamOptions">Optional streaming-specific options.</param>
+    /// <returns>A <see cref="StreamingGenerationRequest"/> for token-by-token generation from a chat prompt.</returns>
     public StreamingGenerationRequest GenerateStream(
         IEnumerable<ChatMessage> messages,
         ChatTemplateOptions? chatOptions = null,
@@ -442,7 +589,25 @@ public sealed class AutoTokenizer : IDisposable
 
 public sealed class AutoTokenizerLoadOptions
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether to automatically apply tokenizer configuration
+    /// defaults for padding, truncation, and normalization.
+    /// </summary>
+    /// <remarks>
+    /// When enabled (default), settings from tokenizer_config.json are applied to the underlying
+    /// tokenizer, ensuring consistent preprocessing behavior. Set to false to use only the
+    /// tokenizer.json model without configuration overrides.
+    /// </remarks>
     public bool ApplyTokenizerDefaults { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to load generation_config.json for default
+    /// generation parameters (e.g., max_length, top_k, temperature).
+    /// </summary>
+    /// <remarks>
+    /// When enabled (default), generation settings are loaded and available via
+    /// <see cref="AutoTokenizer.GenerationConfig"/>. Required for generation request
+    /// and streaming generation methods.
+    /// </remarks>
     public bool LoadGenerationConfig { get; set; } = true;
 }

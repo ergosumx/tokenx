@@ -15,6 +15,14 @@ using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
 
 namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
 
+/// <summary>
+/// A wrapper around the tokenizers library providing text encoding/decoding and chat template rendering.
+/// </summary>
+/// <remarks>
+/// This class provides thread-safe access to the native tokenizer implementation,
+/// supporting BPE, WordPiece, and Unigram models. It handles encoding with padding/truncation,
+/// batch processing, and HuggingFace chat template rendering.
+/// </remarks>
 public sealed class Tokenizer : ITokenizer
 {
     private readonly NativeTokenizerHandle _handle;
@@ -202,6 +210,22 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Saves the tokenizer configuration to a JSON file.
+    /// </summary>
+    /// <param name="path">The file path where the tokenizer configuration will be saved.</param>
+    /// <param name="pretty">If <c>true</c>, the JSON output is formatted for readability; otherwise, it is compact.</param>
+    /// <remarks>
+    /// The output JSON contains the complete tokenizer state, including model, vocabulary, and configuration.
+    /// The directory is created if it does not exist.
+    /// </remarks>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is <c>null</c> or empty.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// tokenizer.Save("tokenizer_backup.json", pretty: true);
+    /// </code>
+    /// </example>
     public void Save(string path, bool pretty = false)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -219,6 +243,29 @@ public sealed class Tokenizer : ITokenizer
         File.WriteAllText(path, json);
     }
 
+    /// <summary>
+    /// Enables padding for all subsequent encoding operations.
+    /// </summary>
+    /// <param name="options">The padding configuration specifying direction (right/left), pad token, and target length.</param>
+    /// <remarks>
+    /// Padding ensures all encoded sequences have the same length by adding pad tokens.
+    /// Right padding (default) is typical for encoder models; left padding is common for decoder-only models.
+    /// Padding is applied after truncation if both are enabled.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="options"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the native operation fails.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var paddingOptions = new PaddingOptions
+    /// {
+    ///     Direction = PaddingDirection.Right,
+    ///     Length = 512,
+    ///     PadToken = "[PAD]",
+    /// };
+    /// tokenizer.EnablePadding(paddingOptions);
+    /// </code>
+    /// </example>
     public void EnablePadding(PaddingOptions options)
     {
         if (options is null)
@@ -251,6 +298,13 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Disables padding for all subsequent encoding operations.
+    /// </summary>
+    /// <remarks>
+    /// After calling this method, encoded sequences retain their natural lengths without padding.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Thrown when the native operation fails.</exception>
     public void DisablePadding()
     {
         lock (_syncRoot)
@@ -268,6 +322,13 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Retrieves the current padding configuration.
+    /// </summary>
+    /// <returns>The current <see cref="PaddingOptions"/> if padding is enabled; otherwise <c>null</c>.</returns>
+    /// <remarks>
+    /// Returns <c>null</c> if padding is disabled or not configured.
+    /// </remarks>
     public PaddingOptions? GetPadding()
     {
         lock (_syncRoot)
@@ -308,6 +369,29 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Enables truncation for all subsequent encoding operations.
+    /// </summary>
+    /// <param name="options">The truncation configuration specifying max length, direction, and strategy.</param>
+    /// <remarks>
+    /// Truncation ensures encoded sequences do not exceed the specified maximum length.
+    /// Excess tokens are removed according to the configured strategy (e.g., "longest_first", "only_first").
+    /// Truncation is applied before padding if both are enabled.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="options"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the native operation fails.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var truncationOptions = new TruncationOptions
+    /// {
+    ///     MaxLength = 512,
+    ///     Strategy = TruncationStrategy.LongestFirst,
+    ///     Direction = TruncationDirection.Right,
+    /// };
+    /// tokenizer.EnableTruncation(truncationOptions);
+    /// </code>
+    /// </example>
     public void EnableTruncation(TruncationOptions options)
     {
         if (options is null)
@@ -337,6 +421,13 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Disables truncation for all subsequent encoding operations.
+    /// </summary>
+    /// <remarks>
+    /// After calling this method, sequences are encoded at their natural length without truncation.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Thrown when the native operation fails.</exception>
     public void DisableTruncation()
     {
         lock (_syncRoot)
@@ -354,6 +445,13 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Retrieves the current truncation configuration.
+    /// </summary>
+    /// <returns>The current <see cref="TruncationOptions"/> if truncation is enabled; otherwise <c>null</c>.</returns>
+    /// <remarks>
+    /// Returns <c>null</c> if truncation is disabled or not configured.
+    /// </remarks>
     public TruncationOptions? GetTruncation()
     {
         lock (_syncRoot)
@@ -394,6 +492,17 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Sets or replaces the tokenizer model.
+    /// </summary>
+    /// <param name="model">The new model to use. Must be created via <see cref="TokenizerModel"/> factory methods.</param>
+    /// <remarks>
+    /// This method replaces the tokenizer's current model with a different one.
+    /// The model controls how text is tokenized (BPE, WordPiece, Unigram, etc.).
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="model"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="model"/> is not a valid <see cref="TokenizerModel"/>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the native operation fails.</exception>
     public void SetModel(IModel model)
     {
         if (model is null)
@@ -465,9 +574,49 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Encodes a single text string into token IDs.
+    /// </summary>
+    /// <param name="text">The text to encode.</param>
+    /// <param name="addSpecialTokens">If <c>true</c>, special tokens (e.g., [CLS], [SEP]) are prepended/appended as defined by the tokenizer.</param>
+    /// <returns>An <see cref="EncodingResult"/> containing token IDs, strings, offsets, and metadata.</returns>
+    /// <remarks>
+    /// Special tokens are added according to the tokenizer model's configuration.
+    /// Padding and truncation are applied based on the settings configured via <see cref="EnablePadding"/> and <see cref="EnableTruncation"/>.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the native tokenizer operation fails.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var result = tokenizer.Encode("Hello, world!");
+    /// Console.WriteLine($"Token count: {result.Ids.Count}");
+    /// </code>
+    /// </example>
     public EncodingResult Encode(string text, bool addSpecialTokens = true)
         => Encode(text, null, addSpecialTokens);
 
+    /// <summary>
+    /// Encodes a text pair (e.g., question-answer, premise-hypothesis) into token IDs.
+    /// </summary>
+    /// <param name="text">The primary text to encode.</param>
+    /// <param name="textPair">The secondary text to encode (optional; commonly used for sequence pairs in models like BERT).</param>
+    /// <param name="addSpecialTokens">If <c>true</c>, special tokens are inserted between and around the texts as configured.</param>
+    /// <returns>An <see cref="EncodingResult"/> containing combined token IDs and metadata for both texts.</returns>
+    /// <remarks>
+    /// When <paramref name="textPair"/> is provided, the tokenizer inserts separator tokens (e.g., [SEP]) between the two texts.
+    /// The resulting token IDs reflect the full sequence with both texts properly demarcated.
+    /// Type IDs (segment IDs) in the result distinguish the first text (0) from the second text (1).
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the native tokenizer operation fails.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var result = tokenizer.Encode("What is AI?", "Artificial Intelligence is...", addSpecialTokens: true);
+    /// // Result contains tokens for the pair with [SEP] between them.
+    /// </code>
+    /// </example>
     public EncodingResult Encode(string text, string? textPair, bool addSpecialTokens = true)
     {
         if (text is null)
@@ -497,6 +646,30 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Encodes a batch of single text strings in sequence.
+    /// </summary>
+    /// <param name="inputs">A collection of text strings to encode.</param>
+    /// <param name="addSpecialTokens">If <c>true</c>, special tokens are added to each text.</param>
+    /// <returns>A read-only list of <see cref="EncodingResult"/> objects, one per input string.</returns>
+    /// <remarks>
+    /// This method encodes each input string individually and preserves their order.
+    /// If padding or truncation is enabled, it is applied to each encoding independently.
+    /// This is a convenience method; for high-throughput scenarios, consider direct Encode calls with parallelization.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="inputs"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown when the collection contains <c>null</c> entries.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var texts = new[] { "Hello", "World", "Test" };
+    /// var results = tokenizer.EncodeBatch(texts);
+    /// foreach (var result in results)
+    /// {
+    ///     Console.WriteLine($"Tokens: {result.Ids.Count}");
+    /// }
+    /// </code>
+    /// </example>
     public IReadOnlyList<EncodingResult> EncodeBatch(IEnumerable<string> inputs, bool addSpecialTokens = true)
     {
         if (inputs is null)
@@ -524,6 +697,31 @@ public sealed class Tokenizer : ITokenizer
         return results;
     }
 
+    /// <summary>
+    /// Encodes a batch of text pairs in sequence.
+    /// </summary>
+    /// <param name="inputs">A collection of text pairs (First, Second) to encode.</param>
+    /// <param name="addSpecialTokens">If <c>true</c>, special tokens are inserted per pair.</param>
+    /// <returns>A read-only list of <see cref="EncodingResult"/> objects, one per pair, with separator tokens between texts.</returns>
+    /// <remarks>
+    /// Each pair is encoded with the second text optional (can be <c>null</c>).
+    /// The tokenizer inserts special separators between the two texts when present.
+    /// Type IDs in the result distinguish the first text from the second.
+    /// This is useful for tasks like natural language inference, question-answering, and semantic similarity.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="inputs"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown when the collection contains pairs with <c>null</c> First values.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var pairs = new[]
+    /// {
+    ///     ("Premise 1", "Hypothesis 1"),
+    ///     ("Premise 2", (string?)null),  // Second can be null
+    /// };
+    /// var results = tokenizer.EncodeBatch(pairs);
+    /// </code>
+    /// </example>
     public IReadOnlyList<EncodingResult> EncodeBatch(IEnumerable<(string First, string? Second)> inputs, bool addSpecialTokens = true)
     {
         if (inputs is null)
@@ -551,6 +749,27 @@ public sealed class Tokenizer : ITokenizer
         return results;
     }
 
+    /// <summary>
+    /// Decodes a sequence of token IDs back into text.
+    /// </summary>
+    /// <param name="ids">A read-only list of token IDs to decode.</param>
+    /// <param name="skipSpecialTokens">If <c>true</c>, special tokens (e.g., [CLS], [PAD]) are excluded from the output.</param>
+    /// <returns>The decoded text string.</returns>
+    /// <remarks>
+    /// The decoding process is model-specific and depends on the tokenizer's configuration.
+    /// Skipping special tokens produces cleaner output for display purposes.
+    /// If an empty sequence is provided, an empty string is returned.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="ids"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the native decode operation fails.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var ids = new[] { 101, 7592, 1010, 2088, 102 };  // Example token IDs
+    /// string text = tokenizer.Decode(ids, skipSpecialTokens: true);
+    /// Console.WriteLine(text);  // Output: "Hello, world"
+    /// </code>
+    /// </example>
     public string Decode(IReadOnlyList<int> ids, bool skipSpecialTokens = true)
     {
         if (ids is null)
@@ -600,6 +819,34 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Decodes a batch of token ID sequences into text strings.
+    /// </summary>
+    /// <param name="sequences">A collection of token ID sequences to decode.</param>
+    /// <param name="skipSpecialTokens">If <c>true</c>, special tokens are excluded from the output.</param>
+    /// <returns>A read-only list of decoded text strings, one per sequence, in order.</returns>
+    /// <remarks>
+    /// Each sequence is decoded independently. Empty sequences result in empty strings.
+    /// This is a convenience method for bulk decoding; the order of results matches the input order.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="sequences"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown when the collection contains <c>null</c> sequences.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the total token count exceeds supported bounds.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// var sequences = new[]
+    /// {
+    ///     new int[] { 101, 7592, 102 },      // "Hello"
+    ///     new int[] { 101, 2088, 102 },      // "World"
+    /// };
+    /// var texts = tokenizer.DecodeBatch(sequences, skipSpecialTokens: true);
+    /// foreach (var text in texts)
+    /// {
+    ///     Console.WriteLine(text);
+    /// }
+    /// </code>
+    /// </example>
     public IReadOnlyList<string> DecodeBatch(IEnumerable<IReadOnlyList<int>> sequences, bool skipSpecialTokens = true)
     {
         if (sequences is null)
@@ -811,6 +1058,30 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Retrieves the token ID for a given token string.
+    /// </summary>
+    /// <param name="token">The token string to look up (e.g., "hello", "[CLS]").</param>
+    /// <returns>The token ID if found; otherwise <c>null</c>.</returns>
+    /// <remarks>
+    /// This method performs a lookup in the tokenizer's vocabulary.
+    /// Returns <c>null</c> for unknown tokens or if the input is <c>null</c> or empty.
+    /// Useful for identifying special token IDs or verifying token validity.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// int? id = tokenizer.TokenToId("hello");
+    /// if (id.HasValue)
+    /// {
+    ///     Console.WriteLine($"Token ID: {id}");
+    /// }
+    /// else
+    /// {
+    ///     Console.WriteLine("Token not found");
+    /// }
+    /// </code>
+    /// </example>
     public int? TokenToId(string token)
     {
         if (string.IsNullOrEmpty(token))
@@ -830,9 +1101,34 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Retrieves the token string for a given token ID.
+    /// </summary>
+    /// <param name="id">The token ID to look up.</param>
+    /// <returns>The token string if found; otherwise <c>null</c>.</returns>
+    /// <remarks>
+    /// This method performs a reverse lookup in the tokenizer's vocabulary.
+    /// Returns <c>null</c> for unknown IDs or if the ID is negative.
+    /// Useful for debugging token sequences or understanding decoded output.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// string? token = tokenizer.IdToToken(101);
+    /// Console.WriteLine(token ?? "Unknown token");  // e.g., "[CLS]"
+    /// </code>
+    /// </example>
     public string? IdToToken(int id)
         => id < 0 ? null : IdToToken((uint)id);
 
+    /// <summary>
+    /// Retrieves the token string for a given unsigned token ID.
+    /// </summary>
+    /// <param name="id">The unsigned token ID to look up.</param>
+    /// <returns>The token string if found; otherwise <c>null</c>.</returns>
+    /// <remarks>
+    /// This overload accepts unsigned IDs and returns <c>null</c> for unknown IDs or lookup failures.
+    /// </remarks>
     public string? IdToToken(uint id)
     {
         lock (_syncRoot)
@@ -857,6 +1153,23 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Serializes the tokenizer configuration to a JSON string.
+    /// </summary>
+    /// <param name="pretty">If <c>true</c>, the JSON output is formatted for readability; otherwise, it is compact.</param>
+    /// <returns>The complete tokenizer configuration as a JSON string.</returns>
+    /// <remarks>
+    /// The returned JSON contains the full tokenizer state including model, vocabulary, and settings.
+    /// Use <see cref="Save"/> to write to a file directly.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Thrown when serialization fails.</exception>
+    /// <example>
+    /// <code>
+    /// var tokenizer = Tokenizer.FromFile("tokenizer.json");
+    /// string json = tokenizer.ToJson(pretty: true);
+    /// Console.WriteLine(json);
+    /// </code>
+    /// </example>
     public string ToJson(bool pretty = false)
     {
         lock (_syncRoot)
@@ -865,6 +1178,13 @@ public sealed class Tokenizer : ITokenizer
         }
     }
 
+    /// <summary>
+    /// Releases all resources held by the tokenizer.
+    /// </summary>
+    /// <remarks>
+    /// This method releases the native tokenizer handle and suppresses the finalizer.
+    /// Always call this method when the tokenizer is no longer needed to free resources promptly.
+    /// </remarks>
     public void Dispose()
     {
         _handle.Dispose();

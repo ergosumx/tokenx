@@ -5,23 +5,55 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+/// <summary>
+/// Represents the special tokens map loaded from special_tokens_map.json.
+/// </summary>
+/// <remarks>
+/// This class holds definitions for special tokens used by the tokenizer, such as padding, unknown, and begin/end-of-sequence tokens.
+/// Each token can be defined as a simple string or as a structured object with ID and content.
+/// </remarks>
 public sealed class SpecialTokensMap
 {
+    /// <summary>
+    /// Gets or sets the beginning-of-sequence token definition.
+    /// </summary>
     [JsonPropertyName("bos_token")]
     public TokenDefinition? BosToken { get; set; }
 
+    /// <summary>
+    /// Gets or sets the end-of-sequence token definition.
+    /// </summary>
     [JsonPropertyName("eos_token")]
     public TokenDefinition? EosToken { get; set; }
 
+    /// <summary>
+    /// Gets or sets the unknown token definition (for out-of-vocabulary tokens).
+    /// </summary>
     [JsonPropertyName("unk_token")]
     public TokenDefinition? UnknownToken { get; set; }
 
+    /// <summary>
+    /// Gets or sets the padding token definition.
+    /// </summary>
     [JsonPropertyName("pad_token")]
     public TokenDefinition? PadToken { get; set; }
 
+    /// <summary>
+    /// Gets or sets the list of additional special tokens beyond the standard four.
+    /// </summary>
     [JsonPropertyName("additional_special_tokens")]
     public List<TokenDefinition> AdditionalSpecialTokens { get; set; } = new();
 
+    /// <summary>
+    /// Parses a special tokens map from a JSON string.
+    /// </summary>
+    /// <param name="json">The JSON string containing the special tokens map.</param>
+    /// <returns>A <see cref="SpecialTokensMap"/> instance if parsing succeeds; <c>null</c> if the JSON is null or empty.</returns>
+    /// <remarks>
+    /// This method is lenient and returns <c>null</c> for invalid input rather than throwing.
+    /// Comments and trailing commas in JSON are supported.
+    /// </remarks>
+    /// <exception cref="JsonException">Thrown when the JSON is malformed in ways that cannot be recovered.</exception>
     public static SpecialTokensMap? FromJson(string json)
     {
         if (string.IsNullOrWhiteSpace(json))
@@ -54,11 +86,24 @@ public sealed class SpecialTokensMap
         return result;
     }
 
+    /// <summary>
+    /// Represents a single token definition that can be a string, ID, or structured object.
+    /// </summary>
+    /// <remarks>
+    /// A token definition may contain just an ID, just content (token string), or both.
+    /// This flexibility allows compatibility with various HuggingFace tokenizer configurations.
+    /// </remarks>
     public sealed class TokenDefinition
     {
+        /// <summary>
+        /// Gets or sets the token ID.
+        /// </summary>
         [JsonPropertyName("id")]
         public int? Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets the token string (e.g., "[PAD]", "[CLS]").
+        /// </summary>
         [JsonPropertyName("content")]
         public string? Content { get; set; }
     }

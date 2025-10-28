@@ -14,7 +14,7 @@ using Xunit;
 [Trait(TestCategories.Filter, TestCategories.Integration)]
 public class EncodingPositionMappingIntegrationTests : IDisposable
 {
-    private const string SolutionFileName = "TokenX.HF.sln";
+    private const string SolutionFileName = "TokenX.sln";
     private readonly Tokenizer _tokenizer;
 
     public EncodingPositionMappingIntegrationTests()
