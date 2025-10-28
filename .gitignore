@@ -95,3 +95,6 @@ tests/_sentencepeice
 
 **/__pycache__/**
 *.onnx
+examples/.models/nougat-base
+examples/HuggingFace/NougatBaseGreedyConsole
+examples/HuggingFace/NougatBaseConsole

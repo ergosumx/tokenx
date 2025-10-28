@@ -1,0 +1,1009 @@
+Graph field encountered: 1
+Graph field encountered: 2
+Graph field encountered: 5
+Tensor field dump start
+  field 1, wire Varint
+  field 2, wire Varint
+  field 8, wire LengthDelimited
+    length 52
+  field 9, wire LengthDelimited
+    length 4096
+Tensor field dump end
+Tensor field encountered: 1
+Tensor field encountered: 2
+Tensor field encountered: 8
+Tensor field encountered: 9
+Tensor diag name='decoder.model.decoder.layers.0.self_attn.k_proj.bias', type=Float, dims=[1024], raw=4096, floatCount=0
+Tensor field dump start
+  field 1, wire Varint
+  field 2, wire Varint
+  field 8, wire LengthDelimited
+    length 52
+  field 9, wire LengthDelimited
+    length 4096
+Tensor field dump end
+Tensor diag name='decoder.model.decoder.layers.0.self_attn.v_proj.bias', type=Float, dims=[1024], raw=4096, floatCount=0
+Tensor field dump start
+  field 1, wire Varint
+  field 2, wire Varint
+  field 8, wire LengthDelimited
+    length 52
+  field 9, wire LengthDelimited
+    length 4096
+Tensor field dump end
+Tensor diag name='decoder.model.decoder.layers.0.self_attn.q_proj.bias', type=Float, dims=[1024], raw=4096, floatCount=0
+Tensor field dump start
+  field 1, wire Varint
+  field 2, wire Varint
+  field 8, wire LengthDelimited
+    length 54
+  field 9, wire LengthDelimited
+    length 4096
+Tensor field dump end
+Tensor diag name='decoder.model.decoder.layers.0.self_attn.out_proj.bias', type=Float, dims=[1024], raw=4096, floatCount=0
+Tensor field dump start
+  field 1, wire Varint
+  field 2, wire Varint
+  field 8, wire LengthDelimited
+    length 58
+  field 9, wire LengthDelimited
+    length 4096
+Tensor field dump end
+Tensor diag name='decoder.model.decoder.layers.0.self_attn_layer_norm.weight', type=Float, dims=[1024], raw=4096, floatCount=0
+Tensor field encountered: 4
+Tensor field encountered: 5
+Graph field encountered: 11
+Graph field encountered: 12
+Graph field encountered: 13
+Initializers discovered: 393
+Sample initializer decoder.model.decoder.layers.0.self_attn.k_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Sample initializer decoder.model.decoder.layers.0.self_attn.v_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Sample initializer decoder.model.decoder.layers.0.self_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Sample initializer decoder.model.decoder.layers.0.self_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Sample initializer decoder.model.decoder.layers.0.self_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.0.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.0.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.0.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.0.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.1.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.1.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.1.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.1.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.2.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.2.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.2.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.2.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.3.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.3.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.3.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.3.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.4.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.4.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.4.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.4.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.5.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.5.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.5.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.5.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.6.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.6.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.6.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.6.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.7.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.7.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.7.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.7.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.8.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.8.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.8.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.8.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.9.encoder_attn.q_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.9.encoder_attn.out_proj.bias: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.9.encoder_attn_layer_norm.weight: type Float, raw bytes: 4096, dims: [1024]
+Initializer decoder.model.decoder.layers.9.encoder_attn_layer_norm.bias: type Float, raw bytes: 4096, dims: [1024]
+Nougat base assets: C:\Users\nilay\.sources\vecrax\tokenx\nlp\ErgoX.VecraX.ML.NLP.Tokenizers\examples\.models\nougat-base
+Input PDF: C:\Users\nilay\.sources\vecrax\tokenx\nlp\ErgoX.VecraX.ML.NLP.Tokenizers\examples\.data\layout\2308.13418v1.pdf
+
+Pages detected: 17
+
+Processing page 1/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 2/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 3/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 4/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 5/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 6/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 7/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 8/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 9/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 10/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 11/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 12/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 13/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 14/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 15/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 16/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
+Processing page 17/17...
+Encoder outputs: last_hidden_state
+Encoder hidden dims: [1, 588, 1024]
+Decoder inputs: input_ids, past_key_values.0.decoder.key, past_key_values.0.decoder.value, past_key_values.0.encoder.key, past_key_values.0.encoder.value, past_key_values.1.decoder.key, past_key_values.1.decoder.value, past_key_values.1.encoder.key, past_key_values.1.encoder.value, past_key_values.2.decoder.key, past_key_values.2.decoder.value, past_key_values.2.encoder.key, past_key_values.2.encoder.value, past_key_values.3.decoder.key, past_key_values.3.decoder.value, past_key_values.3.encoder.key, past_key_values.3.encoder.value, past_key_values.4.decoder.key, past_key_values.4.decoder.value, past_key_values.4.encoder.key, past_key_values.4.encoder.value, past_key_values.5.decoder.key, past_key_values.5.decoder.value, past_key_values.5.encoder.key, past_key_values.5.encoder.value, past_key_values.6.decoder.key, past_key_values.6.decoder.value, past_key_values.6.encoder.key, past_key_values.6.encoder.value, past_key_values.7.decoder.key, past_key_values.7.decoder.value, past_key_values.7.encoder.key, past_key_values.7.encoder.value, past_key_values.8.decoder.key, past_key_values.8.decoder.value, past_key_values.8.encoder.key, past_key_values.8.encoder.value, past_key_values.9.decoder.key, past_key_values.9.decoder.value, past_key_values.9.encoder.key, past_key_values.9.encoder.value
+Decoder outputs: logits, present.0.decoder.key, present.0.decoder.value, present.1.decoder.key, present.1.decoder.value, present.2.decoder.key, present.2.decoder.value, present.3.decoder.key, present.3.decoder.value, present.4.decoder.key, present.4.decoder.value, present.5.decoder.key, present.5.decoder.value, present.6.decoder.key, present.6.decoder.value, present.7.decoder.key, present.7.decoder.value, present.8.decoder.key, present.8.decoder.value, present.9.decoder.key, present.9.decoder.value
+Input past_key_values.0.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.0.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.1.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.2.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.3.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.4.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.5.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.6.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.7.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.8.encoder.value shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.key shape: [-1, 16, -1, 64]
+Input past_key_values.9.encoder.value shape: [-1, 16, -1, 64]
+Has use_cache_branch input: False
+Has encoder_attention_mask input: False
+Has position_ids input: False
+Has encoder_hidden_states input: False
+Initializer 'decoder.layers.0.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 0. Skipping cache prefill.
+Initializer 'decoder.layers.1.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 1. Skipping cache prefill.
+Initializer 'decoder.layers.2.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 2. Skipping cache prefill.
+Initializer 'decoder.layers.3.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 3. Skipping cache prefill.
+Initializer 'decoder.layers.4.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 4. Skipping cache prefill.
+Initializer 'decoder.layers.5.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 5. Skipping cache prefill.
+Initializer 'decoder.layers.6.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 6. Skipping cache prefill.
+Initializer 'decoder.layers.7.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 7. Skipping cache prefill.
+Initializer 'decoder.layers.8.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 8. Skipping cache prefill.
+Initializer 'decoder.layers.9.encoder_attn.k_proj.weight' not found.
+Missing encoder attention weights for layer 9. Skipping cache prefill.
+.
+
+## 3
+--------------------------------------------------------------------------------
