@@ -113,8 +113,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          7z x tests/__templates.7z -otests/__templates -aoa
-          7z x tests/_huggingface.7z -otests/_huggingface -aoa
+          7z x tests/__templates.7z -otests -aoa
+          7z x tests/_huggingface.7z -otests -aoa
 
       - name: Download Linux runtime
         uses: actions/download-artifact@v4
@@ -195,8 +195,8 @@ jobs:
             Write-Error "7-Zip executable not found at $sevenZip"
             exit 1
           }
-          & $sevenZip x "tests\__templates.7z" "-otests\__templates" -aoa
-          & $sevenZip x "tests\_huggingface.7z" "-otests\_huggingface" -aoa
+          & $sevenZip x "tests\__templates.7z" "-otests" -aoa
+          & $sevenZip x "tests\_huggingface.7z" "-otests" -aoa
 
       - name: Download Windows runtime
         uses: actions/download-artifact@v4
@@ -276,8 +276,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          7z x tests/__templates.7z -otests/__templates -aoa
-          7z x tests/_huggingface.7z -otests/_huggingface -aoa
+          7z x tests/__templates.7z -otests -aoa
+          7z x tests/_huggingface.7z -otests -aoa
 
       - name: Download macOS runtime
         uses: actions/download-artifact@v4
@@ -361,8 +361,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          7z x tests/__templates.7z -otests/__templates -aoa
-          7z x tests/_huggingface.7z -otests/_huggingface -aoa
+          7z x tests/__templates.7z -otests -aoa
+          7z x tests/_huggingface.7z -otests -aoa
 
       - name: Download Linux runtime
         uses: actions/download-artifact@v4
