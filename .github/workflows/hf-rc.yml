@@ -463,31 +463,17 @@ jobs:
           stage_runtime "bridge_artifacts/android" "android-arm64/native"
           stage_runtime "bridge_artifacts/ios" "ios-arm64/native"
 
-      - name: Restore dependencies
-        run: dotnet restore TokenX.sln --nologo
+      - name: Restore HuggingFace project
+        run: dotnet restore src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --nologo
 
-      - name: Build solution
-        run: dotnet build TokenX.sln --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
+      - name: Build HuggingFace project
+        run: dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
 
       - name: Prepare artifact staging
         run: |
           mkdir -p artifacts/TestResults
           mkdir -p artifacts/coverage
           mkdir -p artifacts/packages
-
-      - name: Run HuggingFace tests with coverage
-        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-build --no-restore --results-directory artifacts/TestResults --logger trx --collect:"XPlat Code Coverage"
-
-      - name: Collect coverage report
-        shell: bash
-        run: |
-          set -euo pipefail
-          COVERAGE_FILE=$(find artifacts/TestResults -name 'coverage.cobertura.xml' | head -n 1)
-          if [ -z "$COVERAGE_FILE" ]; then
-            echo "Coverage file not found." >&2
-            exit 1
-          fi
-          cp "$COVERAGE_FILE" artifacts/coverage/ErgoX.TokenX.HuggingFace.coverage.cobertura.xml
 
       - name: Derive RC version
         id: rc
@@ -525,21 +511,36 @@ jobs:
             restore_runtimes
           }
 
+          prepare_placeholder() {
+            mkdir -p src/HuggingFace/lib/net8.0
+            : > src/HuggingFace/lib/net8.0/_._
+          }
+
+          cleanup_placeholder() {
+            rm -rf src/HuggingFace/lib
+          }
+
           pack_mac() {
             rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
+            prepare_placeholder
             dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Mac /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:ContinuousIntegrationBuild=true
+            cleanup_placeholder
             restore_runtimes
           }
 
           pack_android() {
             rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/ios-arm64
+            prepare_placeholder
             dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Android /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:ContinuousIntegrationBuild=true
+            cleanup_placeholder
             restore_runtimes
           }
 
           pack_ios() {
             rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64
+            prepare_placeholder
             dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.iOS /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:ContinuousIntegrationBuild=true
+            cleanup_placeholder
             restore_runtimes
           }
 
@@ -549,6 +550,29 @@ jobs:
           pack_ios
 
           rm -rf "$backup_dir"
+
+      - name: Restore HuggingFace tests with package
+        env:
+          RC_VERSION: ${{ steps.rc.outputs.rc }}
+        run: |
+          dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --nologo /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RC_VERSION} --source $(pwd)/artifacts/packages --source https://api.nuget.org/v3/index.json
+
+      - name: Run HuggingFace tests with coverage (package)
+        env:
+          RC_VERSION: ${{ steps.rc.outputs.rc }}
+        run: |
+          dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-build --no-restore --nologo /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RC_VERSION} --results-directory artifacts/TestResults --logger trx --collect:"XPlat Code Coverage"
+
+      - name: Collect coverage report
+        shell: bash
+        run: |
+          set -euo pipefail
+          COVERAGE_FILE=$(find artifacts/TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "Coverage file not found." >&2
+            exit 1
+          fi
+          cp "$COVERAGE_FILE" artifacts/coverage/ErgoX.TokenX.HuggingFace.coverage.cobertura.xml
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
