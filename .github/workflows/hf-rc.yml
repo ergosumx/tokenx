@@ -253,8 +253,10 @@ jobs:
         working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
         shell: pwsh
         run: |
-          dotnet test --configuration Release --no-restore \
-            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+          dotnet test `
+            --configuration Release `
+            --no-restore `
+            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" `
             --results-directory ..\..\artifacts\TestResults
 
       - name: Upload test results
