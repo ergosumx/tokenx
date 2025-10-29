@@ -270,7 +270,22 @@ jobs:
             cp artifacts/osx-x64/native/libsentencepiece_c.dylib artifacts/osx-x64/native/sentencepiece_c.dylib
           fi
 
-          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.dylib" -exec cp {} artifacts/osx-x64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece*.dylib" ! -name 'libsentencepiece_c*.dylib' -exec cp {} artifacts/osx-x64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_train*.dylib" -exec cp {} artifacts/osx-x64/native/ \; || true
+
+          if [ ! -f artifacts/osx-x64/native/libsentencepiece.dylib ]; then
+            candidate=$(find artifacts/osx-x64/native -maxdepth 1 -type f -name 'libsentencepiece*.dylib' ! -name 'libsentencepiece.dylib' ! -name 'libsentencepiece_c*.dylib' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp "$candidate" artifacts/osx-x64/native/libsentencepiece.dylib
+            fi
+          fi
+
+          if [ ! -f artifacts/osx-x64/native/libsentencepiece_train.dylib ]; then
+            candidate=$(find artifacts/osx-x64/native -maxdepth 1 -type f -name 'libsentencepiece_train*.dylib' ! -name 'libsentencepiece_train.dylib' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp "$candidate" artifacts/osx-x64/native/libsentencepiece_train.dylib
+            fi
+          fi
           ls -lh artifacts/osx-x64/native/
 
       - name: Upload artifact
@@ -343,7 +358,22 @@ jobs:
             cp artifacts/osx-arm64/native/libsentencepiece_c.dylib artifacts/osx-arm64/native/sentencepiece_c.dylib
           fi
 
-          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.dylib" -exec cp {} artifacts/osx-arm64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece*.dylib" ! -name 'libsentencepiece_c*.dylib' -exec cp {} artifacts/osx-arm64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_train*.dylib" -exec cp {} artifacts/osx-arm64/native/ \; || true
+
+          if [ ! -f artifacts/osx-arm64/native/libsentencepiece.dylib ]; then
+            candidate=$(find artifacts/osx-arm64/native -maxdepth 1 -type f -name 'libsentencepiece*.dylib' ! -name 'libsentencepiece.dylib' ! -name 'libsentencepiece_c*.dylib' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp "$candidate" artifacts/osx-arm64/native/libsentencepiece.dylib
+            fi
+          fi
+
+          if [ ! -f artifacts/osx-arm64/native/libsentencepiece_train.dylib ]; then
+            candidate=$(find artifacts/osx-arm64/native -maxdepth 1 -type f -name 'libsentencepiece_train*.dylib' ! -name 'libsentencepiece_train.dylib' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp "$candidate" artifacts/osx-arm64/native/libsentencepiece_train.dylib
+            fi
+          fi
           ls -lh artifacts/osx-arm64/native/
 
       - name: Upload artifact
