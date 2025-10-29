@@ -8,8 +8,9 @@ on:
       - completed
 
 permissions:
-  contents: read
   actions: read
+  contents: write
+  packages: write
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
@@ -24,6 +25,9 @@ jobs:
     outputs:
       version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).version || '' }}
       artifacts: ${{ steps.resolve.outputs.result != '' && toJSON(fromJSON(steps.resolve.outputs.result).artifacts) || '{}' }}
+      rc_version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcVersion || '' }}
+      rc_tag: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcTag || '' }}
+      rc_number: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcNumber || '' }}
     steps:
       - name: Resolve metadata
         id: resolve
@@ -76,7 +80,7 @@ jobs:
             }
 
             if (!version) {
-              const linuxName = map.linux;
+              const linuxName = map.linux?.name ?? '';
               const prefix = 'tokenx-bridge-';
               const suffix = `-${targets.linux}`;
               if (linuxName.startsWith(prefix) && linuxName.includes(suffix)) {
@@ -91,7 +95,98 @@ jobs:
             }
 
             core.info(`Resolved base version: ${version}`);
-            return { version, artifacts: map };
+
+            const releasePrefix = `hf-${version}-rc.`;
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              owner,
+              repo,
+              per_page: 100
+            });
+
+            let maxRcFromReleases = 0;
+            for (const release of releases) {
+              const tag = release.tag_name ?? '';
+              if (!tag.startsWith(releasePrefix)) {
+                continue;
+              }
+
+              const suffix = tag.substring(releasePrefix.length);
+              const parsed = Number.parseInt(suffix, 10);
+              if (!Number.isNaN(parsed) && parsed > maxRcFromReleases) {
+                maxRcFromReleases = parsed;
+              }
+            }
+
+            const packageNames = [
+              'ErgoX.TokenX.HuggingFace',
+              'ErgoX.TokenX.HuggingFace.Mac',
+              'ErgoX.TokenX.HuggingFace.Android',
+              'ErgoX.TokenX.HuggingFace.iOS'
+            ];
+
+            const listPackageVersions = async (packageName) => {
+              try {
+                return await github.paginate(
+                  github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg,
+                  {
+                    package_type: 'nuget',
+                    package_name: packageName,
+                    org: owner,
+                    per_page: 100
+                  }
+                );
+              } catch (error) {
+                if (error.status !== 404) {
+                  throw error;
+                }
+              }
+
+              try {
+                return await github.paginate(
+                  github.rest.packages.getAllPackageVersionsForPackageOwnedByUser,
+                  {
+                    package_type: 'nuget',
+                    package_name: packageName,
+                    username: owner,
+                    per_page: 100
+                  }
+                );
+              } catch (error) {
+                if (error.status !== 404) {
+                  throw error;
+                }
+              }
+
+              return [];
+            };
+
+            let maxRcFromPackages = 0;
+            for (const packageName of packageNames) {
+              const versions = await listPackageVersions(packageName);
+              for (const versionInfo of versions) {
+                const packageVersion = versionInfo.name ?? '';
+                if (!packageVersion.startsWith(`${version}-rc.`)) {
+                  continue;
+                }
+                const suffix = packageVersion.substring(`${version}-rc.`.length);
+                const parsed = Number.parseInt(suffix, 10);
+                if (!Number.isNaN(parsed) && parsed > maxRcFromPackages) {
+                  maxRcFromPackages = parsed;
+                }
+              }
+            }
+
+            core.info(`Highest RC from releases: ${maxRcFromReleases}`);
+            core.info(`Highest RC from packages: ${maxRcFromPackages}`);
+
+            const maxRc = Math.max(maxRcFromReleases, maxRcFromPackages);
+            const rcNumber = maxRc + 1;
+            const rcVersion = `${version}-rc.${rcNumber}`;
+            const rcTag = `hf-${version}-rc.${rcNumber}`;
+
+            core.info(`Next RC number: ${rcNumber} (${rcVersion})`);
+
+            return { version, artifacts: map, rcVersion, rcTag, rcNumber };
 
   test-linux:
     name: Test Linux
@@ -103,6 +198,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Validate RC metadata
+        run: |
+          if [ -z "${RC_VERSION}" ] || [ -z "${RC_TAG}" ] || [ -z "${RC_NUMBER}" ]; then
+            echo "RC metadata is incomplete (RC_VERSION='${RC_VERSION}', RC_TAG='${RC_TAG}', RC_NUMBER='${RC_NUMBER}')." >&2
+            exit 1
+          fi
+          echo "Preparing RC ${RC_NUMBER} for base version ${BASE_VERSION} (NuGet ${RC_VERSION}, tag ${RC_TAG})."
 
       - name: Install prerequisites
         run: |
@@ -277,6 +380,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate RC metadata
+        run: |
+          if [ -z "${RC_VERSION}" ] || [ -z "${RC_TAG}" ] || [ -z "${RC_NUMBER}" ]; then
+            echo "RC metadata is incomplete (RC_VERSION='${RC_VERSION}', RC_TAG='${RC_TAG}', RC_NUMBER='${RC_NUMBER}')." >&2
+            exit 1
+          fi
+
       - name: Install prerequisites
         run: |
           brew update
@@ -360,6 +470,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.version }}
+      RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+      RC_TAG: ${{ needs.prepare.outputs.rc_tag }}
+      RC_NUMBER: ${{ needs.prepare.outputs.rc_number }}
+      WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -489,25 +603,8 @@ jobs:
           mkdir -p artifacts/coverage
           mkdir -p artifacts/packages
 
-      - name: Derive RC version
-        id: rc
-        shell: bash
-        run: |
-          set -euo pipefail
-          BASE="${BASE_VERSION}"
-          if [ -z "$BASE" ]; then
-            echo "Base version is empty." >&2
-            exit 1
-          fi
-          RC_VERSION="${BASE}-rc.${GITHUB_RUN_NUMBER}"
-          echo "base=$BASE" >> "$GITHUB_OUTPUT"
-          echo "rc=$RC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Computed RC version: $RC_VERSION"
-
       - name: Pack NuGet artifacts
         shell: bash
-        env:
-          RC_VERSION: ${{ steps.rc.outputs.rc }}
         run: |
           set -euo pipefail
           mkdir -p artifacts/packages
@@ -551,14 +648,10 @@ jobs:
           rm -rf "$backup_dir"
 
       - name: Restore HuggingFace tests with package
-        env:
-          RC_VERSION: ${{ steps.rc.outputs.rc }}
         run: |
           dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo --source "$(pwd)/artifacts/packages" --source https://api.nuget.org/v3/index.json /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RC_VERSION}
 
       - name: Run HuggingFace tests with coverage (package)
-        env:
-          RC_VERSION: ${{ steps.rc.outputs.rc }}
         working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
         run: |
           dotnet test --configuration Release --no-restore --nologo \
@@ -578,16 +671,76 @@ jobs:
           fi
           cp "$COVERAGE_FILE" artifacts/coverage/ErgoX.TokenX.HuggingFace.coverage.cobertura.xml
 
+      - name: Publish packages to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GITHUB_TOKEN}" ]; then
+            echo "GITHUB_TOKEN is required to publish packages." >&2
+            exit 1
+          fi
+          dotnet nuget remove source github >/dev/null 2>&1 || true
+          dotnet nuget add source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json" \
+            --name github \
+            --username "${GITHUB_REPOSITORY_OWNER}" \
+            --password "${GITHUB_TOKEN}" \
+            --store-password-in-clear-text
+
+          shopt -s nullglob
+          pushed=0
+          for package in artifacts/packages/*.nupkg; do
+            dotnet nuget push "$package" --source github --api-key "${GITHUB_TOKEN}" --skip-duplicate
+            pushed=1
+          done
+          if [ "$pushed" -eq 0 ]; then
+            echo "No packages were pushed." >&2
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${RC_TAG}" ]; then
+            echo "RC_TAG is required to create a release." >&2
+            exit 1
+          fi
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "GH_TOKEN is required to create a release." >&2
+            exit 1
+          fi
+          shopt -s nullglob
+          files=(artifacts/packages/*.nupkg artifacts/packages/*.snupkg)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No package files available for the release." >&2
+            exit 1
+          fi
+          title="HuggingFace ${BASE_VERSION} RC ${RC_NUMBER} (Update ${RC_NUMBER})"
+          notes="Automated Update ${RC_NUMBER} for base version ${BASE_VERSION}. Packages are published to GitHub Packages."
+          target="${WORKFLOW_HEAD_SHA}"
+          if [ -z "$target" ]; then
+            target="${GITHUB_SHA}"
+          fi
+          gh release create "${RC_TAG}" "${files[@]}" \
+            --title "${title}" \
+            --notes "${notes}" \
+            --prerelease \
+            --target "${target}"
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-coverage-${{ steps.rc.outputs.base }}
+          name: hf-rc-coverage-${{ env.BASE_VERSION }}-rc.${{ env.RC_NUMBER }}
           path: artifacts/coverage
           if-no-files-found: error
 
       - name: Upload RC packages
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-packages-${{ steps.rc.outputs.rc }}
+          name: hf-rc-packages-${{ env.RC_VERSION }}
           path: artifacts/packages
           if-no-files-found: error
