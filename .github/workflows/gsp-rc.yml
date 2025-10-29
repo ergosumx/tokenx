@@ -405,6 +405,18 @@ jobs:
           if [ -f "${RUNTIME_DIR}/libsentencepiece_c.so" ] && [ ! -f "${RUNTIME_DIR}/sentencepiece_c.so" ]; then
             cp -f "${RUNTIME_DIR}/libsentencepiece_c.so" "${RUNTIME_DIR}/sentencepiece_c.so"
           fi
+          if [ ! -f "${RUNTIME_DIR}/libsentencepiece.so" ]; then
+            candidate=$(find "$SOURCE_DIR" -maxdepth 1 -type f -name 'libsentencepiece.so.*' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp -f "$candidate" "${RUNTIME_DIR}/libsentencepiece.so"
+            fi
+          fi
+          if [ ! -f "${RUNTIME_DIR}/libsentencepiece_train.so" ]; then
+            candidate=$(find "$SOURCE_DIR" -maxdepth 1 -type f -name 'libsentencepiece_train.so.*' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp -f "$candidate" "${RUNTIME_DIR}/libsentencepiece_train.so"
+            fi
+          fi
           ls -al "$RUNTIME_DIR"
 
       - name: Prepare result directories
@@ -684,8 +696,9 @@ jobs:
 
           ensure_linux_names() {
             local dir="$1"
+            local candidate
+
             if [ ! -f "${dir}/libsentencepiece_c.so" ]; then
-              local candidate
               candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece_c*.so*' ! -name 'libsentencepiece_c.so' | head -n 1)
               if [ -n "$candidate" ]; then
                 cp -f "$candidate" "${dir}/libsentencepiece_c.so"
@@ -694,12 +707,27 @@ jobs:
             if [ -f "${dir}/libsentencepiece_c.so" ] && [ ! -f "${dir}/sentencepiece_c.so" ]; then
               cp -f "${dir}/libsentencepiece_c.so" "${dir}/sentencepiece_c.so"
             fi
+
+            if [ ! -f "${dir}/libsentencepiece.so" ]; then
+              candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece.so*' ! -name 'libsentencepiece.so' | head -n 1)
+              if [ -n "$candidate" ]; then
+                cp -f "$candidate" "${dir}/libsentencepiece.so"
+              fi
+            fi
+
+            if [ ! -f "${dir}/libsentencepiece_train.so" ]; then
+              candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece_train.so*' ! -name 'libsentencepiece_train.so' | head -n 1)
+              if [ -n "$candidate" ]; then
+                cp -f "$candidate" "${dir}/libsentencepiece_train.so"
+              fi
+            fi
           }
 
           ensure_macos_names() {
             local dir="$1"
+            local candidate
+
             if [ ! -f "${dir}/libsentencepiece_c.dylib" ]; then
-              local candidate
               candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece_c*.dylib' ! -name 'libsentencepiece_c.dylib' | head -n 1)
               if [ -n "$candidate" ]; then
                 cp -f "$candidate" "${dir}/libsentencepiece_c.dylib"
@@ -707,6 +735,20 @@ jobs:
             fi
             if [ -f "${dir}/libsentencepiece_c.dylib" ] && [ ! -f "${dir}/sentencepiece_c.dylib" ]; then
               cp -f "${dir}/libsentencepiece_c.dylib" "${dir}/sentencepiece_c.dylib"
+            fi
+
+            if [ ! -f "${dir}/libsentencepiece.dylib" ]; then
+              candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece.*.dylib' ! -name 'libsentencepiece.dylib' | head -n 1)
+              if [ -n "$candidate" ]; then
+                cp -f "$candidate" "${dir}/libsentencepiece.dylib"
+              fi
+            fi
+
+            if [ ! -f "${dir}/libsentencepiece_train.dylib" ]; then
+              candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece_train.*.dylib' ! -name 'libsentencepiece_train.dylib' | head -n 1)
+              if [ -n "$candidate" ]; then
+                cp -f "$candidate" "${dir}/libsentencepiece_train.dylib"
+              fi
             fi
           }
 

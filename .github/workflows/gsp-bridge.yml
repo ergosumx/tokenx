@@ -114,8 +114,21 @@ jobs:
             cp artifacts/linux-x64/native/libsentencepiece_c.so artifacts/linux-x64/native/sentencepiece_c.so
           fi
 
-          # Include canonical SentencePiece library for reference
+          # Include canonical SentencePiece libraries required at runtime
           find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece.so*" -exec cp {} artifacts/linux-x64/native/ \; || true
+          find "${SENTENCEPIECE_DIR}/build" -type f -name "libsentencepiece_train.so*" -exec cp {} artifacts/linux-x64/native/ \; || true
+          if [ ! -f artifacts/linux-x64/native/libsentencepiece.so ]; then
+            base=$(find artifacts/linux-x64/native -maxdepth 1 -type f -name 'libsentencepiece.so.*' | head -n 1)
+            if [ -n "$base" ]; then
+              cp "$base" artifacts/linux-x64/native/libsentencepiece.so
+            fi
+          fi
+          if [ ! -f artifacts/linux-x64/native/libsentencepiece_train.so ]; then
+            base=$(find artifacts/linux-x64/native -maxdepth 1 -type f -name 'libsentencepiece_train.so.*' | head -n 1)
+            if [ -n "$base" ]; then
+              cp "$base" artifacts/linux-x64/native/libsentencepiece_train.so
+            fi
+          fi
           ls -lh artifacts/linux-x64/native/
 
       - name: Upload artifact
