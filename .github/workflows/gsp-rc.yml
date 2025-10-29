@@ -396,6 +396,15 @@ jobs:
             echo "No runtime files copied into ${RUNTIME_DIR}." >&2
             exit 1
           fi
+          if [ ! -f "${RUNTIME_DIR}/libsentencepiece_c.so" ]; then
+            candidate=$(find "$RUNTIME_DIR" -maxdepth 1 -type f -name 'libsentencepiece_c*.so*' ! -name 'libsentencepiece_c.so' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp -f "$candidate" "${RUNTIME_DIR}/libsentencepiece_c.so"
+            fi
+          fi
+          if [ -f "${RUNTIME_DIR}/libsentencepiece_c.so" ] && [ ! -f "${RUNTIME_DIR}/sentencepiece_c.so" ]; then
+            cp -f "${RUNTIME_DIR}/libsentencepiece_c.so" "${RUNTIME_DIR}/sentencepiece_c.so"
+          fi
           ls -al "$RUNTIME_DIR"
 
       - name: Prepare result directories
@@ -556,6 +565,15 @@ jobs:
             echo "No runtime files copied into ${RUNTIME_DIR}." >&2
             exit 1
           fi
+          if [ ! -f "${RUNTIME_DIR}/libsentencepiece_c.dylib" ]; then
+            candidate=$(find "$RUNTIME_DIR" -maxdepth 1 -type f -name 'libsentencepiece_c*.dylib' ! -name 'libsentencepiece_c.dylib' | head -n 1)
+            if [ -n "$candidate" ]; then
+              cp -f "$candidate" "${RUNTIME_DIR}/libsentencepiece_c.dylib"
+            fi
+          fi
+          if [ -f "${RUNTIME_DIR}/libsentencepiece_c.dylib" ] && [ ! -f "${RUNTIME_DIR}/sentencepiece_c.dylib" ]; then
+            cp -f "${RUNTIME_DIR}/libsentencepiece_c.dylib" "${RUNTIME_DIR}/sentencepiece_c.dylib"
+          fi
           ls -al "$RUNTIME_DIR"
 
       - name: Prepare result directories
@@ -662,6 +680,34 @@ jobs:
         run: |
           set -euo pipefail
 
+          ensure_linux_names() {
+            local dir="$1"
+            if [ ! -f "${dir}/libsentencepiece_c.so" ]; then
+              local candidate
+              candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece_c*.so*' ! -name 'libsentencepiece_c.so' | head -n 1)
+              if [ -n "$candidate" ]; then
+                cp -f "$candidate" "${dir}/libsentencepiece_c.so"
+              fi
+            fi
+            if [ -f "${dir}/libsentencepiece_c.so" ] && [ ! -f "${dir}/sentencepiece_c.so" ]; then
+              cp -f "${dir}/libsentencepiece_c.so" "${dir}/sentencepiece_c.so"
+            fi
+          }
+
+          ensure_macos_names() {
+            local dir="$1"
+            if [ ! -f "${dir}/libsentencepiece_c.dylib" ]; then
+              local candidate
+              candidate=$(find "$dir" -maxdepth 1 -type f -name 'libsentencepiece_c*.dylib' ! -name 'libsentencepiece_c.dylib' | head -n 1)
+              if [ -n "$candidate" ]; then
+                cp -f "$candidate" "${dir}/libsentencepiece_c.dylib"
+              fi
+            fi
+            if [ -f "${dir}/libsentencepiece_c.dylib" ] && [ ! -f "${dir}/sentencepiece_c.dylib" ]; then
+              cp -f "${dir}/libsentencepiece_c.dylib" "${dir}/sentencepiece_c.dylib"
+            fi
+          }
+
           stage_runtime() {
             local download_root="$1"
             local runtime_dir="$2"
@@ -684,6 +730,14 @@ jobs:
               echo "No runtime files copied into ${target_dir}." >&2
               exit 1
             fi
+            case "$runtime_dir" in
+              linux-x64/native)
+                ensure_linux_names "$target_dir"
+                ;;
+              osx-arm64/native|osx-x64/native)
+                ensure_macos_names "$target_dir"
+                ;;
+            esac
             ls -al "$target_dir"
           }
 
