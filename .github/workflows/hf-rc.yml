@@ -561,7 +561,7 @@ jobs:
           RC_VERSION: ${{ steps.rc.outputs.rc }}
         working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
         run: |
-          dotnet test --configuration Release --no-build --no-restore --nologo \
+          dotnet test --configuration Release --no-restore --nologo \
             -p:UseHuggingFacePackage=true -p:HuggingFacePackageVersion=${RC_VERSION} \
             --results-directory ../../artifacts/TestResults \
             --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
