@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Provides configuration options for constructing a SentencePiece-compatible Unigram model.
@@ -10,3 +10,4 @@ public sealed record UnigramModelOptions
     /// </summary>
     public static UnigramModelOptions Default { get; } = new();
 }
+

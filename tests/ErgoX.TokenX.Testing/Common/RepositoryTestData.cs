@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+namespace ErgoX.TokenX.Tests;
 
 using System;
 using System.IO;
@@ -42,3 +42,4 @@ public static class RepositoryTestData
         return Path.Combine(pathSegments);
     }
 }
+

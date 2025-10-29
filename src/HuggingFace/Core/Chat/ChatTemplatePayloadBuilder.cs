@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+namespace ErgoX.TokenX.HuggingFace.Chat;
 
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Options;
 
 internal static class ChatTemplatePayloadBuilder
 {
@@ -145,3 +145,4 @@ internal static class ChatTemplatePayloadBuilder
         return null;
     }
 }
+

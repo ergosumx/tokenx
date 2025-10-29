@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../src/HuggingFace/ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj" />
+    <ProjectReference Include="../../../src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
@@ -15,3 +15,4 @@
     <PackageReference Include="System.Numerics.Tensors" Version="8.0.0" />
   </ItemGroup>
 </Project>
+

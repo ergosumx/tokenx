@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Unit;
+namespace ErgoX.TokenX.SentencePiece.Tests.Unit;
 
 using System;
 using System.Reflection;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Exceptions;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.SentencePiece.Exceptions;
+using ErgoX.TokenX.SentencePiece.Processing;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -35,9 +35,10 @@ public sealed class SentencePieceExceptionTests
         var method = typeof(SentencePieceException).GetMethod("FromNative", BindingFlags.Static | BindingFlags.NonPublic);
         Assert.NotNull(method);
 
-        var nativeEnumType = typeof(SentencePieceProcessor).Assembly.GetType("ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop.NativeMethods+SpcStatusCode", throwOnError: true) ?? throw new InvalidOperationException("Native status enum type could not be located.");
+        var nativeEnumType = typeof(SentencePieceProcessor).Assembly.GetType("ErgoX.TokenX.SentencePiece.Internal.Interop.NativeMethods+SpcStatusCode", throwOnError: true) ?? throw new InvalidOperationException("Native status enum type could not be located.");
         var nativeEnumValue = Enum.ToObject(nativeEnumType, nativeValue);
 
         return (SentencePieceStatusCode)method!.Invoke(null, new[] { nativeEnumValue })!;
     }
 }
+

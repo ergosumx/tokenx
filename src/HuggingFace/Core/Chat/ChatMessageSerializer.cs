@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+namespace ErgoX.TokenX.HuggingFace.Chat;
 
 using System;
 using System.Collections.Generic;
@@ -62,3 +62,4 @@ internal static class ChatMessageSerializer
         return array.ToJsonString(SerializerOptions);
     }
 }
+

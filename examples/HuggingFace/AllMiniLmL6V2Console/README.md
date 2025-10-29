@@ -217,7 +217,7 @@ var embeddings = ComputeEmbeddingBatch(session, encodings, batchSize);
 
 ## Dependencies
 
-- **ErgoX.VecraX.ML.NLP.Tokenizers**: Tokenizer bindings
+- **ErgoX.TokenX**: Tokenizer bindings
 - **Microsoft.ML.OnnxRuntime**: ONNX model inference
 - **System.Numerics.Tensors**: Dense tensor manipulation
 
@@ -231,3 +231,4 @@ For detailed model information, see:
 
 **Last Updated**: October 2025  
 **Status**: Tested and verified on .NET 8.0
+

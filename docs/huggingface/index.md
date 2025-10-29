@@ -40,7 +40,7 @@ AutoTokenizer (High-level API)
 ## Installation
 
 ```bash
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace
+dotnet add package ErgoX.TokenX.HuggingFace
 ```
 
 See [Installation Guide](../installation.md) for detailed setup.
@@ -50,7 +50,7 @@ See [Installation Guide](../installation.md) for detailed setup.
 ### Basic Encoding
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 
 // Load tokenizer from directory
 using var tokenizer = AutoTokenizer.Load("bert-base-uncased");
@@ -257,7 +257,7 @@ public sealed class EncodingResult
 Chat templates format multi-turn conversations for LLM input using Jinja2 templates.
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Chat;
 
 // Define conversation
 var messages = new List<ChatMessage>
@@ -746,3 +746,4 @@ if (!tokenizer.SupportsChatTemplate)
 - [SentencePiece Documentation](../sentencepiece/index.md) - Alternative tokenizer
 - [TikToken Documentation](../tiktoken/index.md) - OpenAI tokenizer
 - [Main Documentation](../index.md) - Overview and comparison
+

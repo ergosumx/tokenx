@@ -1,8 +1,8 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Unit;
+namespace ErgoX.TokenX.SentencePiece.Tests.Unit;
 
 using System.Collections.Generic;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Models;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.SentencePiece.Models;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -40,3 +40,4 @@ public sealed class SentencePieceModelsTests
         Assert.Equal(left.GetHashCode(), right.GetHashCode());
     }
 }
+

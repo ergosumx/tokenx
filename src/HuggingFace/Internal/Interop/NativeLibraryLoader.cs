@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Common.Interop;
+using ErgoX.TokenX.Common.Interop;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 internal static class NativeLibraryLoader
 {
@@ -184,3 +184,4 @@ internal static class NativeLibraryLoader
         yield return Path.Combine(assemblyDirectory, fileName);
     }
 }
+

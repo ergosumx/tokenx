@@ -1,8 +1,8 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests.UnitTests.Tiktoken;
+namespace ErgoX.TokenX.Tests.UnitTests.Tiktoken;
 
 using System;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tests;
+using ErgoX.TokenX.Tiktoken;
 using Xunit;
 
 public sealed class TiktokenMergeableRankTests : TiktokenTestBase
@@ -24,3 +24,4 @@ public sealed class TiktokenMergeableRankTests : TiktokenTestBase
         Assert.Throws<ArgumentOutOfRangeException>(() => new TiktokenMergeableRank(ReadOnlyMemory<byte>.Empty, -1));
     }
 }
+

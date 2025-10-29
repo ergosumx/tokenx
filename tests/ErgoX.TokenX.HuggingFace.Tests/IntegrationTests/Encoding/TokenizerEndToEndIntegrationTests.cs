@@ -1,13 +1,13 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
@@ -37,7 +37,7 @@ public sealed class TokenizerEndToEndIntegrationTests : HuggingFaceTestBase, IDi
         var tupleBatch = tokenizer.EncodeBatch(new (string First, string? Second)[]
         {
             ("Hello", "world"),
-            ("VecraX", null)
+            ("TokenX", null)
         });
 
         Assert.Equal(2, tupleBatch.Count);
@@ -150,3 +150,4 @@ public sealed class TokenizerEndToEndIntegrationTests : HuggingFaceTestBase, IDi
         GC.SuppressFinalize(this);
     }
 }
+

@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 using System;
 using System.Threading;
@@ -34,3 +34,4 @@ internal static class NativeInteropProvider
         }
     }
 }
+

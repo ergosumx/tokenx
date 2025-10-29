@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Chat;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Chat;
 
 using System;
 using System.Collections.Generic;
@@ -6,10 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Chat;
+using ErgoX.TokenX.Parity;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
@@ -159,3 +159,4 @@ public sealed class ChatTemplateIntegrationTests
         throw new InvalidOperationException("Unable to locate repository root from test context.");
     }
 }
+

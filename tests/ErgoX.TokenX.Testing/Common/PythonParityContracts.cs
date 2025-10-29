@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+namespace ErgoX.TokenX.Parity;
 
 using System;
 using System.Collections.Generic;
@@ -158,3 +158,4 @@ public sealed record EncodingSummary
     [JsonPropertyName("overflowing")]
     public required IReadOnlyList<EncodingSummary> Overflowing { get; init; }
 }
+

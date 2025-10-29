@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+namespace ErgoX.TokenX.HuggingFace.Generation;
 
 using System;
 using System.Collections.Generic;
@@ -54,3 +54,4 @@ public static class StoppingCriterionKinds
     public const string MaxNewTokens = "max_new_tokens";
     public const string StopSequences = "stop_sequences";
 }
+

@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+namespace ErgoX.TokenX.Tests;
 
 internal static class TestTraits
 {
@@ -12,3 +12,4 @@ internal static class TestTraits
         public const string Tiktoken = "OpenAI.Tiktoken";
     }
 }
+

@@ -1,12 +1,12 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Generation;
+namespace ErgoX.TokenX.HuggingFace.Tests.UnitTests.Generation;
 
 using System;
 using System.Collections.Generic;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Generation;
+using ErgoX.TokenX.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -113,3 +113,4 @@ public sealed class GenerationContractsUnitTests : HuggingFaceTestBase
         Assert.Empty(settings.StoppingCriteria);
     }
 }
+

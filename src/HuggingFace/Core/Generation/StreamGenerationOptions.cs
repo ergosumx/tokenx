@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+namespace ErgoX.TokenX.HuggingFace.Generation;
 
 /// <summary>
 /// Represents optional controls that influence streaming generation behavior.
@@ -10,3 +10,4 @@ public sealed class StreamGenerationOptions
     /// </summary>
     public bool? SkipSpecialTokens { get; set; }
 }
+

@@ -1,13 +1,13 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
+namespace ErgoX.TokenX.SentencePiece.Internal.Interop;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Exceptions;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Models;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
+using ErgoX.TokenX.SentencePiece.Exceptions;
+using ErgoX.TokenX.SentencePiece.Models;
+using ErgoX.TokenX.SentencePiece.Options;
 
 /// <summary>
 /// Provides utility methods for interoperability between managed C# code and the native SentencePiece C API.
@@ -680,3 +680,4 @@ internal static class InteropUtilities
         }
     }
 }
+

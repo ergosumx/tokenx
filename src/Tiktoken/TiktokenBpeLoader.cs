@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+namespace ErgoX.TokenX.Tiktoken;
 
 using System;
 using System.Collections.Generic;
@@ -78,3 +78,4 @@ public static class TiktokenBpeLoader
         }
     }
 }
+

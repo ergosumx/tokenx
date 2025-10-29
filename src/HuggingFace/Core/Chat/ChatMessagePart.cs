@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+namespace ErgoX.TokenX.HuggingFace.Chat;
 
 using System;
 using System.Text.Json.Nodes;
@@ -204,3 +204,4 @@ public sealed class ChatGenericPart : ChatMessagePart
         throw new ArgumentException("Generic chat message parts must provide a non-empty string 'type' property.", nameof(payload));
     }
 }
+

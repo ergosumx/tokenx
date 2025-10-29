@@ -31,7 +31,7 @@ These examples demonstrate production-ready patterns:
 Encode text using a pre-trained BERT tokenizer:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using System;
 
 // Load tokenizer from local directory
@@ -57,7 +57,7 @@ Console.WriteLine($"Token IDs: {string.Join(", ", encoding.Ids)}");
 Generate embeddings using E5 model with task-specific prefixes:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using System;
@@ -103,9 +103,9 @@ Console.WriteLine($"Embedding L2 norm: {norm:F4}");  // Typically 5.8-5.9 for E5
 Process multi-turn conversations with chat templates:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Options;
 using System;
 using System.Collections.Generic;
 
@@ -153,7 +153,7 @@ Console.WriteLine($"Total tokens: {encoding.Ids.Count}");
 Transcribe audio using Whisper with encoder-decoder architecture:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using Microsoft.ML.OnnxRuntime;
 using NAudio.Wave;
 using System;
@@ -218,7 +218,7 @@ static int ArgMax(float[] array) =>
 Tokenize for sequence-to-sequence models like T5:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Processing;
 using System;
 using System.Linq;
 
@@ -258,7 +258,7 @@ Console.WriteLine($"Decoded: {decoded}");
 Handle multiple languages with a single model:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Processing;
 using System;
 using System.Collections.Generic;
 
@@ -302,7 +302,7 @@ foreach (var (language, text) in samples)
 Use stochastic sampling for data augmentation:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Processing;
 using System;
 
 // Load SentencePiece model
@@ -348,7 +348,7 @@ for (int i = 0; i < 5; i++)
 Prepare input for GPT models with proper token counting:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 using System;
 using System.Collections.Generic;
 
@@ -397,7 +397,7 @@ Console.WriteLine($"Remaining context (8k model): {8192 - totalTokens} tokens");
 Count tokens for cost estimation and context management:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 using System;
 using System.IO;
 
@@ -444,7 +444,7 @@ if (tokenCount > maxContextTokens)
 Implement sliding window for long documents:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -502,7 +502,7 @@ static List<string> SplitIntoChunks(string text, ITiktokenEncoding encoding, int
 Process multiple texts efficiently:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -537,7 +537,7 @@ Console.WriteLine($"Average tokens: {results.Average(r => r.TokenCount):F2}");
 Add custom special tokens to a tokenizer:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using System;
 using System.Collections.Generic;
 
@@ -571,7 +571,7 @@ Console.WriteLine($"Tokens: {string.Join(", ", encoding.Tokens)}");
 Optimize for high-throughput scenarios:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -650,7 +650,7 @@ var encoding = tokenizer.Encode("text");
 Handle tokenization errors gracefully:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using System;
 
 try
@@ -694,3 +694,4 @@ catch (Exception ex)
 - [SentencePiece Documentation](sentencepiece/index.md) - Detailed guide
 - [TikToken Documentation](tiktoken/index.md) - Encoding details
 - [Main Documentation](index.md) - Overview and comparison
+

@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests.IntegrationTests.Tiktoken.Templates;
+namespace ErgoX.TokenX.Tests.IntegrationTests.Tiktoken.Templates;
 
 using System;
 using System.Collections.Concurrent;
@@ -7,8 +7,8 @@ using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Parity;
+using ErgoX.TokenX.Tiktoken;
 using Xunit;
 
 internal static class TiktokenTemplateTestUtilities
@@ -289,3 +289,4 @@ internal static class TiktokenTemplateTestUtilities
 
     private readonly record struct TemplateBaseline(string TextHash, string EncodingHash);
 }
+

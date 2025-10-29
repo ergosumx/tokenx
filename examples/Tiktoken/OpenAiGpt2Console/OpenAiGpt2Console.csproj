@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../src/OpenAI/Tiktoken/ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken.csproj" />
+    <ProjectReference Include="../../../src/Tiktoken/ErgoX.TokenX.Tiktoken.csproj" />
   </ItemGroup>
 </Project>
+
+

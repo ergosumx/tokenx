@@ -1,8 +1,8 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Unit;
+namespace ErgoX.TokenX.SentencePiece.Tests.Unit;
 
 using System;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.SentencePiece;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -30,3 +30,4 @@ public sealed class SentencePieceEnvironmentTests
         Assert.Throws<ArgumentException>(() => SentencePieceEnvironment.SetDataDirectory("   "));
     }
 }
+

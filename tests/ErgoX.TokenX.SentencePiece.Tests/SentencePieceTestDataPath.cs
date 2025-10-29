@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests;
+namespace ErgoX.TokenX.SentencePiece.Tests;
 
 using System;
 using System.IO;
@@ -59,3 +59,4 @@ internal static class SentencePieceTestDataPath
         throw new InvalidOperationException("Unable to locate repository root from test context.");
     }
 }
+

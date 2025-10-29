@@ -7,11 +7,11 @@ using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Generation;
+using ErgoX.TokenX.HuggingFace.Options;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+namespace ErgoX.TokenX.HuggingFace;
 
 /// <summary>
 /// Loads and manages HuggingFace tokenizer configurations, supporting encoding, decoding, chat templates, and generation defaults.
@@ -611,3 +611,4 @@ public sealed class AutoTokenizerLoadOptions
     /// </remarks>
     public bool LoadGenerationConfig { get; set; } = true;
 }
+

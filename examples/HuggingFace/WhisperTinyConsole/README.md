@@ -465,7 +465,7 @@ Parallel.ForEach(audioFiles, audioFile =>
 
 ## Dependencies
 
-- **ErgoX.VecraX.ML.NLP.Tokenizers**: Whisper tokenizer bindings
+- **ErgoX.TokenX**: Whisper tokenizer bindings
 - **Microsoft.ML.OnnxRuntime**: Encoder/decoder ONNX inference
 - **MathNet.Numerics**: FFT for spectrogram computation
 - **NAudio**: MP3 decoding and audio resampling
@@ -499,3 +499,4 @@ For detailed model information, see:
 
 **Last Updated**: October 2025  
 **Status**: Tested and verified on .NET 8.0
+

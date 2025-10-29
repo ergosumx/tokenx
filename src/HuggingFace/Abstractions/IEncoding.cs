@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+namespace ErgoX.TokenX.HuggingFace.Abstractions;
 
 /// <summary>
 /// Defines the contract for the result of a tokenization operation.
@@ -60,3 +60,4 @@ public interface IEncoding
     /// </summary>
     IReadOnlyList<IEncoding>? Overflowing { get; }
 }
+

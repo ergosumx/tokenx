@@ -1,6 +1,6 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.IntegrationTests.Templates;
+namespace ErgoX.TokenX.SentencePiece.Tests.IntegrationTests.Templates;
 
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.Tests;
 
 public sealed class SentencePieceOpenChatTemplateTests : SentencePieceTestBase, IClassFixture<SentencePieceModelFixture>
 {
@@ -18,3 +18,4 @@ public sealed class SentencePieceOpenChatTemplateTests : SentencePieceTestBase, 
         SentencePieceTemplateTestUtilities.AssertTemplateCase(fixture.LlamaModel, "openchat-3.5-1210", templateFileName);
     }
 }
+

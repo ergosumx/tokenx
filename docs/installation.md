@@ -16,13 +16,13 @@ Install the package for your chosen tokenizer:
 
 ```bash
 # HuggingFace Tokenizers
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace
+dotnet add package ErgoX.TokenX.HuggingFace
 
 # Google SentencePiece
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece
+dotnet add package ErgoX.TokenX.SentencePiece
 
 # OpenAI TikToken
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken
+dotnet add package ErgoX.TokenX.Tiktoken
 ```
 
 ## Native Library Deployment
@@ -59,7 +59,7 @@ The .NET runtime automatically loads the correct native library for your platfor
 ### Verify HuggingFace Installation
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using System;
 
 // Test basic functionality
@@ -78,7 +78,7 @@ catch (Exception ex)
 ### Verify SentencePiece Installation
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Processing;
 using System;
 
 // Test basic functionality
@@ -96,7 +96,7 @@ catch (Exception ex)
 ### Verify TikToken Installation
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 using System;
 
 // Test basic functionality
@@ -195,9 +195,9 @@ Download from: https://github.com/openai/tiktoken/tree/main/tiktoken_ext
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace" Version="*" />
-    <PackageReference Include="ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece" Version="*" />
-    <PackageReference Include="ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken" Version="*" />
+    <PackageReference Include="ErgoX.TokenX.HuggingFace" Version="*" />
+    <PackageReference Include="ErgoX.TokenX.SentencePiece" Version="*" />
+    <PackageReference Include="ErgoX.TokenX.Tiktoken" Version="*" />
   </ItemGroup>
 </Project>
 ```
@@ -213,7 +213,7 @@ Download from: https://github.com/openai/tiktoken/tree/main/tiktoken_ext
 
   <ItemGroup>
     <!-- Add tokenizer packages as needed -->
-    <PackageReference Include="ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace" Version="*" />
+    <PackageReference Include="ErgoX.TokenX.HuggingFace" Version="*" />
   </ItemGroup>
 </Project>
 ```
@@ -261,8 +261,8 @@ builder.Services.AddSingleton<ITokenizer>(sp =>
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace" Version="1.0.0" />
-  <PackageReference Include="ErgoX.VecraX.ML.NLP.Tokenizers.Common" Version="1.0.0" />
+  <PackageReference Include="ErgoX.TokenX.HuggingFace" Version="1.0.0" />
+  <PackageReference Include="ErgoX.TokenX.Common" Version="1.0.0" />
 </ItemGroup>
 ```
 
@@ -401,3 +401,4 @@ Parallel.ForEach(texts, text =>
 - [SentencePiece Documentation](sentencepiece/index.md)
 - [TikToken Documentation](tiktoken/index.md)
 - [Examples and Tutorials](examples.md)
+

@@ -1,13 +1,13 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Internal;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Internal;
 
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
@@ -214,3 +214,4 @@ public sealed class NativeInteropInfrastructureIntegrationTests : HuggingFaceTes
         Assert.All(exceptions, ex => Assert.IsType<InvalidOperationException>(ex));
     }
 }
+

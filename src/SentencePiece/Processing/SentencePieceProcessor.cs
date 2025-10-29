@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+namespace ErgoX.TokenX.SentencePiece.Processing;
 
 using System;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Exceptions;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
+using ErgoX.TokenX.SentencePiece.Exceptions;
+using ErgoX.TokenX.SentencePiece.Internal.Interop;
+using ErgoX.TokenX.SentencePiece.Options;
 
 /// <summary>
 /// The main SentencePiece tokenizer processor.
@@ -279,3 +279,4 @@ public sealed partial class SentencePieceProcessor : IDisposable
         return buffer;
     }
 }
+

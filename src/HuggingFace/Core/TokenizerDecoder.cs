@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+namespace ErgoX.TokenX.HuggingFace;
 
 using System;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+using ErgoX.TokenX.HuggingFace.Abstractions;
+using ErgoX.TokenX.HuggingFace.Internal;
+using ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 /// <summary>
 /// Provides a managed wrapper around a native tokenizer decoder implementation.
@@ -127,3 +127,4 @@ public sealed class TokenizerDecoder : IDecoder
         }
     }
 }
+

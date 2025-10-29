@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
+namespace ErgoX.TokenX.SentencePiece.Internal.Interop;
 
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Common.Interop;
+using ErgoX.TokenX.Common.Interop;
 
 [ExcludeFromCodeCoverage] // Platform-dependent enumeration of native search paths is validated via higher-level tests.
 internal static class SentencePieceNativeLibraryLoader
@@ -211,3 +211,4 @@ internal static class SentencePieceNativeLibraryLoader
         }
     }
 }
+

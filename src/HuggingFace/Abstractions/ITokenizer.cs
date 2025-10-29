@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+namespace ErgoX.TokenX.HuggingFace.Abstractions;
 
 /// <summary>
 /// Defines the contract for a tokenizer that can encode text into token IDs and decode token IDs back to text.
@@ -71,3 +71,4 @@ public interface ITokenizer : IDisposable
     /// <returns>The token string, or null if the ID is out of range.</returns>
     string? IdToToken(int id);
 }
+

@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests.UnitTests.Tiktoken;
+namespace ErgoX.TokenX.Tests.UnitTests.Tiktoken;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tests;
+using ErgoX.TokenX.Tiktoken;
 using Xunit;
 
 public sealed class TiktokenEncodingTests : TiktokenTestBase
@@ -140,3 +140,4 @@ public sealed class TiktokenEncodingTests : TiktokenTestBase
         return ranks;
     }
 }
+

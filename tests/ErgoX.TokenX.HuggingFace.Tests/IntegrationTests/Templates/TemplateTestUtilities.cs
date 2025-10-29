@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.IntegrationTests.Templates;
+namespace ErgoX.TokenX.HuggingFace.Tests.IntegrationTests.Templates;
 
 using System;
 using System.Collections.Generic;
@@ -9,9 +9,9 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Parity;
 using Xunit;
 
 internal static class TemplateTestUtilities
@@ -175,3 +175,4 @@ internal static class TemplateTestUtilities
 
     private readonly record struct TemplateBaseline(string TextHash, string EncodingHash);
 }
+

@@ -1,9 +1,9 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+namespace ErgoX.TokenX.HuggingFace;
 
 using System;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Internal;
+using ErgoX.TokenX.HuggingFace.Internal.Interop;
+using ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Represents a WordPiece model that can be attached to a tokenizer.
@@ -38,3 +38,4 @@ public sealed class WordPieceModel : TokenizerModel
         return NativeModelHandle.CreateWordPiece(vocabPath, resolvedOptions, interop);
     }
 }
+

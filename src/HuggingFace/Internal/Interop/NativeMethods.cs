@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 using System;
 using System.Runtime.InteropServices;
@@ -239,3 +239,4 @@ internal static partial class NativeMethods
         return ptr == IntPtr.Zero ? null : Marshal.PtrToStringUTF8(ptr);
     }
 }
+

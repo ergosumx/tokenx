@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.IntegrationTests.Templates;
+namespace ErgoX.TokenX.SentencePiece.Tests.IntegrationTests.Templates;
 
 using System;
 using System.Collections.Concurrent;
@@ -8,8 +8,8 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+using ErgoX.TokenX.SentencePiece.Processing;
+using ErgoX.TokenX.Parity;
 using Xunit;
 
 internal static class SentencePieceTemplateTestUtilities
@@ -310,3 +310,4 @@ internal static class SentencePieceTemplateTestUtilities
 
     private readonly record struct TemplateBaseline(string TextHash, string IdsHash, string PiecesHash, string DecodedIdsHash, string DecodedPiecesHash);
 }
+

@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
+namespace ErgoX.TokenX.SentencePiece.Internal.Interop;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -452,3 +452,4 @@ internal static partial class NativeMethods
     [DllImport(LibraryName, EntryPoint = "spc_set_data_dir", CallingConvention = CallingConvention.Cdecl)]
     internal static extern void spc_set_data_dir(SpcStringView dataDir);
 }
+

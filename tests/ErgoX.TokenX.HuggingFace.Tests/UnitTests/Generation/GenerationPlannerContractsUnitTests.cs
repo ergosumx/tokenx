@@ -1,9 +1,9 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Generation;
+namespace ErgoX.TokenX.HuggingFace.Tests.UnitTests.Generation;
 
 using System;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace.Generation;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -142,3 +142,4 @@ public sealed class GenerationPlannerContractsUnitTests : HuggingFaceTestBase
         Assert.Equal(2, criterion3.Sequences.Count);
     }
 }
+

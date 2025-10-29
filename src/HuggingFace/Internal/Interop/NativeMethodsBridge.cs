@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 using System;
 
@@ -181,3 +181,4 @@ internal sealed class NativeMethodsBridge : INativeInterop
     public string? GetLastErrorMessage()
         => NativeMethods.GetLastErrorMessage();
 }
+

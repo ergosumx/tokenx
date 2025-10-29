@@ -23,7 +23,7 @@ TikToken uses byte-level BPE with regex-based pre-tokenization. Key characterist
 ## Installation
 
 ```bash
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken
+dotnet add package ErgoX.TokenX.Tiktoken
 ```
 
 Native libraries are automatically deployed to your runtime folder during build.
@@ -33,7 +33,7 @@ Native libraries are automatically deployed to your runtime folder during build.
 ### Loading an Encoding
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 
 // Create GPT-2 encoding from .tiktoken file
 var specialTokens = new Dictionary<string, int>
@@ -410,3 +410,4 @@ var specialTokens = new Dictionary<string, int>
 - [Installation Guide](../installation.md)
 - [API Reference](api/index.md)
 - [Examples](examples.md)
+

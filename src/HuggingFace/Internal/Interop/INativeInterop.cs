@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 using System;
 
@@ -104,3 +104,4 @@ internal interface INativeInterop
 
     string? GetLastErrorMessage();
 }
+

@@ -1,12 +1,12 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
@@ -52,7 +52,7 @@ public sealed class EncodingResultOperationsIntegrationTests : HuggingFaceTestBa
     [Fact]
     public void Pad_supports_left_and_right_padding()
     {
-        var encoding = tokenizer.Encode("VecraX");
+    var encoding = tokenizer.Encode("TokenX");
         var targetLength = encoding.Length + 3;
 
         var rightPad = encoding.Pad(targetLength, padId: 999, padTypeId: 7, padToken: "<pad>", PaddingDirection.Right);
@@ -199,3 +199,4 @@ public sealed class EncodingResultOperationsIntegrationTests : HuggingFaceTestBa
         GC.SuppressFinalize(this);
     }
 }
+

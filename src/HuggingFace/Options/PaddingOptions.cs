@@ -1,6 +1,6 @@
 using System;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Specifies the direction in which padding should be applied.
@@ -119,3 +119,4 @@ public sealed class PaddingOptions
         PadToMultipleOf = padToMultipleOf;
     }
 }
+

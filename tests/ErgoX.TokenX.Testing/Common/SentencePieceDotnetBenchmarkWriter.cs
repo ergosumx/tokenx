@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+namespace ErgoX.TokenX.Parity;
 
 using System;
 using System.Collections.Generic;
@@ -87,3 +87,4 @@ public sealed record SentencePieceDotnetBenchmarkModelSnapshot
     [JsonPropertyName("cases")]
     public required IReadOnlyList<DotnetBenchmarkCaseSnapshot> Cases { get; init; }
 }
+

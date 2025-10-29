@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Represents the complete tokenizer configuration loaded from tokenizer_config.json.
@@ -332,3 +332,4 @@ public sealed class TokenizerConfig
         public string Direction { get; set; } = "right";
     }
 }
+

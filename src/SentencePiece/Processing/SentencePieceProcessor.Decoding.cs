@@ -1,8 +1,8 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+namespace ErgoX.TokenX.SentencePiece.Processing;
 
 using System;
 using System.Collections.Generic;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
+using ErgoX.TokenX.SentencePiece.Internal.Interop;
 
 /// <summary>
 /// Partial class containing decoding methods for the <see cref="SentencePieceProcessor"/>.
@@ -99,3 +99,4 @@ public sealed partial class SentencePieceProcessor
         return BytesArrayToByteArraysAndDestroy(ref list);
     }
 }
+

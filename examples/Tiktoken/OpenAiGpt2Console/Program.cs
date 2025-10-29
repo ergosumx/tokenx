@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 
 /// <summary>
 /// TikToken GPT-2 Tokenizer Example
@@ -240,3 +240,4 @@ internal static class Program
 
     private sealed record Sample(string Id, string Text);
 }
+

@@ -1,6 +1,6 @@
 using System;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Specifies the strategy for truncating text pairs when both exceed the maximum length.
@@ -122,3 +122,4 @@ public sealed class TruncationOptions
         Direction = direction;
     }
 }
+

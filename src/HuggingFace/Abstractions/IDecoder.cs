@@ -1,6 +1,6 @@
 using System;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+namespace ErgoX.TokenX.HuggingFace.Abstractions;
 
 /// <summary>
 /// Defines the contract for a decoder that converts token IDs back into text.
@@ -21,3 +21,4 @@ public interface IDecoder : IDisposable
     /// </summary>
     IntPtr Handle { get; }
 }
+

@@ -1,11 +1,11 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Chat;
+namespace ErgoX.TokenX.HuggingFace.Tests.UnitTests.Chat;
 
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -212,3 +212,4 @@ public sealed class ChatContractsUnitTests : HuggingFaceTestBase
         Assert.Equal(42, genericPart.Payload["data"]?.GetValue<int>());
     }
 }
+

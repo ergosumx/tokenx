@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Provides configuration options for constructing a Byte-Pair Encoding (BPE) model.
@@ -40,3 +40,4 @@ public sealed record BpeModelOptions
     /// </summary>
     public bool EnableByteFallback { get; init; }
 }
+

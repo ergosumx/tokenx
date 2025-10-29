@@ -1,6 +1,6 @@
 using System;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+namespace ErgoX.TokenX.HuggingFace;
 
 /// <summary>
 /// Represents a token that is added to a tokenizer's vocabulary beyond the base model.
@@ -80,3 +80,4 @@ public sealed class AddedToken
     public AddedToken WithSpecial(bool value)
         => new(Content, value, SingleWord, LeftStrip, RightStrip, Normalized);
 }
+

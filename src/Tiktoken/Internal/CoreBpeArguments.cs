@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken.Internal;
+namespace ErgoX.TokenX.Tiktoken.Internal;
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken.Internal.Interop;
+using ErgoX.TokenX.Tiktoken.Internal.Interop;
 
 /// <summary>
 /// Prepares unmanaged buffers required to instantiate <c>CoreBPE</c> via the native bridge.
@@ -167,3 +167,4 @@ internal sealed unsafe class CoreBpeArguments : IDisposable
         }
     }
 }
+

@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ErgoX.VecraX.ML.NLP.Tokenizers.Testing\ErgoX.VecraX.ML.NLP.Tokenizers.Testing.csproj" />
-    <ProjectReference Include="..\..\src\Common\ErgoX.VecraX.ML.NLP.Tokenizers.Common.csproj" />
-    <ProjectReference Include="..\..\src\Google\SentencePiece\ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.csproj" />
+    <ProjectReference Include="..\ErgoX.TokenX.Testing\ErgoX.TokenX.Testing.csproj" />
+    <ProjectReference Include="..\..\src\Common\ErgoX.TokenX.Common.csproj" />
+  <ProjectReference Include="..\..\src\SentencePiece\ErgoX.TokenX.SentencePiece.csproj" />
   </ItemGroup>
 
   <ItemGroup>

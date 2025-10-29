@@ -1,9 +1,9 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+namespace ErgoX.TokenX.SentencePiece.Processing;
 
 using System;
 using System.Collections.Generic;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Models;
+using ErgoX.TokenX.SentencePiece.Internal.Interop;
+using ErgoX.TokenX.SentencePiece.Models;
 
 /// <summary>
 /// Partial class containing text normalization methods for the <see cref="SentencePieceProcessor"/>.
@@ -55,3 +55,4 @@ public sealed partial class SentencePieceProcessor
         InteropUtilities.EnsureSuccess(status);
     }
 }
+

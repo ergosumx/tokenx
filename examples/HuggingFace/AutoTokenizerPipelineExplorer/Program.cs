@@ -4,8 +4,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// AutoTokenizer diagnostic tool: Inspects tokenizer configurations without running inference.
@@ -139,3 +139,4 @@ internal static class Program
         return fullPath;
     }
 }
+

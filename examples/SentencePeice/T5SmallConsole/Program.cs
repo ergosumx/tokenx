@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Options;
+using ErgoX.TokenX.SentencePiece.Processing;
 
 /// <summary>
 /// T5 Small SentencePiece Tokenizer Example
@@ -229,3 +229,4 @@ internal static class Program
 
     private sealed record Sample(string Id, string Text);
 }
+

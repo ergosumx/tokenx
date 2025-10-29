@@ -1,4 +1,4 @@
-# ErgoX VecraX ML NLP Tokenizers
+# ErgoX TokenX ML NLP Tokenizers
 
 [![Rust Tests](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-c-bindings.yml/badge.svg)](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-c-bindings.yml)
 [![.NET Tests](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml/badge.svg)](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml)
@@ -39,7 +39,7 @@ runtimes/
 ### Usage
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 
 // Load tokenizer from JSON
 var tokenizer = Tokenizer.FromFile("tokenizer.json");
@@ -84,7 +84,7 @@ cd .ext/hf_bridge
 cargo build --release
 
 # Copy to .NET runtime folder
-Copy-Item target/release/tokenx_bridge.dll ../src/ErgoX.VecraX.ML.NLP.Tokenizers/HuggingFace/runtimes/win-x64/native/ -Force
+Copy-Item target/release/tokenx_bridge.dll ../src/HuggingFace/runtimes/win-x64/native/ -Force
 
 # Build .NET project
 cd ..
@@ -173,32 +173,29 @@ Download from the [Releases](https://github.com/ergosumx/vecrax-hf-tokenizers/re
 ## Project Structure
 
 ```
-ErgoX.VecraX.ML.NLP.Tokenizers/
-├── .ext/tokenizers/              # HuggingFace tokenizers submodule
-│   └── bindings/c/               # Rust FFI bindings
-│       ├── src/                  # Rust source code
-│       └── tests/                # 20 Rust decoder tests
-├── .github/
-│   ├── workflows/                # CI/CD workflows
-│   │   ├── test-c-bindings.yml   # Rust tests + coverage
-│   │   ├── test-dotnet.yml       # .NET tests + coverage
-│   │   └── release-c-bindings.yml # Multi-platform release
-│   ├── CI-CD-WORKFLOWS.md        # CI/CD documentation
-│   └── TESTING-CHECKLIST.md      # Quick reference
+TokenX/
 ├── .ext/
-│   └── hf_bridge/             # Native bridge crate (Rust)
-│       ├── Cargo.toml
-│       └── src/lib.rs
-└── src/
-   ├── ErgoX.VecraX.ML.NLP.Tokenizers/
-   │   ├── HuggingFace/
-   │   │   ├── Tokenizer.cs      # Main tokenizer class
-   │   │   ├── NativeMethods.cs  # P/Invoke declarations
-   │   │   └── runtimes/         # Native libraries
-   │   ├── Google/
-   │   └── Tiktoken/
-   └── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
-      └── Encoding/             # Integration tests
+│   ├── hf_bridge/               # HuggingFace native bridge crate (Rust)
+│   ├── sentencepiece/           # SentencePiece native bridge crate (Rust)
+│   ├── tiktoken/                # TikToken native assets
+│   └── tt_bridge/               # TikToken bridge crate (Rust)
+├── .github/
+│   ├── workflows/               # CI/CD workflows
+│   │   ├── test-c-bindings.yml  # Rust tests + coverage
+│   │   ├── test-dotnet.yml      # .NET tests + coverage
+│   │   └── release-c-bindings.yml # Multi-platform release
+│   ├── CI-CD-WORKFLOWS.md       # CI/CD documentation
+│   └── TESTING-CHECKLIST.md     # Quick reference
+├── src/
+│   ├── Common/                  # Shared utilities and abstractions
+│   ├── HuggingFace/             # HuggingFace tokenizer bindings
+│   ├── SentencePiece/           # SentencePiece bindings
+│   └── Tiktoken/                # TikToken bindings
+└── tests/
+   ├── ErgoX.TokenX.HuggingFace.Tests/
+   ├── ErgoX.TokenX.SentencePiece.Tests/
+   ├── ErgoX.TokenX.Tiktoken.Tests/
+   └── ErgoX.TokenX.Testing/    # Shared testing infrastructure
 ```
 
 ## Test Coverage
@@ -287,6 +284,7 @@ Built on top of [HuggingFace Tokenizers](https://github.com/huggingface/tokenize
 
 ---
 
-**Maintained by**: ErgoX VecraX Team  
+**Maintained by**: ErgoX TokenX Team  
 **Last Updated**: October 17, 2025  
 **Version**: 0.22.1
+

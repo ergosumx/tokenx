@@ -1,11 +1,11 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.Collections.Generic;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
@@ -101,3 +101,4 @@ public sealed class TokenizerGuardIntegrationTests : HuggingFaceTestBase, IDispo
         tokenizer.Dispose();
     }
 }
+

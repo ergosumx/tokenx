@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+namespace ErgoX.TokenX.Parity;
 
 using System;
 using System.Collections.Generic;
@@ -120,3 +120,4 @@ public sealed record TokenizationContractBatchCase
     [JsonPropertyName("decodedHash")]
     public required string DecodedHash { get; init; }
 }
+

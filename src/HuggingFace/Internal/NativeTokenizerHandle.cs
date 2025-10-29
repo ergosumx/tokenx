@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+using ErgoX.TokenX.HuggingFace.Internal.Interop;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal;
+namespace ErgoX.TokenX.HuggingFace.Internal;
 
 /// <summary>
 /// Manages a native tokenizer pointer obtained from the native tokenizers library.
@@ -127,3 +127,4 @@ internal sealed class NativeTokenizerHandle : SafeHandle
         });
     }
 }
+

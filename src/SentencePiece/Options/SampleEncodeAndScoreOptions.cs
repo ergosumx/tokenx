@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
+namespace ErgoX.TokenX.SentencePiece.Options;
 
 /// <summary>
 /// Configuration options for sample encoding and scoring operations.
@@ -58,3 +58,4 @@ public sealed class SampleEncodeAndScoreOptions
     /// </summary>
     public bool IncludeBest { get; set; } = true;
 }
+

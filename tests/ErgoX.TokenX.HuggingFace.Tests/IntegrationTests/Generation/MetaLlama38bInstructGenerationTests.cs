@@ -1,15 +1,15 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Generation;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Generation;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Nodes;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Generation;
+using ErgoX.TokenX.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
@@ -199,3 +199,4 @@ public sealed class MetaLlama38bInstructGenerationTests : HuggingFaceTestBase
         GenerationTestUtilities.AssertChatTemplateCase(ModelFolder, "Assistant finalizes remediation guidance");
     }
 }
+

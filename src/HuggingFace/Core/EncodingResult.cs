@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+namespace ErgoX.TokenX.HuggingFace;
 
 /// <summary>
 /// Represents the output of a tokenization operation.
@@ -191,3 +191,4 @@ public sealed partial class EncodingResult
         return new ReadOnlyCollection<T>(source.ToArray());
     }
 }
+

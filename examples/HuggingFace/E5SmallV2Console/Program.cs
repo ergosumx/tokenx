@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 
@@ -283,3 +283,4 @@ internal static class Program
 
     private sealed record EmbeddingSample(string Id, string Text);
 }
+

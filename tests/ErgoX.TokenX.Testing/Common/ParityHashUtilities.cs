@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+namespace ErgoX.TokenX.Parity;
 
 using System;
 using System.Buffers;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 
 public static class ParityHashUtilities
 {
@@ -129,3 +129,4 @@ public static class ParityHashUtilities
     private static string ToHex(ReadOnlySpan<byte> buffer)
         => Convert.ToHexString(buffer).ToLowerInvariant();
 }
+

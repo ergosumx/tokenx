@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("ErgoX.VecraX.ML.NLP.Tokenizers.Tests")]
-[assembly: InternalsVisibleTo("ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests")]
+[assembly: InternalsVisibleTo("ErgoX.TokenX.Tests")]
+[assembly: InternalsVisibleTo("ErgoX.TokenX.SentencePiece.Tests")]
+

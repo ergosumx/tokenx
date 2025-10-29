@@ -1,9 +1,9 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal;
+namespace ErgoX.TokenX.HuggingFace.Internal;
 
 using System;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Internal.Interop;
+using ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Manages a native tokenizer model pointer obtained from the native tokenizers library.
@@ -254,3 +254,4 @@ internal sealed class NativeModelHandle : SafeHandle
         return handle;
     }
 }
+

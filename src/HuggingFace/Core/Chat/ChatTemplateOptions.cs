@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+namespace ErgoX.TokenX.HuggingFace.Chat;
 
 using System;
 using System.Collections.Generic;
@@ -69,3 +69,4 @@ public sealed class ChatTemplateOptions
         return additionalVariables.Remove(key);
     }
 }
+

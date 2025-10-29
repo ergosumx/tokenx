@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Options;
 using MathNet.Numerics.IntegralTransforms;
 using MathNet.Numerics;
 using Microsoft.ML.OnnxRuntime;
@@ -1010,3 +1010,4 @@ internal static class Program
     private sealed record EncoderOutput(float[] HiddenStates, int[] Dimensions);
 
 }
+

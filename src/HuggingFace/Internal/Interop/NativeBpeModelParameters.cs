@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Internal.Interop;
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 internal struct NativeBpeModelParameters
 {
@@ -33,3 +33,4 @@ internal struct NativeBpeModelParameters
 
     internal bool EnableByteFallback { get; set; }
 }
+

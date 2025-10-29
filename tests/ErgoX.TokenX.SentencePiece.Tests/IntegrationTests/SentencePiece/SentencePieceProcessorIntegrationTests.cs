@@ -1,14 +1,14 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Integration;
+namespace ErgoX.TokenX.SentencePiece.Tests.Integration;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.SentencePiece;
+using ErgoX.TokenX.SentencePiece.Options;
+using ErgoX.TokenX.SentencePiece.Processing;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Integration)]
@@ -566,3 +566,4 @@ public sealed class SentencePieceProcessorIntegrationTests : IClassFixture<Sente
         Assert.Equal(0.2f, fromNull.Alpha);
     }
 }
+

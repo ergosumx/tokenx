@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Common.Interop;
+namespace ErgoX.TokenX.Common.Interop;
 
 using System;
 using System.Collections.Generic;
@@ -61,3 +61,4 @@ public static class NativeLibraryResolverRegistry
         return IntPtr.Zero;
     }
 }
+

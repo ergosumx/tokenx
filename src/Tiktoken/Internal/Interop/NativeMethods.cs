@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken.Internal.Interop;
+namespace ErgoX.TokenX.Tiktoken.Internal.Interop;
 
 using System;
 using System.Runtime.InteropServices;
@@ -103,3 +103,4 @@ internal static partial class NativeMethods
         return ptr == IntPtr.Zero ? null : Marshal.PtrToStringUTF8(ptr);
     }
 }
+

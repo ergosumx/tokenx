@@ -1,6 +1,6 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.IntegrationTests.Templates;
+namespace ErgoX.TokenX.SentencePiece.Tests.IntegrationTests.Templates;
 
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.Tests;
 
 public sealed class SentencePieceT5SmallTemplateTests : SentencePieceTestBase, IClassFixture<SentencePieceModelFixture>
 {
@@ -18,3 +18,4 @@ public sealed class SentencePieceT5SmallTemplateTests : SentencePieceTestBase, I
         SentencePieceTemplateTestUtilities.AssertTemplateCase(fixture.T5SmallModel, "t5-small", templateFileName);
     }
 }
+

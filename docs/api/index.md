@@ -16,7 +16,7 @@ Comprehensive API documentation for all tokenizer libraries.
 
 High-level interface for loading and managing HuggingFace tokenizers.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace`
+**Namespace:** `ErgoX.TokenX.HuggingFace`
 
 **Key Methods:**
 - `Load(string location, AutoTokenizerLoadOptions? options = null)` - Load tokenizer from directory
@@ -39,7 +39,7 @@ See [HuggingFace Documentation](../huggingface/index.md) for complete details.
 
 Low-level tokenization engine.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace`
+**Namespace:** `ErgoX.TokenX.HuggingFace`
 
 **Key Methods:**
 - `Encode(string text, bool addSpecialTokens = false)` - Basic encoding
@@ -57,7 +57,7 @@ Low-level tokenization engine.
 
 Tokenization output containing IDs, tokens, and metadata.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace`
+**Namespace:** `ErgoX.TokenX.HuggingFace`
 
 **Properties:**
 - `IReadOnlyList<int> Ids` - Token IDs
@@ -75,7 +75,7 @@ Tokenization output containing IDs, tokens, and metadata.
 
 Represents a single message in a conversation.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Chat`
 
 **Constructor:**
 - `ChatMessage(string role, string content)` - Create message
@@ -88,7 +88,7 @@ Represents a single message in a conversation.
 
 Options for chat template rendering.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Chat`
 
 **Properties:**
 - `bool AddGenerationPrompt` - Add assistant prompt at end
@@ -105,7 +105,7 @@ Options for chat template rendering.
 
 Tokenizer configuration and metadata.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Options`
 
 **Properties:**
 - `string? ChatTemplate` - Jinja2 chat template
@@ -116,7 +116,7 @@ Tokenizer configuration and metadata.
 
 Special token definitions.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Options`
 
 **Properties:**
 - `SpecialToken? BosToken` - Beginning-of-sequence token
@@ -129,7 +129,7 @@ Special token definitions.
 
 Generation defaults for autoregressive models.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Generation`
 
 **Properties:**
 - `int? MaxLength` - Maximum sequence length
@@ -149,7 +149,7 @@ Generation defaults for autoregressive models.
 
 Main processor for SentencePiece tokenization.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing`
+**Namespace:** `ErgoX.TokenX.SentencePiece.Processing`
 
 **Key Methods:**
 - `Load(string modelPath)` - Load SentencePiece model
@@ -166,7 +166,7 @@ Main processor for SentencePiece tokenization.
 
 Options for encoding operations.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing`
+**Namespace:** `ErgoX.TokenX.SentencePiece.Processing`
 
 **Properties:**
 - `bool AddBos` - Add beginning-of-sequence token
@@ -188,7 +188,7 @@ See [SentencePiece Documentation](../sentencepiece/index.md) for complete detail
 
 Main encoding interface for TikToken.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken`
+**Namespace:** `ErgoX.TokenX.Tiktoken`
 
 **Key Methods:**
 - `Encode(string text)` - Encode text to token IDs
@@ -204,7 +204,7 @@ Main encoding interface for TikToken.
 
 Factory methods for creating encodings.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken`
+**Namespace:** `ErgoX.TokenX.Tiktoken`
 
 **Key Methods:**
 - `LoadGpt2()` - Load GPT-2 encoding
@@ -218,7 +218,7 @@ Factory methods for creating encodings.
 
 Represents a token and its merge priority.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken`
+**Namespace:** `ErgoX.TokenX.Tiktoken`
 
 **Constructor:**
 - `TiktokenMergeableRank(byte[] token, int rank)` - Create mergeable rank
@@ -237,7 +237,7 @@ See [TikToken Documentation](../tiktoken/index.md) for complete details.
 
 Common interface implemented by `Tokenizer` (HuggingFace).
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Abstractions`
 
 **Key Methods:**
 - `EncodingResult Encode(string text, bool addSpecialTokens = false)`
@@ -252,7 +252,7 @@ Common interface implemented by `Tokenizer` (HuggingFace).
 
 Common interface for TikToken encodings.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken`
+**Namespace:** `ErgoX.TokenX.Tiktoken`
 
 **Key Methods:**
 - `IReadOnlyList<int> Encode(string text)`
@@ -270,7 +270,7 @@ Common interface for TikToken encodings.
 
 Padding behavior for sequence alignment.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Options`
 
 **Values:**
 - `None` - No padding
@@ -281,7 +281,7 @@ Padding behavior for sequence alignment.
 
 Truncation behavior for long sequences.
 
-**Namespace:** `ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options`
+**Namespace:** `ErgoX.TokenX.HuggingFace.Options`
 
 **Values:**
 - `None` - No truncation
@@ -329,3 +329,4 @@ catch (InvalidOperationException ex)
 - [TikToken Documentation](../tiktoken/index.md) - Complete TikToken guide
 - [Examples](../examples.md) - Working code examples
 - [Main Documentation](../index.md) - Overview
+

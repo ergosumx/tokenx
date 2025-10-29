@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Encoding;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Encoding;
 
 using System;
 using System.IO;
 using System.Linq;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 /// <summary>
@@ -390,3 +390,4 @@ public class EncodingPositionMappingIntegrationTests : IDisposable
             throw new InvalidOperationException("Unable to locate repository root from test context.");
         }
 }
+

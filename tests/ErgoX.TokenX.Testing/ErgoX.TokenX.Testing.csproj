@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\HuggingFace\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj" />
+    <ProjectReference Include="..\..\src\HuggingFace\ErgoX.TokenX.HuggingFace.csproj" />
   </ItemGroup>
 
 </Project>
+

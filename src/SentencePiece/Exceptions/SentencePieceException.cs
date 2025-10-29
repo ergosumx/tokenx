@@ -1,7 +1,7 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Exceptions;
+namespace ErgoX.TokenX.SentencePiece.Exceptions;
 
 using System;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
+using ErgoX.TokenX.SentencePiece.Internal.Interop;
 
 /// <summary>
 /// Represents the status codes returned by the SentencePiece C API.
@@ -91,3 +91,4 @@ public sealed class SentencePieceException : Exception
     internal static SentencePieceStatusCode FromNative(NativeMethods.SpcStatusCode statusCode)
         => (SentencePieceStatusCode)(int)statusCode;
 }
+

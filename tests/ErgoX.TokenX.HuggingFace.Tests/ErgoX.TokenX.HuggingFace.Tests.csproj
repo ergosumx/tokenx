@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ErgoX.VecraX.ML.NLP.Tokenizers.Testing\ErgoX.VecraX.ML.NLP.Tokenizers.Testing.csproj" />
-    <ProjectReference Include="..\..\src\Common\ErgoX.VecraX.ML.NLP.Tokenizers.Common.csproj" />
-    <ProjectReference Include="..\..\src\HuggingFace\ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.csproj" />
+    <ProjectReference Include="..\ErgoX.TokenX.Testing\ErgoX.TokenX.Testing.csproj" />
+    <ProjectReference Include="..\..\src\Common\ErgoX.TokenX.Common.csproj" />
+    <ProjectReference Include="..\..\src\HuggingFace\ErgoX.TokenX.HuggingFace.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,3 +33,4 @@
   </ItemGroup>
 
 </Project>
+

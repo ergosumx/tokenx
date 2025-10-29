@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.IntegrationTests.Templates
+namespace ErgoX.TokenX.HuggingFace.Tests.IntegrationTests.Templates
 {
     using Xunit;
 
@@ -416,3 +416,4 @@ namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.IntegrationTests.Temp
 
     }
 }
+

@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.Integration.Generation;
+namespace ErgoX.TokenX.HuggingFace.Tests.Integration.Generation;
 
 using System;
 using System.Collections.Generic;
@@ -7,11 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Generation;
+using ErgoX.TokenX.HuggingFace.Tests;
+using ErgoX.TokenX.Parity;
 using Xunit;
 
 internal static class GenerationTestUtilities
@@ -226,3 +226,4 @@ internal static class GenerationTestUtilities
         public Dictionary<string, JsonElement> AdditionalProperties { get; init; } = new(StringComparer.Ordinal);
     }
 }
+

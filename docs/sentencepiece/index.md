@@ -22,7 +22,7 @@ SentencePiece tokenizes text into subword pieces using either Unigram or BPE alg
 ## Installation
 
 ```bash
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece
+dotnet add package ErgoX.TokenX.SentencePiece
 ```
 
 Native libraries are automatically deployed to your runtime folder during build.
@@ -32,7 +32,7 @@ Native libraries are automatically deployed to your runtime folder during build.
 ### Basic Usage
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Processing;
 
 // Load SentencePiece model
 using var processor = new SentencePieceProcessor();
@@ -71,7 +71,7 @@ processor.Load(modelData);
 Control tokenization behavior with `EncodeOptions`:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
+using ErgoX.TokenX.SentencePiece.Options;
 
 var options = new EncodeOptions
 {
@@ -107,7 +107,7 @@ var text2 = processor.DecodePieces(pieces);
 Generate multiple tokenization variants for data augmentation:
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
+using ErgoX.TokenX.SentencePiece.Options;
 
 var options = new SampleEncodeAndScoreOptions
 {
@@ -369,3 +369,4 @@ var decoded = processor.DecodeIds(ids);  // Use same processor
 - [Installation Guide](../installation.md)
 - [API Reference](api/index.md)
 - [Examples](examples.md)
+

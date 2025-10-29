@@ -1,13 +1,13 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests.UnitTests.Options;
+namespace ErgoX.TokenX.HuggingFace.Tests.UnitTests.Options;
 
 using System;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.HuggingFace;
+using ErgoX.TokenX.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.Tests;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
@@ -156,3 +156,4 @@ public sealed class OptionsContractsUnitTests : HuggingFaceTestBase
         Assert.Single(map.AdditionalSpecialTokens);
     }
 }
+

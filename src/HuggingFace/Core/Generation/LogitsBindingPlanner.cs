@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+namespace ErgoX.TokenX.HuggingFace.Generation;
 
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 
 /// <summary>
 /// Maps generation configuration payloads to logits processor/warper bindings using the native bridge.
@@ -129,3 +129,4 @@ internal static class LogitsBindingPlanner
         return false;
     }
 }
+

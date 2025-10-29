@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+namespace ErgoX.TokenX.HuggingFace.Tests;
 
 public static class TestCategories
 {
@@ -7,3 +7,4 @@ public static class TestCategories
     public const string Unit = "Unit";
     public const string Integration = "Integration";
 }
+

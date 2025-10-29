@@ -1,4 +1,4 @@
-# ErgoX VecraX ML NLP Tokenizers
+# ErgoX TokenX ML NLP Tokenizers
 
 High-performance .NET tokenizer libraries with native interop for HuggingFace Tokenizers, Google SentencePiece, and OpenAI TikToken.
 
@@ -41,13 +41,13 @@ Each library can be used independently. Install the NuGet package for your chose
 
 ```bash
 # HuggingFace Tokenizers
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace
+dotnet add package ErgoX.TokenX.HuggingFace
 
 # Google SentencePiece
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece
+dotnet add package ErgoX.TokenX.SentencePiece
 
 # OpenAI TikToken
-dotnet add package ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken
+dotnet add package ErgoX.TokenX.Tiktoken
 ```
 
 See the [Installation Guide](installation.md) for complete setup instructions including native library deployment.
@@ -57,7 +57,7 @@ See the [Installation Guide](installation.md) for complete setup instructions in
 ### HuggingFace Tokenizers
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 
 // Load tokenizer from pretrained model
 using var tokenizer = AutoTokenizer.Load("bert-base-uncased");
@@ -75,7 +75,7 @@ Console.WriteLine($"Decoded: {decoded}");
 ### Google SentencePiece
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Processing;
 
 // Load SentencePiece model
 using var processor = new SentencePieceProcessor();
@@ -97,7 +97,7 @@ Console.WriteLine($"Decoded: {decoded}");
 ### OpenAI TikToken
 
 ```csharp
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tiktoken;
 
 // Load GPT-2 encoding
 using var encoding = TiktokenEncodingFactory.FromTiktokenFile(
@@ -132,3 +132,4 @@ Console.WriteLine($"Decoded: {decoded}");
 ## License
 
 See [LICENSE](https://github.com/ergosumx/tokenx/blob/main/LICENSE) for details.
+

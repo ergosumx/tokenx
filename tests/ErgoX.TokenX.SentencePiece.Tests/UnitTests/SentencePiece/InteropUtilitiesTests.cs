@@ -1,15 +1,15 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Unit;
+namespace ErgoX.TokenX.SentencePiece.Tests.Unit;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Exceptions;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Models;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.SentencePiece.Exceptions;
+using ErgoX.TokenX.SentencePiece.Internal.Interop;
+using ErgoX.TokenX.SentencePiece.Models;
+using ErgoX.TokenX.SentencePiece.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -338,3 +338,4 @@ public sealed class InteropUtilitiesTests
         Assert.Equal((nuint)2, entries.Length);
     }
 }
+

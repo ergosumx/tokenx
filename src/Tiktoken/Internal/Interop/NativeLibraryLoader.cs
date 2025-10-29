@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Common.Interop;
+using ErgoX.TokenX.Common.Interop;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken.Internal.Interop;
+namespace ErgoX.TokenX.Tiktoken.Internal.Interop;
 
 internal static class NativeLibraryLoader
 {
@@ -186,3 +186,4 @@ internal static class NativeLibraryLoader
         yield return Path.Combine(assemblyDirectory, fileName);
     }
 }
+

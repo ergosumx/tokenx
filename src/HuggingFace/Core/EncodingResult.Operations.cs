@@ -1,9 +1,9 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+namespace ErgoX.TokenX.HuggingFace;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+using ErgoX.TokenX.HuggingFace.Options;
 
 public readonly record struct TokenRange(int StartToken, int EndToken);
 
@@ -494,3 +494,4 @@ public sealed partial class EncodingResult
     private static bool MatchesSequence(int? sequenceId, int sequenceIndex)
         => sequenceId.HasValue ? sequenceId.Value == sequenceIndex : sequenceIndex == 0;
 }
+

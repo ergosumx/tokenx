@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+namespace ErgoX.TokenX.Parity;
 
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace;
+using ErgoX.TokenX.HuggingFace;
 
 public static class DotnetBenchmarkWriter
 {
@@ -267,3 +267,4 @@ public sealed record DotnetEncodingOffset
     [JsonPropertyName("end")]
     public required int End { get; init; }
 }
+

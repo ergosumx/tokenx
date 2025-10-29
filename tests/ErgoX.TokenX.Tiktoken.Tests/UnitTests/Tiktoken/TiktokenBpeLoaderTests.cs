@@ -1,10 +1,10 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests.UnitTests.Tiktoken;
+namespace ErgoX.TokenX.Tests.UnitTests.Tiktoken;
 
 using System;
 using System.IO;
 using System.Text;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tests;
+using ErgoX.TokenX.Tiktoken;
 using Xunit;
 
 public sealed class TiktokenBpeLoaderTests : TiktokenTestBase
@@ -93,3 +93,4 @@ public sealed class TiktokenBpeLoaderTests : TiktokenTestBase
         return new MemoryStream(bytes, writable: false);
     }
 }
+

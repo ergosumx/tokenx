@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 /// <summary>
 /// Provides configuration options for constructing a WordPiece model.
@@ -25,3 +25,4 @@ public sealed record WordPieceModelOptions
     /// </summary>
     public int? MaxInputCharsPerWord { get; init; }
 }
+

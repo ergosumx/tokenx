@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Unit;
+namespace ErgoX.TokenX.SentencePiece.Tests.Unit;
 
 using System;
 using System.Collections;
@@ -7,15 +7,15 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.SentencePiece;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
 [Trait(TestCategories.Filter, TestCategories.Unit)]
 public sealed class SentencePieceNativeLibraryLoaderTests
 {
-    private const string LoaderTypeName = "ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop.SentencePieceNativeLibraryLoader";
+    private const string LoaderTypeName = "ErgoX.TokenX.SentencePiece.Internal.Interop.SentencePieceNativeLibraryLoader";
 
     private static readonly Assembly LoaderAssembly = typeof(SentencePieceEnvironment).Assembly;
 
@@ -26,7 +26,7 @@ public sealed class SentencePieceNativeLibraryLoaderTests
         .GetRawConstantValue()!;
 
     private static readonly string LibraryName = (string)LoaderAssembly
-        .GetType("ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop.NativeMethods", throwOnError: true)!
+        .GetType("ErgoX.TokenX.SentencePiece.Internal.Interop.NativeMethods", throwOnError: true)!
         .GetField("LibraryName", BindingFlags.Static | BindingFlags.NonPublic)!
         .GetRawConstantValue()!;
 
@@ -229,3 +229,4 @@ public sealed class SentencePieceNativeLibraryLoaderTests
         }
     }
 }
+

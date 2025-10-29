@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+namespace ErgoX.TokenX.Tiktoken;
 
 using System;
 using System.Collections.Generic;
@@ -6,8 +6,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken.Internal;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken.Internal.Interop;
+using ErgoX.TokenX.Tiktoken.Internal;
+using ErgoX.TokenX.Tiktoken.Internal.Interop;
 
 /// <summary>
 /// Managed facade for the TikToken <c>CoreBPE</c> implementation.
@@ -335,3 +335,4 @@ public sealed class TiktokenEncoding : IDisposable
         throw new TiktokenInteropException(message);
     }
 }
+

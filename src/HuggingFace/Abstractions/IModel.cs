@@ -1,6 +1,6 @@
 using System;
 
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Abstractions;
+namespace ErgoX.TokenX.HuggingFace.Abstractions;
 
 /// <summary>
 /// Defines the contract for a tokenizer model that handles the core tokenization algorithm.
@@ -16,3 +16,4 @@ public interface IModel : IDisposable
     /// </summary>
     IntPtr Handle { get; }
 }
+

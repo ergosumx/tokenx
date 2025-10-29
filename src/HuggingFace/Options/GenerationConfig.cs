@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+using ErgoX.TokenX.HuggingFace.Generation;
 
 /// <summary>
 /// Represents the defaults defined in a Hugging Face generation_config.json file.
@@ -236,3 +236,4 @@ public sealed class GenerationConfig
         return null;
     }
 }
+

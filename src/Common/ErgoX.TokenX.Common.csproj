@@ -6,9 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
-    <AssemblyName>ErgoX.VecraX.ML.NLP.Tokenizers.Common</AssemblyName>
-    <RootNamespace>ErgoX.VecraX.ML.NLP.Tokenizers.Common</RootNamespace>
+    <AssemblyName>ErgoX.TokenX.Common</AssemblyName>
+    <RootNamespace>ErgoX.TokenX.Common</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
 </Project>
+

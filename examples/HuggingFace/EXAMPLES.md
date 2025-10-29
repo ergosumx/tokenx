@@ -1,6 +1,6 @@
 # HuggingFace Examples Overview
 
-Complete documentation for all Hugging Face examples in the ErgoX VecraX tokenizer repository. Each example demonstrates a specific NLP task using ONNX-optimized models and the AutoTokenizer pipeline.
+Complete documentation for all Hugging Face examples in the ErgoX TokenX tokenizer repository. Each example demonstrates a specific NLP task using ONNX-optimized models and the AutoTokenizer pipeline.
 
 ## Quick Start
 
@@ -288,7 +288,7 @@ All measurements on CPU (quantized ONNX models):
 ## Dependencies
 
 **Common across examples**:
-- ErgoX.VecraX.ML.NLP.Tokenizers
+- ErgoX.TokenX
 - Microsoft.ML.OnnxRuntime
 - System.Numerics.Tensors
 - System.Text.Json
@@ -318,3 +318,4 @@ All measurements on CPU (quantized ONNX models):
 **Last Updated**: October 27, 2025  
 **All Examples Tested**: ✅ Yes  
 **All READMEs Created**: ✅ Yes (5/5)
+

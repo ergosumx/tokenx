@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
+namespace ErgoX.TokenX.SentencePiece.Options;
 
 /// <summary>
 /// Configuration options for SentencePiece encoding operations.
@@ -52,3 +52,4 @@ public sealed class EncodeOptions
     /// </summary>
     public float Alpha { get; set; }
 }
+

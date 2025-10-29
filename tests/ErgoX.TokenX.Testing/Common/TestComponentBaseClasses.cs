@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+namespace ErgoX.TokenX.Tests;
 
 using Xunit;
 
@@ -21,3 +21,4 @@ public abstract class SentencePieceTestBase
 public abstract class TiktokenTestBase
 {
 }
+

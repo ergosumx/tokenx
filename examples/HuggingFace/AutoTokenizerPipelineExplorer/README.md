@@ -306,7 +306,7 @@ File.WriteAllText($"{modelId}-config.json", json);
 
 ## Dependencies
 
-- **ErgoX.VecraX.ML.NLP.Tokenizers**: Tokenizer bindings
+- **ErgoX.TokenX**: Tokenizer bindings
 - **System.Text.Json**: Parsing configuration files
 - **System.Threading.Tasks**: Async tokenizer loading
 
@@ -354,3 +354,4 @@ After exploring tokenizer configs:
 
 **Last Updated**: October 2025  
 **Status**: Tested and verified on .NET 8.0
+

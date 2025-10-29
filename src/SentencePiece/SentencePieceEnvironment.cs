@@ -1,7 +1,7 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece;
+namespace ErgoX.TokenX.SentencePiece;
 
 using System;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
+using ErgoX.TokenX.SentencePiece.Internal.Interop;
 
 /// <summary>
 /// Provides global configuration and environment settings for the SentencePiece library.
@@ -46,3 +46,4 @@ public static class SentencePieceEnvironment
         NativeMethods.spc_set_data_dir(value.View);
     }
 }
+

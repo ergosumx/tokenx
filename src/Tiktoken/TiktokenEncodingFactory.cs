@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+namespace ErgoX.TokenX.Tiktoken;
 
 using System;
 using System.Collections.Generic;
@@ -36,3 +36,4 @@ public static class TiktokenEncodingFactory
         return TiktokenEncoding.Create(name, pattern, mergeableRanks, specialTokens, explicitVocabularySize);
     }
 }
+

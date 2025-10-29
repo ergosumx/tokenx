@@ -1,9 +1,9 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests;
+namespace ErgoX.TokenX.SentencePiece.Tests;
 
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+using ErgoX.TokenX.SentencePiece.Processing;
 using Xunit;
 
 public sealed class SentencePieceModelFixture : IAsyncLifetime
@@ -49,3 +49,4 @@ public sealed class SentencePieceModelFixture : IAsyncLifetime
         return await File.ReadAllBytesAsync(absolutePath).ConfigureAwait(false);
     }
 }
+

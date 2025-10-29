@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Parity;
+namespace ErgoX.TokenX.Parity;
 
 using System;
 using System.Collections.Generic;
@@ -50,3 +50,4 @@ public sealed class ChatTemplateMessage
     [JsonExtensionData]
     public Dictionary<string, JsonElement> AdditionalProperties { get; set; } = new(StringComparer.Ordinal);
 }
+

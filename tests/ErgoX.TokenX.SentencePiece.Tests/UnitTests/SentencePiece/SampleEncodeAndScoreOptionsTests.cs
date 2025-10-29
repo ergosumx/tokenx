@@ -1,7 +1,7 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Tests.Unit;
+namespace ErgoX.TokenX.SentencePiece.Tests.Unit;
 
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests;
+using ErgoX.TokenX.SentencePiece.Options;
+using ErgoX.TokenX.HuggingFace.Tests;
 using Xunit;
 
 [Trait(TestCategories.Category, TestCategories.Unit)]
@@ -48,3 +48,4 @@ public sealed class SampleEncodeAndScoreOptionsTests
         Assert.False(options.IncludeBest);
     }
 }
+

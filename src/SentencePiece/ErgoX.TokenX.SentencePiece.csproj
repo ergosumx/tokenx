@@ -6,10 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece</AssemblyName>
-    <RootNamespace>ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece</RootNamespace>
+    <AssemblyName>ErgoX.TokenX.SentencePiece</AssemblyName>
+    <RootNamespace>ErgoX.TokenX.SentencePiece</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece</PackageId>
+    <PackageId>ErgoX.TokenX.SentencePiece</PackageId>
     <Version>0.1.0</Version>
     <Authors>VecraX</Authors>
     <Company>VecraX</Company>
@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\README.md">
+    <None Include="..\..\README.md">
       <Pack>true</Pack>
       <PackagePath></PackagePath>
       <Link>README.md</Link>
@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\ErgoX.VecraX.ML.NLP.Tokenizers.Common.csproj" />
+  <ProjectReference Include="..\Common\ErgoX.TokenX.Common.csproj" />
   </ItemGroup>
 
 </Project>

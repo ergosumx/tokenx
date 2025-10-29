@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Options;
+namespace ErgoX.TokenX.HuggingFace.Options;
 
 using System;
 using System.Collections.Generic;
@@ -177,3 +177,4 @@ public sealed class GenerationOptions
 
     internal bool StopSequencesSpecified => _stopSequencesSpecified;
 }
+

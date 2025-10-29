@@ -1,6 +1,6 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests.IntegrationTests.Tiktoken.Templates;
+namespace ErgoX.TokenX.Tests.IntegrationTests.Tiktoken.Templates;
 
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+using ErgoX.TokenX.Tests;
 using Xunit;
 
 public sealed class OpenAiGpt2TemplateTests : TiktokenTestBase
@@ -14,3 +14,4 @@ public sealed class OpenAiGpt2TemplateTests : TiktokenTestBase
         TiktokenTemplateTestUtilities.AssertTemplateCase(EncodingFolder, templateFileName);
     }
 }
+

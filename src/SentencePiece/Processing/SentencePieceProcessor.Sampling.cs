@@ -1,11 +1,11 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Processing;
+namespace ErgoX.TokenX.SentencePiece.Processing;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Internal.Interop;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Models;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Options;
+using ErgoX.TokenX.SentencePiece.Internal.Interop;
+using ErgoX.TokenX.SentencePiece.Models;
+using ErgoX.TokenX.SentencePiece.Options;
 
 /// <summary>
 /// Partial class containing N-best and sampling-based encoding methods for the <see cref="SentencePieceProcessor"/>.
@@ -86,3 +86,4 @@ public sealed partial class SentencePieceProcessor
         });
     }
 }
+

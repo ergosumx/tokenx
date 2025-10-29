@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+namespace ErgoX.TokenX.Tiktoken;
 
 using System;
 
@@ -21,3 +21,4 @@ public class TiktokenInteropException : InvalidOperationException
     {
     }
 }
+

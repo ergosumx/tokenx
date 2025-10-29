@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+namespace ErgoX.TokenX.HuggingFace.Generation;
 
 using System;
 
@@ -63,3 +63,4 @@ public static class LogitsBindingCategories
     public const string Warper = "warper";
     public const string Processor = "processor";
 }
+

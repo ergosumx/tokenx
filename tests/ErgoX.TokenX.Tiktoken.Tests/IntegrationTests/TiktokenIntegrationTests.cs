@@ -1,12 +1,12 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests.IntegrationTests.Tiktoken;
+namespace ErgoX.TokenX.Tests.IntegrationTests.Tiktoken;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
-using ErgoX.VecraX.ML.NLP.Tokenizers.Tiktoken;
+using ErgoX.TokenX.Tests;
+using ErgoX.TokenX.Tiktoken;
 using Xunit;
 
 public sealed class TiktokenIntegrationTests : TiktokenTestBase
@@ -105,3 +105,4 @@ public sealed class TiktokenIntegrationTests : TiktokenTestBase
         return path;
     }
 }
+

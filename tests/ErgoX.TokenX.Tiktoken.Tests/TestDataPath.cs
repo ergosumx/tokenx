@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Tests;
+namespace ErgoX.TokenX.Tests;
 
 using System;
 using System.IO;
@@ -57,3 +57,4 @@ internal static class TestDataPath
         throw new InvalidOperationException("Unable to locate repository root from test context.");
     }
 }
+

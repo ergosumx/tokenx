@@ -1,8 +1,8 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+namespace ErgoX.TokenX.HuggingFace.Generation;
 
 using System;
 using System.Collections.Generic;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Chat;
 
 /// <summary>
 /// Represents a streaming generation request that preserves the resolved settings and derived plans.
@@ -56,3 +56,4 @@ public sealed class StreamingGenerationRequest
     /// </summary>
     public bool SkipSpecialTokens { get; }
 }
+

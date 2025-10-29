@@ -1,8 +1,8 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+namespace ErgoX.TokenX.HuggingFace.Generation;
 
 using System;
 using System.Collections.Generic;
-using ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Chat;
+using ErgoX.TokenX.HuggingFace.Chat;
 
 /// <summary>
 /// Represents a fully materialized generation invocation containing the prompt and resolved settings.
@@ -46,3 +46,4 @@ public sealed class GenerationRequest
     /// </summary>
     public IReadOnlyList<StoppingCriterion> StoppingCriteria => Settings.StoppingCriteria;
 }
+

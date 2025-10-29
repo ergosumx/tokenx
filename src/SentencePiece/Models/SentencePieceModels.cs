@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.Google.SentencePiece.Models;
+namespace ErgoX.TokenX.SentencePiece.Models;
 
 using System.Collections.Generic;
 
@@ -24,3 +24,4 @@ public sealed record ScoredIdSequence(IReadOnlyList<int> Ids, float Score);
 /// <param name="Pieces">The token pieces in the sequence.</param>
 /// <param name="Score">The score associated with this tokenization.</param>
 public sealed record ScoredPieceSequence(IReadOnlyList<string> Pieces, float Score);
+

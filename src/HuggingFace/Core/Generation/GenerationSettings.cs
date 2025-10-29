@@ -1,4 +1,4 @@
-namespace ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Generation;
+namespace ErgoX.TokenX.HuggingFace.Generation;
 
 using System;
 using System.Collections.Generic;
@@ -337,3 +337,4 @@ public sealed class GenerationSettings
         return null;
     }
 }
+
