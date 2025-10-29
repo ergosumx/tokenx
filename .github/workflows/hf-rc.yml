@@ -1,11 +1,27 @@
 name: HuggingFace RC Validation
 
 on:
-  workflow_run:
-    workflows:
-      - HuggingFace Bridge Artifacts
-    types:
-      - completed
+  workflow_dispatch:
+    inputs:
+      bridge_run_selection:
+        description: Select which HuggingFace Bridge Artifacts run to consume
+        required: true
+        default: latest-success
+        type: choice
+        options:
+          - latest-success
+          - latest
+          - custom-run-id
+          - custom-run-number
+      bridge_run_id:
+        description: Optional run ID when using custom-run-id
+        required: false
+      bridge_run_number:
+        description: Optional run number when using custom-run-number
+        required: false
+      branch:
+        description: Optional branch filter when locating the run
+        required: false
 
 permissions:
   actions: read
@@ -20,7 +36,6 @@ env:
 jobs:
   prepare:
     name: Resolve Version & Artifacts
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).version || '' }}
@@ -28,16 +43,143 @@ jobs:
       rc_version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcVersion || '' }}
       rc_tag: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcTag || '' }}
       rc_number: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcNumber || '' }}
+      run_id: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).runId || '' }}
+      run_number: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).runNumber || '' }}
+      head_sha: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).headSha || '' }}
+      head_branch: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).headBranch || '' }}
     steps:
       - name: Resolve metadata
         id: resolve
         uses: actions/github-script@v7
         with:
           script: |
-            const run = context.payload.workflow_run;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+
+            const selection = core.getInput('bridge_run_selection') || 'latest-success';
+            const customRunIdInput = core.getInput('bridge_run_id');
+            const customRunNumberInput = core.getInput('bridge_run_number');
+            const branchFilter = core.getInput('branch');
+
+            const workflowFile = 'hf-bridge.yml';
+
+            const parsePositiveInt = (value, label) => {
+              const parsed = Number.parseInt(value, 10);
+              if (Number.isNaN(parsed) || parsed <= 0) {
+                core.setFailed(`Invalid ${label}: '${value}'.`);
+                return null;
+              }
+
+              return parsed;
+            };
+
+            let run = null;
+
+            if (selection === 'custom-run-id') {
+              if (!customRunIdInput) {
+                core.setFailed('bridge_run_id input is required when selection is custom-run-id.');
+                return;
+              }
+
+              const runId = parsePositiveInt(customRunIdInput, 'bridge_run_id');
+              if (!runId) {
+                return;
+              }
+
+              try {
+                const { data } = await github.rest.actions.getWorkflowRun({
+                  owner,
+                  repo,
+                  run_id: runId
+                });
+                run = data;
+              } catch (error) {
+                core.setFailed(`Unable to fetch workflow run with id ${customRunIdInput}: ${error.message}`);
+                return;
+              }
+
+              if (run.path !== `.github/workflows/${workflowFile}`) {
+                core.warning(`Selected run belongs to workflow '${run.path}', expected '.github/workflows/${workflowFile}'.`);
+              }
+            } else {
+              const listParams = {
+                owner,
+                repo,
+                workflow_id: workflowFile,
+                per_page: 100
+              };
+
+              if (branchFilter) {
+                listParams.branch = branchFilter;
+              }
+
+              let runs = [];
+              try {
+                runs = await github.paginate(github.rest.actions.listWorkflowRuns, listParams);
+              } catch (error) {
+                core.setFailed(`Unable to list HuggingFace Bridge Artifacts runs: ${error.message}`);
+                return;
+              }
+
+              if (runs.length === 0) {
+                core.setFailed('No workflow runs found for HuggingFace Bridge Artifacts.');
+                return;
+              }
+
+              if (selection === 'custom-run-number') {
+                if (!customRunNumberInput) {
+                  core.setFailed('bridge_run_number input is required when selection is custom-run-number.');
+                  return;
+                }
+
+                const desiredRunNumber = parsePositiveInt(customRunNumberInput, 'bridge_run_number');
+                if (!desiredRunNumber) {
+                  return;
+                }
+
+                run = runs.find(item => item.run_number === desiredRunNumber);
+                if (!run) {
+                  core.setFailed(`Unable to locate workflow run number ${desiredRunNumber} for ${workflowFile}.`);
+                  return;
+                }
+              } else if (selection === 'latest') {
+                run = runs.find(item => item.status === 'completed');
+                if (!run) {
+                  core.setFailed('Unable to locate a completed HuggingFace Bridge Artifacts run.');
+                  return;
+                }
+              } else {
+                run = runs.find(item => item.status === 'completed' && item.conclusion === 'success');
+                if (!run) {
+                  const modeDescription = branchFilter ? ` on branch '${branchFilter}'` : '';
+                  core.setFailed(`Unable to locate a successful HuggingFace Bridge Artifacts run${modeDescription}.`);
+                  return;
+                }
+              }
+            }
+
+            if (!run) {
+              core.setFailed('No workflow run selected.');
+              return;
+            }
+
+            if (run.status !== 'completed') {
+              core.setFailed(`Selected HuggingFace Bridge Artifacts run ${run.id} is not completed (status: ${run.status}).`);
+              return;
+            }
+
+            if (run.conclusion !== 'success') {
+              core.setFailed(`Selected HuggingFace Bridge Artifacts run ${run.id} did not succeed (conclusion: ${run.conclusion}).`);
+              return;
+            }
+
+            if (!run.head_sha) {
+              core.setFailed(`Selected HuggingFace Bridge Artifacts run ${run.id} is missing head SHA information.`);
+              return;
+            }
+
             const runId = run.id;
+            core.info(`Using HuggingFace Bridge Artifacts run ${runId} (run_number ${run.run_number}) on branch '${run.head_branch}' with SHA ${run.head_sha}.`);
 
             const tagPrefix = 'hf-v';
             let version = null;
@@ -191,7 +333,17 @@ jobs:
             core.info(`Next RC number: ${rcNumber} (${rcVersion})`);
             core.info(`RC tag: ${rcTag}`);
 
-            return { version, artifacts: map, rcVersion, rcTag, rcNumber };
+            return {
+              version,
+              artifacts: map,
+              rcVersion,
+              rcTag,
+              rcNumber,
+              runId: run.id,
+              runNumber: run.run_number,
+              headSha: run.head_sha,
+              headBranch: run.head_branch
+            };
 
   test-linux:
     name: Test Linux
@@ -203,6 +355,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
 
       - name: Install prerequisites
         run: |
@@ -221,7 +374,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).linux.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/linux
 
@@ -286,6 +439,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
 
       - name: Install prerequisites
         shell: pwsh
@@ -307,7 +461,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).windows.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/windows
 
@@ -376,6 +530,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
 
       - name: Install prerequisites
         run: |
@@ -394,7 +549,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_arm64.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/macos-arm64
 
@@ -463,12 +618,13 @@ jobs:
       RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
       RC_TAG: ${{ needs.prepare.outputs.rc_tag }}
       RC_NUMBER: ${{ needs.prepare.outputs.rc_number }}
-      WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+      WORKFLOW_HEAD_SHA: ${{ needs.prepare.outputs.head_sha }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
 
       - name: Install prerequisites
         run: |
@@ -487,7 +643,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).linux.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/linux
 
@@ -496,7 +652,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).windows.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/windows
 
@@ -505,7 +661,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_arm64.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/macos-arm64
 
@@ -514,7 +670,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_x64.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/macos-x64
 
@@ -523,7 +679,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).android.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/android
 
@@ -532,7 +688,7 @@ jobs:
         with:
           name: ${{ fromJSON(needs.prepare.outputs.artifacts).ios.name }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/ios
 
