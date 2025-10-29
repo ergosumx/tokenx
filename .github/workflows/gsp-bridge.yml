@@ -111,7 +111,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sentencepiece-linux-x64
+          name: tokenx-bridge-${{ env.VERSION }}-linux-x64
           path: artifacts/linux-x64/
 
   # ============================================
@@ -180,7 +180,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sentencepiece-win-x64
+          name: tokenx-bridge-${{ env.VERSION }}-win-x64
           path: artifacts/win-x64/
 
   # ============================================
@@ -243,7 +243,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sentencepiece-osx-x64
+          name: tokenx-bridge-${{ env.VERSION }}-osx-x64
           path: artifacts/osx-x64/
 
   # ============================================
@@ -306,7 +306,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sentencepiece-osx-arm64
+          name: tokenx-bridge-${{ env.VERSION }}-osx-arm64
           path: artifacts/osx-arm64/
 
   # ============================================
@@ -377,5 +377,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sentencepiece-android-arm64
+          name: tokenx-bridge-${{ env.VERSION }}-android-arm64
           path: artifacts/android-arm64/

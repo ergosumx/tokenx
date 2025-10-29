@@ -1,10 +1,10 @@
-name: HuggingFace RC Validation
+name: Google SentencePiece RC Validation
 
 on:
   workflow_dispatch:
     inputs:
       bridge_run_selection:
-        description: Select which HuggingFace Bridge Artifacts run to consume
+        description: Select which Google SentencePiece Bridge Artifacts run to consume
         required: true
         default: latest-success
         type: choice
@@ -61,7 +61,7 @@ jobs:
             const customRunNumberInput = core.getInput('bridge_run_number');
             const branchFilter = core.getInput('branch');
 
-            const workflowFile = 'hf-bridge.yml';
+            const workflowFile = 'gsp-bridge.yml';
 
             const parsePositiveInt = (value, label) => {
               const parsed = Number.parseInt(value, 10);
@@ -117,12 +117,12 @@ jobs:
               try {
                 runs = await github.paginate(github.rest.actions.listWorkflowRuns, listParams);
               } catch (error) {
-                core.setFailed(`Unable to list HuggingFace Bridge Artifacts runs: ${error.message}`);
+                core.setFailed(`Unable to list Google SentencePiece Bridge Artifacts runs: ${error.message}`);
                 return;
               }
 
               if (runs.length === 0) {
-                core.setFailed('No workflow runs found for HuggingFace Bridge Artifacts.');
+                core.setFailed('No workflow runs found for Google SentencePiece Bridge Artifacts.');
                 return;
               }
 
@@ -145,14 +145,14 @@ jobs:
               } else if (selection === 'latest') {
                 run = runs.find(item => item.status === 'completed');
                 if (!run) {
-                  core.setFailed('Unable to locate a completed HuggingFace Bridge Artifacts run.');
+                  core.setFailed('Unable to locate a completed Google SentencePiece Bridge Artifacts run.');
                   return;
                 }
               } else {
                 run = runs.find(item => item.status === 'completed' && item.conclusion === 'success');
                 if (!run) {
                   const modeDescription = branchFilter ? ` on branch '${branchFilter}'` : '';
-                  core.setFailed(`Unable to locate a successful HuggingFace Bridge Artifacts run${modeDescription}.`);
+                  core.setFailed(`Unable to locate a successful Google SentencePiece Bridge Artifacts run${modeDescription}.`);
                   return;
                 }
               }
@@ -164,28 +164,22 @@ jobs:
             }
 
             if (run.status !== 'completed') {
-              core.setFailed(`Selected HuggingFace Bridge Artifacts run ${run.id} is not completed (status: ${run.status}).`);
+              core.setFailed(`Selected Google SentencePiece Bridge Artifacts run ${run.id} is not completed (status: ${run.status}).`);
               return;
             }
 
             if (run.conclusion !== 'success') {
-              core.setFailed(`Selected HuggingFace Bridge Artifacts run ${run.id} did not succeed (conclusion: ${run.conclusion}).`);
+              core.setFailed(`Selected Google SentencePiece Bridge Artifacts run ${run.id} did not succeed (conclusion: ${run.conclusion}).`);
               return;
             }
 
             if (!run.head_sha) {
-              core.setFailed(`Selected HuggingFace Bridge Artifacts run ${run.id} is missing head SHA information.`);
+              core.setFailed(`Selected Google SentencePiece Bridge Artifacts run ${run.id} is missing head SHA information.`);
               return;
             }
 
             const runId = run.id;
-            core.info(`Using HuggingFace Bridge Artifacts run ${runId} (run_number ${run.run_number}) on branch '${run.head_branch}' with SHA ${run.head_sha}.`);
-
-            const tagPrefix = 'hf-v';
-            let version = null;
-            if (run.head_branch && run.head_branch.startsWith(tagPrefix)) {
-              version = run.head_branch.substring(tagPrefix.length);
-            }
+            core.info(`Using Google SentencePiece Bridge Artifacts run ${runId} (run_number ${run.run_number}) on branch '${run.head_branch}' with SHA ${run.head_sha}.`);
 
             const { data } = await github.rest.actions.listWorkflowRunArtifacts({
               owner,
@@ -196,17 +190,16 @@ jobs:
 
             const artifacts = data.artifacts ?? [];
             const targets = {
-              linux: 'x86_64-unknown-linux-gnu',
-              windows: 'x86_64-pc-windows-msvc',
-              mac_arm64: 'aarch64-apple-darwin',
-              mac_x64: 'x86_64-apple-darwin',
-              android: 'aarch64-linux-android',
-              ios: 'aarch64-apple-ios'
+              linux: 'linux-x64',
+              windows: 'win-x64',
+              mac_arm64: 'osx-arm64',
+              mac_x64: 'osx-x64',
+              android: 'android-arm64'
             };
 
             const map = {};
             for (const [key, suffix] of Object.entries(targets)) {
-              const artifact = artifacts.find(item => item.name.startsWith('tokenx-bridge-') && item.name.includes(suffix));
+              const artifact = artifacts.find(item => item.name.startsWith('tokenx-bridge-') && item.name.endsWith(`-${suffix}`));
               if (!artifact) {
                 core.setFailed(`Missing bridge artifact for target ${suffix}.`);
                 return;
@@ -221,12 +214,18 @@ jobs:
               core.info(`Resolved artifact for ${key}: ${artifact.name} (id ${artifact.id})`);
             }
 
+            const tagPrefix = 'sp-v';
+            let version = null;
+            if (run.head_branch && run.head_branch.startsWith(tagPrefix)) {
+              version = run.head_branch.substring(tagPrefix.length);
+            }
+
             if (!version) {
               const linuxName = map.linux?.name ?? '';
               const prefix = 'tokenx-bridge-';
               const suffix = `-${targets.linux}`;
-              if (linuxName.startsWith(prefix) && linuxName.includes(suffix)) {
-                const extracted = linuxName.substring(prefix.length, linuxName.indexOf(suffix));
+              if (linuxName.startsWith(prefix) && linuxName.endsWith(suffix)) {
+                const extracted = linuxName.substring(prefix.length, linuxName.length - suffix.length);
                 version = extracted.startsWith('v') ? extracted.substring(1) : extracted;
               }
             }
@@ -238,7 +237,7 @@ jobs:
 
             core.info(`Resolved base version: ${version}`);
 
-            const releasePrefix = `hf-${version}-rc.`;
+            const releasePrefix = `gsp-${version}-rc.`;
             const releases = await github.paginate(github.rest.repos.listReleases, {
               owner,
               repo,
@@ -260,10 +259,7 @@ jobs:
             }
 
             const packageNames = [
-              'ErgoX.TokenX.HuggingFace',
-              'ErgoX.TokenX.HuggingFace.Mac',
-              'ErgoX.TokenX.HuggingFace.Android',
-              'ErgoX.TokenX.HuggingFace.iOS'
+              'ErgoX.TokenX.SentencePiece'
             ];
 
             let maxRcFromPackages = 0;
@@ -328,7 +324,7 @@ jobs:
             const maxRc = Math.max(maxRcFromReleases, maxRcFromPackages);
             const rcNumber = maxRc + 1;
             const rcVersion = `${version}-rc.${rcNumber}`;
-            const rcTag = `hf-${version}-rc.${rcNumber}`;
+            const rcTag = `gsp-${version}-rc.${rcNumber}`;
 
             core.info(`Next RC number: ${rcNumber} (${rcVersion})`);
             core.info(`RC tag: ${rcTag}`);
@@ -367,7 +363,7 @@ jobs:
         run: |
           set -euo pipefail
           7z x tests/__templates.7z -otests -aoa
-          7z x tests/_huggingface.7z -otests -aoa
+          7z x tests/_sentencepeice.7z -otests -aoa
 
       - name: Download Linux runtime
         uses: actions/download-artifact@v4
@@ -382,27 +378,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RUNTIME_DIR="src/HuggingFace/runtimes/linux-x64/native"
-          DOWNLOAD_DIR="bridge_artifacts/linux"
-          archive=$(find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
-          if [ -z "$archive" ]; then
-            echo "Unable to locate runtime archive in ${DOWNLOAD_DIR}" >&2
+          RUNTIME_DIR="src/SentencePiece/runtimes/linux-x64/native"
+          DOWNLOAD_ROOT="bridge_artifacts/linux"
+          SOURCE_DIR=$(find "$DOWNLOAD_ROOT" -type d -name native | head -n 1)
+          if [ -z "$SOURCE_DIR" ]; then
+            echo "Unable to locate native directory in ${DOWNLOAD_ROOT}" >&2
             exit 1
           fi
-          extract_dir="${DOWNLOAD_DIR}/extracted"
-          mkdir -p "$extract_dir"
-          if [[ "$archive" == *.zip ]]; then
-            unzip -o "$archive" -d "$extract_dir"
-          else
-            tar -xzf "$archive" -C "$extract_dir"
-          fi
           mkdir -p "$RUNTIME_DIR"
-          rm -f "$RUNTIME_DIR"/*
+          find "$RUNTIME_DIR" -type f -delete
           copied=0
           while IFS= read -r file; do
             cp -f "$file" "$RUNTIME_DIR/"
             copied=1
-          done < <(find "$extract_dir" -type f)
+          done < <(find "$SOURCE_DIR" -type f)
           if [ "$copied" -eq 0 ]; then
             echo "No runtime files copied into ${RUNTIME_DIR}." >&2
             exit 1
@@ -413,19 +402,19 @@ jobs:
         run: mkdir -p artifacts/TestResults
 
       - name: Restore dependencies
-        run: dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo
+        run: dotnet restore tests/ErgoX.TokenX.SentencePiece.Tests/ErgoX.TokenX.SentencePiece.Tests.csproj --nologo
 
-      - name: Run HuggingFace tests (Linux)
-        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
+      - name: Run SentencePiece tests (Linux)
+        working-directory: tests/ErgoX.TokenX.SentencePiece.Tests
         run: |
           dotnet test --configuration Release --no-restore \
-            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --logger "trx;LogFileName=ErgoX.TokenX.SentencePiece.Tests.trx" \
             --results-directory ../../artifacts/TestResults
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-test-results-linux-${{ needs.prepare.outputs.version }}
+          name: gsp-rc-test-results-linux-${{ needs.prepare.outputs.version }}
           path: artifacts/TestResults
           if-no-files-found: error
 
@@ -454,7 +443,7 @@ jobs:
             exit 1
           }
           & $sevenZip x "tests\__templates.7z" "-otests" -aoa
-          & $sevenZip x "tests\_huggingface.7z" "-otests" -aoa
+          & $sevenZip x "tests\_sentencepeice.7z" "-otests" -aoa
 
       - name: Download Windows runtime
         uses: actions/download-artifact@v4
@@ -468,30 +457,22 @@ jobs:
       - name: Stage runtime binaries
         shell: pwsh
         run: |
-          $runtimeDir = "src\HuggingFace\runtimes\win-x64\native"
-          $downloadDir = "bridge_artifacts\windows"
-          $archive = Get-ChildItem -Path $downloadDir -File | Where-Object { $_.Name -like "*.zip" -or $_.Name -like "*.tar.gz" -or $_.Name -like "*.tgz" } | Select-Object -First 1
-          if (-not $archive) {
-            Write-Error "Unable to locate runtime archive in $downloadDir"
+          $runtimeDir = "src\SentencePiece\runtimes\win-x64\native"
+          $downloadRoot = "bridge_artifacts\windows"
+          $nativeDir = Get-ChildItem -Path $downloadRoot -Directory -Recurse -Filter native | Select-Object -First 1
+          if (-not $nativeDir) {
+            Write-Error "Unable to locate native directory in $downloadRoot"
             exit 1
           }
-          $extractDir = Join-Path $downloadDir "extracted"
-          New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
-          if ($archive.Name -like "*.zip") {
-            Expand-Archive -Path $archive.FullName -DestinationPath $extractDir -Force
-          } else {
-            tar -xzf $archive.FullName -C $extractDir
-          }
-          New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
+          New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
           Get-ChildItem -Path $runtimeDir -File | Remove-Item -Force
-          $copied = $false
-          Get-ChildItem -Path $extractDir -Recurse -File | ForEach-Object {
-            Copy-Item -Path $_.FullName -Destination $runtimeDir -Force
-            $copied = $true
-          }
-          if (-not $copied) {
-            Write-Error "No runtime files were copied into $runtimeDir"
+          $files = Get-ChildItem -Path $nativeDir.FullName -File -Recurse
+          if (-not $files) {
+            Write-Error "No runtime files found in $($nativeDir.FullName)"
             exit 1
+          }
+          foreach ($file in $files) {
+            Copy-Item -Path $file.FullName -Destination $runtimeDir -Force
           }
           Get-ChildItem -Path $runtimeDir
 
@@ -501,22 +482,22 @@ jobs:
 
       - name: Restore dependencies
         shell: pwsh
-        run: dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo
+        run: dotnet restore tests/ErgoX.TokenX.SentencePiece.Tests/ErgoX.TokenX.SentencePiece.Tests.csproj --nologo
 
-      - name: Run HuggingFace tests (Windows)
-        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
+      - name: Run SentencePiece tests (Windows)
+        working-directory: tests/ErgoX.TokenX.SentencePiece.Tests
         shell: pwsh
         run: |
           dotnet test `
             --configuration Release `
             --no-restore `
-            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" `
+            --logger "trx;LogFileName=ErgoX.TokenX.SentencePiece.Tests.trx" `
             --results-directory ..\..\artifacts\TestResults
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-test-results-windows-${{ needs.prepare.outputs.version }}
+          name: gsp-rc-test-results-windows-${{ needs.prepare.outputs.version }}
           path: artifacts/TestResults
           if-no-files-found: error
 
@@ -542,7 +523,7 @@ jobs:
         run: |
           set -euo pipefail
           7z x tests/__templates.7z -otests -aoa
-          7z x tests/_huggingface.7z -otests -aoa
+          7z x tests/_sentencepeice.7z -otests -aoa
 
       - name: Download macOS runtime
         uses: actions/download-artifact@v4
@@ -557,27 +538,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RUNTIME_DIR="src/HuggingFace/runtimes/osx-arm64/native"
-          DOWNLOAD_DIR="bridge_artifacts/macos-arm64"
-          archive=$(find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
-          if [ -z "$archive" ]; then
-            echo "Unable to locate runtime archive in ${DOWNLOAD_DIR}" >&2
+          RUNTIME_DIR="src/SentencePiece/runtimes/osx-arm64/native"
+          DOWNLOAD_ROOT="bridge_artifacts/macos-arm64"
+          SOURCE_DIR=$(find "$DOWNLOAD_ROOT" -type d -name native | head -n 1)
+          if [ -z "$SOURCE_DIR" ]; then
+            echo "Unable to locate native directory in ${DOWNLOAD_ROOT}" >&2
             exit 1
           fi
-          extract_dir="${DOWNLOAD_DIR}/extracted"
-          mkdir -p "$extract_dir"
-          if [[ "$archive" == *.zip ]]; then
-            unzip -o "$archive" -d "$extract_dir"
-          else
-            tar -xzf "$archive" -C "$extract_dir"
-          fi
           mkdir -p "$RUNTIME_DIR"
-          rm -f "$RUNTIME_DIR"/*
+          find "$RUNTIME_DIR" -type f -delete
           copied=0
           while IFS= read -r file; do
             cp -f "$file" "$RUNTIME_DIR/"
             copied=1
-          done < <(find "$extract_dir" -type f)
+          done < <(find "$SOURCE_DIR" -type f)
           if [ "$copied" -eq 0 ]; then
             echo "No runtime files copied into ${RUNTIME_DIR}." >&2
             exit 1
@@ -588,24 +562,24 @@ jobs:
         run: mkdir -p artifacts/TestResults
 
       - name: Restore dependencies
-        run: dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo
+        run: dotnet restore tests/ErgoX.TokenX.SentencePiece.Tests/ErgoX.TokenX.SentencePiece.Tests.csproj --nologo
 
-      - name: Run HuggingFace tests (macOS)
-        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
+      - name: Run SentencePiece tests (macOS)
+        working-directory: tests/ErgoX.TokenX.SentencePiece.Tests
         run: |
           dotnet test --configuration Release --no-restore \
-            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --logger "trx;LogFileName=ErgoX.TokenX.SentencePiece.Tests.trx" \
             --results-directory ../../artifacts/TestResults
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-test-results-macos-${{ needs.prepare.outputs.version }}
+          name: gsp-rc-test-results-macos-${{ needs.prepare.outputs.version }}
           path: artifacts/TestResults
           if-no-files-found: error
 
   package:
-    name: Package HuggingFace RC
+    name: Package SentencePiece RC
     needs:
       - prepare
       - test-linux
@@ -636,7 +610,7 @@ jobs:
         run: |
           set -euo pipefail
           7z x tests/__templates.7z -otests -aoa
-          7z x tests/_huggingface.7z -otests -aoa
+          7z x tests/_sentencepeice.7z -otests -aoa
 
       - name: Download Linux runtime
         uses: actions/download-artifact@v4
@@ -683,46 +657,29 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: bridge_artifacts/android
 
-      - name: Download iOS runtime
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ fromJSON(needs.prepare.outputs.artifacts).ios.name }}
-          repository: ${{ github.repository }}
-          run-id: ${{ needs.prepare.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: bridge_artifacts/ios
-
       - name: Stage runtime binaries
         shell: bash
         run: |
           set -euo pipefail
 
           stage_runtime() {
-            local download_dir="$1"
+            local download_root="$1"
             local runtime_dir="$2"
-            local archive
-            archive=$(find "$download_dir" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
-            if [ -z "$archive" ]; then
-              echo "Unable to locate runtime archive in ${download_dir}" >&2
+            local source_dir
+            source_dir=$(find "$download_root" -type d -name native | head -n 1)
+            if [ -z "$source_dir" ]; then
+              echo "Unable to locate native directory in ${download_root}" >&2
               exit 1
             fi
 
-            local extract_dir="${download_dir}/extracted"
-            mkdir -p "$extract_dir"
-            if [[ "$archive" == *.zip ]]; then
-              unzip -o "$archive" -d "$extract_dir"
-            else
-              tar -xzf "$archive" -C "$extract_dir"
-            fi
-
-            local target_dir="src/HuggingFace/runtimes/${runtime_dir}"
+            local target_dir="src/SentencePiece/runtimes/${runtime_dir}"
             mkdir -p "$target_dir"
-            rm -f "$target_dir"/*
+            find "$target_dir" -type f -delete
             local copied=0
             while IFS= read -r file; do
               cp -f "$file" "$target_dir/"
               copied=1
-            done < <(find "$extract_dir" -type f)
+            done < <(find "$source_dir" -type f)
             if [ "$copied" -eq 0 ]; then
               echo "No runtime files copied into ${target_dir}." >&2
               exit 1
@@ -735,13 +692,12 @@ jobs:
           stage_runtime "bridge_artifacts/macos-arm64" "osx-arm64/native"
           stage_runtime "bridge_artifacts/macos-x64" "osx-x64/native"
           stage_runtime "bridge_artifacts/android" "android-arm64/native"
-          stage_runtime "bridge_artifacts/ios" "ios-arm64/native"
 
-      - name: Restore HuggingFace project
-        run: dotnet restore src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --nologo
+      - name: Restore SentencePiece project
+        run: dotnet restore src/SentencePiece/ErgoX.TokenX.SentencePiece.csproj --nologo
 
-      - name: Build HuggingFace project
-        run: dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
+      - name: Build SentencePiece project
+        run: dotnet build src/SentencePiece/ErgoX.TokenX.SentencePiece.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true /p:GeneratePackageOnBuild=false
 
       - name: Prepare artifact staging
         run: |
@@ -750,60 +706,26 @@ jobs:
           mkdir -p artifacts/packages
 
       - name: Pack NuGet artifacts
-        shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p artifacts/packages
-          backup_dir=$(mktemp -d)
-          cp -r src/HuggingFace/runtimes "${backup_dir}/runtimes_full"
+          dotnet pack src/SentencePiece/ErgoX.TokenX.SentencePiece.csproj \
+            --configuration Release \
+            --no-build \
+            --output artifacts/packages \
+            /p:PackageVersion=${RC_VERSION} \
+            /p:Version=${RC_VERSION} \
+            /p:ContinuousIntegrationBuild=true
 
-          restore_runtimes() {
-            rm -rf src/HuggingFace/runtimes
-            cp -r "${backup_dir}/runtimes_full" src/HuggingFace/runtimes
-          }
-
-          pack_default() {
-            rm -rf src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:ContinuousIntegrationBuild=true
-            restore_runtimes
-          }
-
-          pack_mac() {
-            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Mac /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
-            restore_runtimes
-          }
-
-          pack_android() {
-            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/ios-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Android /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
-            restore_runtimes
-          }
-
-          pack_ios() {
-            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.iOS /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
-            restore_runtimes
-          }
-
-          pack_default
-          pack_mac
-          pack_android
-          pack_ios
-
-          rm -rf "$backup_dir"
-
-      - name: Restore HuggingFace tests with package
+      - name: Restore SentencePiece tests with package
         run: |
-          dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo --source "$(pwd)/artifacts/packages" --source https://api.nuget.org/v3/index.json /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RC_VERSION}
+          dotnet restore tests/ErgoX.TokenX.SentencePiece.Tests/ErgoX.TokenX.SentencePiece.Tests.csproj --nologo --source "$(pwd)/artifacts/packages" --source https://api.nuget.org/v3/index.json /p:UseSentencePiecePackage=true /p:SentencePiecePackageVersion=${RC_VERSION}
 
-      - name: Run HuggingFace tests with coverage (package)
-        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
+      - name: Run SentencePiece tests with coverage (package)
+        working-directory: tests/ErgoX.TokenX.SentencePiece.Tests
         run: |
           dotnet test --configuration Release --no-restore --nologo \
-            -p:UseHuggingFacePackage=true -p:HuggingFacePackageVersion=${RC_VERSION} \
+            -p:UseSentencePiecePackage=true -p:SentencePiecePackageVersion=${RC_VERSION} \
             --results-directory ../../artifacts/TestResults \
-            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --logger "trx;LogFileName=ErgoX.TokenX.SentencePiece.Tests.trx" \
             --collect:"XPlat Code Coverage"
 
       - name: Collect coverage report
@@ -815,12 +737,11 @@ jobs:
             echo "Coverage file not found." >&2
             exit 1
           fi
-          cp "$COVERAGE_FILE" artifacts/coverage/ErgoX.TokenX.HuggingFace.coverage.cobertura.xml
+          cp "$COVERAGE_FILE" artifacts/coverage/ErgoX.TokenX.SentencePiece.coverage.cobertura.xml
 
       - name: Publish packages to GitHub Packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
         run: |
           set -euo pipefail
           if [ -z "${GITHUB_TOKEN}" ]; then
@@ -848,7 +769,6 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: bash
         run: |
           set -euo pipefail
           if [ -z "${GH_TOKEN}" ]; then
@@ -869,7 +789,7 @@ jobs:
             echo "Release ${RC_TAG} already exists. Deleting existing release and tag before recreation." >&2
             gh release delete "${RC_TAG}" --yes --cleanup-tag
           fi
-          title="HuggingFace ${BASE_VERSION} RC ${RC_NUMBER} (Update ${RC_NUMBER})"
+          title="SentencePiece ${BASE_VERSION} RC ${RC_NUMBER} (Update ${RC_NUMBER})"
           notes="Automated Update ${RC_NUMBER} for base version ${BASE_VERSION}. Packages are published to GitHub Packages."
           target="${WORKFLOW_HEAD_SHA}"
           if [ -z "$target" ]; then
@@ -888,13 +808,13 @@ jobs:
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-coverage-${{ env.BASE_VERSION }}-rc.${{ env.RC_NUMBER }}
+          name: gsp-rc-coverage-${{ env.BASE_VERSION }}-rc.${{ env.RC_NUMBER }}
           path: artifacts/coverage
           if-no-files-found: error
 
       - name: Upload RC packages
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-packages-${{ env.RC_VERSION }}
+          name: gsp-rc-packages-${{ env.RC_VERSION }}
           path: artifacts/packages
           if-no-files-found: error
