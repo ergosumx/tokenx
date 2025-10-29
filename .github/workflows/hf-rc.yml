@@ -163,7 +163,11 @@ jobs:
         run: dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo
 
       - name: Run HuggingFace tests (Linux)
-        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-restore --logger trx --results-directory artifacts/TestResults
+        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
+        run: |
+          dotnet test --configuration Release --no-restore \
+            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --results-directory ../../artifacts/TestResults
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -246,8 +250,12 @@ jobs:
         run: dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo
 
       - name: Run HuggingFace tests (Windows)
+        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
         shell: pwsh
-        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-restore --logger trx --results-directory artifacts/TestResults
+        run: |
+          dotnet test --configuration Release --no-restore \
+            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --results-directory ..\..\artifacts\TestResults
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -326,7 +334,11 @@ jobs:
         run: dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo
 
       - name: Run HuggingFace tests (macOS)
-        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-restore --logger trx --results-directory artifacts/TestResults
+        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
+        run: |
+          dotnet test --configuration Release --no-restore \
+            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --results-directory ../../artifacts/TestResults
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -545,8 +557,13 @@ jobs:
       - name: Run HuggingFace tests with coverage (package)
         env:
           RC_VERSION: ${{ steps.rc.outputs.rc }}
+        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
         run: |
-          dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-build --no-restore --nologo /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RC_VERSION} --results-directory artifacts/TestResults --logger trx --collect:"XPlat Code Coverage"
+          dotnet test --configuration Release --no-build --no-restore --nologo \
+            -p:UseHuggingFacePackage=true -p:HuggingFacePackageVersion=${RC_VERSION} \
+            --results-directory ../../artifacts/TestResults \
+            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --collect:"XPlat Code Coverage"
 
       - name: Collect coverage report
         shell: bash
