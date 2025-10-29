@@ -540,7 +540,7 @@ jobs:
         env:
           RC_VERSION: ${{ steps.rc.outputs.rc }}
         run: |
-          dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --nologo /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RC_VERSION} --source $(pwd)/artifacts/packages --source https://api.nuget.org/v3/index.json
+          dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RC_VERSION} /p:RestoreSources="$(pwd)/artifacts/packages;https://api.nuget.org/v3/index.json"
 
       - name: Run HuggingFace tests with coverage (package)
         env:
