@@ -43,8 +43,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultilingualE5SmallConsole"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTokenizerPipelineExplorer", "examples\HuggingFace\AutoTokenizerPipelineExplorer\AutoTokenizerPipelineExplorer.csproj", "{61C8BA16-0D05-4F88-B9EE-3664A5D0E769}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NougatBaseGreedyConsole", "examples\HuggingFace\NougatBaseGreedyConsole\NougatBaseGreedyConsole.csproj", "{7390EAB7-E650-48C1-B684-AE673CA8C435}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,18 +197,6 @@ Global
 		{61C8BA16-0D05-4F88-B9EE-3664A5D0E769}.Release|x64.Build.0 = Release|Any CPU
 		{61C8BA16-0D05-4F88-B9EE-3664A5D0E769}.Release|x86.ActiveCfg = Release|Any CPU
 		{61C8BA16-0D05-4F88-B9EE-3664A5D0E769}.Release|x86.Build.0 = Release|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Debug|x64.Build.0 = Debug|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Debug|x86.Build.0 = Debug|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Release|x64.ActiveCfg = Release|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Release|x64.Build.0 = Release|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Release|x86.ActiveCfg = Release|Any CPU
-		{7390EAB7-E650-48C1-B684-AE673CA8C435}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,7 +219,6 @@ Global
 		{ADA19982-480F-43D7-BE71-C71B0F255ECE} = {ACF4F660-1A28-2F1E-4233-AE09CFC63106}
 		{89123481-555C-4829-8717-9C39151173A5} = {ACF4F660-1A28-2F1E-4233-AE09CFC63106}
 		{61C8BA16-0D05-4F88-B9EE-3664A5D0E769} = {ACF4F660-1A28-2F1E-4233-AE09CFC63106}
-		{7390EAB7-E650-48C1-B684-AE673CA8C435} = {ACF4F660-1A28-2F1E-4233-AE09CFC63106}
 	EndGlobalSection
 EndGlobal
 

@@ -10,7 +10,6 @@ on:
 permissions:
   contents: read
   actions: read
-  packages: write
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
@@ -18,9 +17,86 @@ env:
   CI: true
 
 jobs:
-  validate-and-pack:
-    name: Validate & Pack HuggingFace RC
+  prepare:
+    name: Resolve Version & Artifacts
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).version || '' }}
+      artifact_map: ${{ steps.resolve.outputs.result != '' && toJSON(fromJSON(steps.resolve.outputs.result).artifact_map) || '{}' }}
+    steps:
+      - name: Resolve metadata
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const runId = run.id;
+
+            const tagPrefix = 'hf-v';
+            let version = null;
+            if (run.head_branch && run.head_branch.startsWith(tagPrefix)) {
+              version = run.head_branch.substring(tagPrefix.length);
+            }
+
+            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner,
+              repo,
+              run_id: runId,
+              per_page: 100
+            });
+
+            const artifacts = data.artifacts ?? [];
+            const targets = {
+              linux: 'x86_64-unknown-linux-gnu',
+              windows: 'x86_64-pc-windows-msvc',
+              mac_arm64: 'aarch64-apple-darwin',
+              mac_x64: 'x86_64-apple-darwin',
+              android: 'aarch64-linux-android',
+              ios: 'aarch64-apple-ios'
+            };
+
+            const map = {};
+            for (const [key, suffix] of Object.entries(targets)) {
+              const artifact = artifacts.find(item => item.name.startsWith('tokenx-bridge-') && item.name.includes(suffix));
+              if (!artifact) {
+                core.setFailed(`Missing bridge artifact for target ${suffix}.`);
+                return;
+              }
+
+              if (artifact.expired) {
+                core.setFailed(`Artifact ${artifact.name} is expired and cannot be downloaded.`);
+                return;
+              }
+
+              map[key] = artifact.name;
+              core.info(`Resolved artifact for ${key}: ${artifact.name}`);
+            }
+
+            if (!version) {
+              const linuxName = map.linux;
+              const prefix = 'tokenx-bridge-';
+              const suffix = `-${targets.linux}`;
+              if (linuxName.startsWith(prefix) && linuxName.includes(suffix)) {
+                const extracted = linuxName.substring(prefix.length, linuxName.indexOf(suffix));
+                version = extracted.startsWith('v') ? extracted.substring(1) : extracted;
+              }
+            }
+
+            if (!version) {
+              core.setFailed('Unable to resolve base version.');
+              return;
+            }
+
+            core.info(`Resolved base version: ${version}`);
+            return { version, artifact_map: map };
+
+  test-linux:
+    name: Test Linux
+    needs: prepare
+    if: ${{ needs.prepare.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -28,76 +104,352 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full unzip
 
-      - name: Install 7-Zip
-        run: sudo apt-get update && sudo apt-get install -y p7zip-full
-
-      - name: Restore test artifacts
+      - name: Restore test assets
         shell: bash
         run: |
-          set -eo pipefail
+          set -euo pipefail
           7z x tests/__templates.7z -otests/__templates -aoa
           7z x tests/_huggingface.7z -otests/_huggingface -aoa
 
-      - name: Resolve bridge version
-        id: resolve_version
-        uses: actions/github-script@v7
+      - name: Download Linux runtime
+        uses: actions/download-artifact@v4
         with:
-          script: |
-            const run = context.payload.workflow_run;
-            const tagPrefix = 'hf-v';
-            if (run.head_branch && run.head_branch.startsWith(tagPrefix)) {
-              const version = run.head_branch.substring(tagPrefix.length);
-              core.info(`Resolved version from head branch: ${version}`);
-              core.setOutput('version', version);
-              return;
-            }
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).linux }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/linux
 
-            const { owner, repo } = context.repo;
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner,
-              repo,
-              run_id: run.id,
-              per_page: 100
-            });
-
-            const coverage = artifacts.data.artifacts.find(item => item.name.startsWith('tokenx-bridge-') && item.name.endsWith('-coverage'));
-            if (!coverage) {
-              core.setFailed('Unable to derive version from workflow run artifacts.');
-              return;
-            }
-
-            const prefix = 'tokenx-bridge-';
-            const suffix = '-coverage';
-            const version = coverage.name.substring(prefix.length, coverage.name.length - suffix.length);
-            core.info(`Resolved version from coverage artifact: ${version}`);
-            core.setOutput('version', version);
-
-      - name: Derive RC version
-        id: rc_version
+      - name: Stage runtime binaries
         shell: bash
         run: |
-          set -eo pipefail
-          BASE_VERSION="${{ steps.resolve_version.outputs.version }}"
-          if [ -z "$BASE_VERSION" ]; then
-            echo "Base version is empty." >&2
+          set -euo pipefail
+          RUNTIME_DIR="src/HuggingFace/runtimes/linux-x64/native"
+          DOWNLOAD_DIR="bridge_artifacts/linux"
+          archive=$(find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
+          if [ -z "$archive" ]; then
+            echo "Unable to locate runtime archive in ${DOWNLOAD_DIR}" >&2
             exit 1
           fi
+          extract_dir="${DOWNLOAD_DIR}/extracted"
+          mkdir -p "$extract_dir"
+          if [[ "$archive" == *.zip ]]; then
+            unzip -o "$archive" -d "$extract_dir"
+          else
+            tar -xzf "$archive" -C "$extract_dir"
+          fi
+          mkdir -p "$RUNTIME_DIR"
+          rm -f "$RUNTIME_DIR"/*
+          copied=0
+          while IFS= read -r file; do
+            cp -f "$file" "$RUNTIME_DIR/"
+            copied=1
+          done < <(find "$extract_dir" -type f)
+          if [ "$copied" -eq 0 ]; then
+            echo "No runtime files copied into ${RUNTIME_DIR}." >&2
+            exit 1
+          fi
+          ls -al "$RUNTIME_DIR"
 
-          RC_VERSION="${BASE_VERSION}-rc.${GITHUB_RUN_NUMBER}"
-          echo "base=$BASE_VERSION" >> "$GITHUB_OUTPUT"
-          echo "rc=$RC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Resolved RC version: $RC_VERSION"
+      - name: Prepare result directories
+        run: mkdir -p artifacts/TestResults
 
       - name: Restore dependencies
         run: dotnet restore TokenX.sln --nologo
 
-      - name: Build HuggingFace library
-        run: dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
+      - name: Run HuggingFace tests (Linux)
+        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-restore --logger trx --results-directory artifacts/TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: hf-rc-test-results-linux-${{ needs.prepare.outputs.version }}
+          path: artifacts/TestResults
+          if-no-files-found: error
+
+  test-windows:
+    name: Test Windows
+    needs: prepare
+    if: ${{ needs.prepare.result == 'success' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install prerequisites
+        shell: pwsh
+        run: choco install 7zip --no-progress -y
+
+      - name: Restore test assets
+        shell: pwsh
+        run: |
+          $sevenZip = Join-Path $env:ProgramFiles '7-Zip\7z.exe'
+          if (-not (Test-Path $sevenZip)) {
+            Write-Error "7-Zip executable not found at $sevenZip"
+            exit 1
+          }
+          & $sevenZip x "tests\__templates.7z" "-otests\__templates" -aoa
+          & $sevenZip x "tests\_huggingface.7z" "-otests\_huggingface" -aoa
+
+      - name: Download Windows runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).windows }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/windows
+
+      - name: Stage runtime binaries
+        shell: pwsh
+        run: |
+          $runtimeDir = "src\HuggingFace\runtimes\win-x64\native"
+          $downloadDir = "bridge_artifacts\windows"
+          $archive = Get-ChildItem -Path $downloadDir -File | Where-Object { $_.Name -like "*.zip" -or $_.Name -like "*.tar.gz" -or $_.Name -like "*.tgz" } | Select-Object -First 1
+          if (-not $archive) {
+            Write-Error "Unable to locate runtime archive in $downloadDir"
+            exit 1
+          }
+          $extractDir = Join-Path $downloadDir "extracted"
+          New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
+          if ($archive.Name -like "*.zip") {
+            Expand-Archive -Path $archive.FullName -DestinationPath $extractDir -Force
+          } else {
+            tar -xzf $archive.FullName -C $extractDir
+          }
+          New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
+          Get-ChildItem -Path $runtimeDir -File | Remove-Item -Force
+          $copied = $false
+          Get-ChildItem -Path $extractDir -Recurse -File | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination $runtimeDir -Force
+            $copied = $true
+          }
+          if (-not $copied) {
+            Write-Error "No runtime files were copied into $runtimeDir"
+            exit 1
+          }
+          Get-ChildItem -Path $runtimeDir
+
+      - name: Prepare result directories
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force -Path "artifacts\TestResults" | Out-Null
+
+      - name: Restore dependencies
+        shell: pwsh
+        run: dotnet restore TokenX.sln --nologo
+
+      - name: Run HuggingFace tests (Windows)
+        shell: pwsh
+        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-restore --logger trx --results-directory artifacts/TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: hf-rc-test-results-windows-${{ needs.prepare.outputs.version }}
+          path: artifacts/TestResults
+          if-no-files-found: error
+
+  test-macos:
+    name: Test macOS
+    needs: prepare
+    if: ${{ needs.prepare.result == 'success' }}
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install prerequisites
+        run: |
+          brew update
+          brew install p7zip
+
+      - name: Restore test assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          7z x tests/__templates.7z -otests/__templates -aoa
+          7z x tests/_huggingface.7z -otests/_huggingface -aoa
+
+      - name: Download macOS runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).mac_arm64 }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/macos-arm64
+
+      - name: Stage runtime binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNTIME_DIR="src/HuggingFace/runtimes/osx-arm64/native"
+          DOWNLOAD_DIR="bridge_artifacts/macos-arm64"
+          archive=$(find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
+          if [ -z "$archive" ]; then
+            echo "Unable to locate runtime archive in ${DOWNLOAD_DIR}" >&2
+            exit 1
+          fi
+          extract_dir="${DOWNLOAD_DIR}/extracted"
+          mkdir -p "$extract_dir"
+          if [[ "$archive" == *.zip ]]; then
+            unzip -o "$archive" -d "$extract_dir"
+          else
+            tar -xzf "$archive" -C "$extract_dir"
+          fi
+          mkdir -p "$RUNTIME_DIR"
+          rm -f "$RUNTIME_DIR"/*
+          copied=0
+          while IFS= read -r file; do
+            cp -f "$file" "$RUNTIME_DIR/"
+            copied=1
+          done < <(find "$extract_dir" -type f)
+          if [ "$copied" -eq 0 ]; then
+            echo "No runtime files copied into ${RUNTIME_DIR}." >&2
+            exit 1
+          fi
+          ls -al "$RUNTIME_DIR"
+
+      - name: Prepare result directories
+        run: mkdir -p artifacts/TestResults
+
+      - name: Restore dependencies
+        run: dotnet restore TokenX.sln --nologo
+
+      - name: Run HuggingFace tests (macOS)
+        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-restore --logger trx --results-directory artifacts/TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: hf-rc-test-results-macos-${{ needs.prepare.outputs.version }}
+          path: artifacts/TestResults
+          if-no-files-found: error
+
+  package:
+    name: Package HuggingFace RC
+    needs:
+      - prepare
+      - test-linux
+      - test-windows
+      - test-macos
+    if: ${{ needs.prepare.result == 'success' && needs['test-linux'].result == 'success' && needs['test-windows'].result == 'success' && needs['test-macos'].result == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      BASE_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full unzip
+
+      - name: Restore test assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          7z x tests/__templates.7z -otests/__templates -aoa
+          7z x tests/_huggingface.7z -otests/_huggingface -aoa
+
+      - name: Download Linux runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).linux }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/linux
+
+      - name: Download Windows runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).windows }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/windows
+
+      - name: Download macOS arm64 runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).mac_arm64 }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/macos-arm64
+
+      - name: Download macOS x64 runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).mac_x64 }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/macos-x64
+
+      - name: Download Android runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).android }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/android
+
+      - name: Download iOS runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifact_map).ios }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: bridge_artifacts/ios
+
+      - name: Stage runtime binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          stage_runtime() {
+            local download_dir="$1"
+            local runtime_dir="$2"
+            local archive
+            archive=$(find "$download_dir" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
+            if [ -z "$archive" ]; then
+              echo "Unable to locate runtime archive in ${download_dir}" >&2
+              exit 1
+            fi
+
+            local extract_dir="${download_dir}/extracted"
+            mkdir -p "$extract_dir"
+            if [[ "$archive" == *.zip ]]; then
+              unzip -o "$archive" -d "$extract_dir"
+            else
+              tar -xzf "$archive" -C "$extract_dir"
+            fi
+
+            local target_dir="src/HuggingFace/runtimes/${runtime_dir}"
+            mkdir -p "$target_dir"
+            rm -f "$target_dir"/*
+            local copied=0
+            while IFS= read -r file; do
+              cp -f "$file" "$target_dir/"
+              copied=1
+            done < <(find "$extract_dir" -type f)
+            if [ "$copied" -eq 0 ]; then
+              echo "No runtime files copied into ${target_dir}." >&2
+              exit 1
+            fi
+            ls -al "$target_dir"
+          }
+
+          stage_runtime "bridge_artifacts/linux" "linux-x64/native"
+          stage_runtime "bridge_artifacts/windows" "win-x64/native"
+          stage_runtime "bridge_artifacts/macos-arm64" "osx-arm64/native"
+          stage_runtime "bridge_artifacts/macos-x64" "osx-x64/native"
+          stage_runtime "bridge_artifacts/android" "android-arm64/native"
+          stage_runtime "bridge_artifacts/ios" "ios-arm64/native"
+
+      - name: Restore dependencies
+        run: dotnet restore TokenX.sln --nologo
+
+      - name: Build solution
+        run: dotnet build TokenX.sln --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
 
       - name: Prepare artifact staging
         run: |
@@ -106,41 +458,90 @@ jobs:
           mkdir -p artifacts/packages
 
       - name: Run HuggingFace tests with coverage
-        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-build --results-directory artifacts/TestResults --collect:"XPlat Code Coverage"
+        run: dotnet test tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --configuration Release --no-build --no-restore --results-directory artifacts/TestResults --logger trx --collect:"XPlat Code Coverage"
 
-      - name: Consolidate coverage report
-        id: coverage
+      - name: Collect coverage report
         shell: bash
         run: |
-          set -eo pipefail
+          set -euo pipefail
           COVERAGE_FILE=$(find artifacts/TestResults -name 'coverage.cobertura.xml' | head -n 1)
           if [ -z "$COVERAGE_FILE" ]; then
             echo "Coverage file not found." >&2
             exit 1
           fi
-
           cp "$COVERAGE_FILE" artifacts/coverage/ErgoX.TokenX.HuggingFace.coverage.cobertura.xml
 
-      - name: Pack HuggingFace NuGet
-        run: dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageVersion=${{ steps.rc_version.outputs.rc }} /p:Version=${{ steps.rc_version.outputs.rc }} /p:ContinuousIntegrationBuild=true
+      - name: Derive RC version
+        id: rc
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${BASE_VERSION}"
+          if [ -z "$BASE" ]; then
+            echo "Base version is empty." >&2
+            exit 1
+          fi
+          RC_VERSION="${BASE}-rc.${GITHUB_RUN_NUMBER}"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "rc=$RC_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Computed RC version: $RC_VERSION"
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: hf-rc-test-results-${{ steps.rc_version.outputs.base }}
-          path: artifacts/TestResults
-          if-no-files-found: error
+      - name: Pack NuGet artifacts
+        shell: bash
+        env:
+          RC_VERSION: ${{ steps.rc.outputs.rc }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/packages
+          backup_dir=$(mktemp -d)
+          cp -r src/HuggingFace/runtimes "${backup_dir}/runtimes_full"
+
+          restore_runtimes() {
+            rm -rf src/HuggingFace/runtimes
+            cp -r "${backup_dir}/runtimes_full" src/HuggingFace/runtimes
+          }
+
+          pack_default() {
+            rm -rf src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_mac() {
+            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Mac /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_android() {
+            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/ios-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Android /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_ios() {
+            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.iOS /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_default
+          pack_mac
+          pack_android
+          pack_ios
+
+          rm -rf "$backup_dir"
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-coverage-${{ steps.rc_version.outputs.base }}
+          name: hf-rc-coverage-${{ steps.rc.outputs.base }}
           path: artifacts/coverage
           if-no-files-found: error
 
-      - name: Upload NuGet packages
+      - name: Upload RC packages
         uses: actions/upload-artifact@v4
         with:
-          name: hf-rc-packages-${{ steps.rc_version.outputs.rc }}
+          name: hf-rc-packages-${{ steps.rc.outputs.rc }}
           path: artifacts/packages
           if-no-files-found: error
