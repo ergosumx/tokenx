@@ -204,14 +204,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate RC metadata
-        run: |
-          if [ -z "${RC_VERSION}" ] || [ -z "${RC_TAG}" ] || [ -z "${RC_NUMBER}" ]; then
-            echo "RC metadata is incomplete (RC_VERSION='${RC_VERSION}', RC_TAG='${RC_TAG}', RC_NUMBER='${RC_NUMBER}')." >&2
-            exit 1
-          fi
-          echo "Preparing RC ${RC_NUMBER} for base version ${BASE_VERSION} (NuGet ${RC_VERSION}, tag ${RC_TAG})."
-
       - name: Install prerequisites
         run: |
           sudo apt-get update
