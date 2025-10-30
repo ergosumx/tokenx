@@ -147,10 +147,6 @@ Console.WriteLine($"Decoded: {decoded}");
 The repository includes ready-to-run examples with pre-configured models:
 
 ```bash
-# Clone repository
-git clone https://github.com/ergosumx/vecrax-hf-tokenizers
-cd vecrax-hf-tokenizers
-
 # HuggingFace comprehensive quickstart (16 examples)
 cd examples/HuggingFace/Quickstart
 dotnet run
@@ -288,48 +284,6 @@ TokenX/
    ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
    └── ErgoX.VecraX.ML.NLP.Tokenizers.Testing/   # Shared testing infrastructure
 ```
-
-## Performance Benchmarks
-
-**Comprehensive benchmark suite** comparing ErgoX.TokenX libraries against Microsoft.ML.Tokenizers and measuring performance across different algorithms and text sizes.
-
-### Benchmark Reports
-
-| Report | Focus | Key Findings |
-|--------|-------|--------------|
-| **[Algorithms](benchmarks/ALGORITHM_BENCHMARK.md)** | Microsoft.ML vs ErgoX.HF | ⚠️ MSML ZeroMeasurement warnings; ErgoX broader support |
-
-### Algorithm Benchmark: Microsoft.ML vs ErgoX.HuggingFace
-
-**Latest benchmark** (October 30, 2025) compares BERT WordPiece and RoBERTa BPE tokenization across text sizes (0.5KB - 5KB).
-
-#### Key Results
-
-| Library | BERT Support | RoBERTa Support | Performance | Ecosystem |
-|---------|--------------|-----------------|-------------|-----------|
-| **Microsoft.ML v1.0.3** | ✅ (manual config) | ❌ No compatible API | Sub-nanosecond ⚠️ | Limited |
-| **ErgoX.HuggingFace** | ✅ (auto-load) | ✅ Full support | Nanosecond-level | 2,500+ models |
-
-⚠️ **Critical**: Microsoft.ML produced **ZeroMeasurement warnings** (sub-nanosecond results may be measurement artifacts)
-
-**Recommendation**: Use **ErgoX.HuggingFace** for production — broader model support, reliable measurements, HuggingFace ecosystem compatibility. For OpenAI models, consider **Microsoft.ML.Tokenizers** which provides optimized `TiktokenTokenizer` implementation.
-
-**Full details**: [Algorithm Benchmark Report](benchmarks/ALGORITHM_BENCHMARK.md)
-
-### Running Benchmarks
-
-```bash
-cd benchmarks
-dotnet build -c Release
-dotnet run -c Release --no-build
-```
-
-**Runtime**: ~12-20 minutes depending on benchmark suite
-
-### Documentation
-
-- **[Benchmark README](benchmarks/README.md)** - Setup, running instructions, interpretation guide
-- **[Algorithm Comparison](benchmarks/ALGORITHM_BENCHMARK.md)** - Microsoft.ML vs ErgoX.HuggingFace (BERT, RoBERTa)
 
 ## Test Coverage
 

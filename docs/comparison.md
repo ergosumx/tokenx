@@ -6,9 +6,10 @@ Comprehensive comparison of .NET tokenization libraries for machine learning and
 
 | Library | Best For | Strengths | Limitations |
 |---------|----------|-----------|-------------|
-| **Microsoft.ML.Tokenizers** | Pure .NET solutions, simple use cases | No native dependencies, official Microsoft support | Limited features, fewer models |
+| **Microsoft.ML.Tokenizers** | Pure .NET solutions, OpenAI GPT models | No native dependencies, official Microsoft support, optimized TiktokenTokenizer | Limited HuggingFace model support |
 | **ErgoX.TokenX.HuggingFace** | Production ML/NLP, open-source models | Complete feature set, battle-tested, thousands of models | Requires native binaries |
-| **ErgoX.TokenX.Tiktoken** | OpenAI API integration, cost estimation | Optimized for GPT, minimal API | GPT-specific only, limited features |
+
+> **Note**: For OpenAI GPT models (GPT-2, GPT-3, GPT-4), we recommend using [Microsoft.ML.Tokenizers](https://www.nuget.org/packages/Microsoft.ML.Tokenizers/) which provides optimized `TiktokenTokenizer` implementation.
 
 ---
 
@@ -16,66 +17,67 @@ Comprehensive comparison of .NET tokenization libraries for machine learning and
 
 ### ✅ = Full Support | ⚠️ = Partial Support | ❌ = Not Supported
 
-| Feature Category | Microsoft.ML.Tokenizers | ErgoX.TokenX.HuggingFace | ErgoX.TokenX.Tiktoken |
-|-----------------|------------------------|--------------------------|----------------------|
+| Feature Category | Microsoft.ML.Tokenizers | ErgoX.TokenX.HuggingFace |
+|-----------------|------------------------|--------------------------|
 | **Tokenization Algorithms** |
-| WordPiece (BERT) | ✅ | ✅ | ❌ |
-| BPE (GPT-2/GPT-3) | ✅ | ✅ | ✅ |
-| Unigram (T5/ALBERT) | ⚠️ Limited | ✅ | ❌ |
-| SentencePiece | ⚠️ Basic | ✅ | ❌ |
-| Byte-level BPE | ❌ | ✅ | ✅ |
+| WordPiece (BERT) | ✅ | ✅ |
+| BPE (GPT-2/GPT-3) | ✅ | ✅ |
+| Tiktoken (GPT-3.5/4) | ✅ Optimized | ❌ Use Microsoft.ML |
+| Unigram (T5/ALBERT) | ⚠️ Limited | ✅ |
+| SentencePiece | ⚠️ Basic | ✅ |
+| Byte-level BPE | ✅ | ✅ |
 | **Model Support** |
-| BERT family | ✅ | ✅ | ❌ |
-| GPT family | ✅ | ✅ | ✅ |
-| T5/BART/Pegasus | ⚠️ | ✅ | ❌ |
-| RoBERTa/DeBERTa | ✅ | ✅ | ❌ |
-| LLaMA/Mistral/Qwen | ❌ | ✅ | ❌ |
-| Whisper (audio) | ❌ | ✅ | ❌ |
-| Custom models | ⚠️ Limited | ✅ | ⚠️ Custom BPE only |
+| BERT family | ✅ | ✅ |
+| GPT family | ✅ TiktokenTokenizer | ✅ |
+| T5/BART/Pegasus | ⚠️ | ✅ |
+| RoBERTa/DeBERTa | ✅ | ✅ |
+| LLaMA/Mistral/Qwen | ❌ | ✅ |
+| Whisper (audio) | ❌ | ✅ |
+| Custom models | ⚠️ Limited | ✅ |
 | **Core Operations** |
-| Single text encoding | ✅ | ✅ | ✅ |
-| Text pair encoding | ✅ | ✅ | ❌ |
-| Batch encoding | ✅ | ✅ | ⚠️ Manual loop |
-| Decoding | ✅ | ✅ | ✅ |
-| Byte-level decode | ❌ | ✅ | ✅ |
+| Single text encoding | ✅ | ✅ |
+| Text pair encoding | ✅ | ✅ |
+| Batch encoding | ✅ | ✅ |
+| Decoding | ✅ | ✅ |
+| Byte-level decode | ✅ | ✅ |
 | **Advanced Features** |
-| Padding (left/right) | ✅ | ✅ | ⚠️ Manual |
-| Truncation strategies | ✅ | ✅ | ⚠️ Manual |
-| Attention masks | ✅ | ✅ | ❌ |
-| Type IDs (segment IDs) | ✅ | ✅ | ❌ |
-| Offset mapping | ✅ | ✅ | ❌ |
-| Word IDs | ⚠️ | ✅ | ❌ |
-| Sequence IDs | ⚠️ | ✅ | ❌ |
-| Special tokens mask | ⚠️ | ✅ | ❌ |
-| Overflowing tokens | ⚠️ | ✅ | ❌ |
+| Padding (left/right) | ✅ | ✅ |
+| Truncation strategies | ✅ | ✅ |
+| Attention masks | ✅ | ✅ |
+| Type IDs (segment IDs) | ✅ | ✅ |
+| Offset mapping | ✅ | ✅ |
+| Word IDs | ⚠️ | ✅ |
+| Sequence IDs | ⚠️ | ✅ |
+| Special tokens mask | ⚠️ | ✅ |
+| Overflowing tokens | ⚠️ | ✅ |
 | **Chat & Generation** |
-| Chat template rendering | ❌ | ✅ | ⚠️ Manual |
-| Generation prompts | ❌ | ✅ | ❌ |
-| Multi-turn conversations | ❌ | ✅ | ⚠️ Manual |
+| Chat template rendering | ❌ | ✅ |
+| Generation prompts | ❌ | ✅ |
+| Multi-turn conversations | ❌ | ✅ |
 | **Configuration** |
-| Load from directory | ⚠️ | ✅ | ⚠️ From file |
-| Load from JSON | ✅ | ✅ | ❌ |
-| Apply defaults | ⚠️ | ✅ | ❌ |
-| Custom special tokens | ⚠️ | ✅ | ✅ |
-| Vocabulary access | ✅ | ✅ | ⚠️ Limited |
+| Load from directory | ⚠️ | ✅ |
+| Load from JSON | ✅ | ✅ |
+| Apply defaults | ⚠️ | ✅ |
+| Custom special tokens | ⚠️ | ✅ |
+| Vocabulary access | ✅ | ✅ |
 | **Platform Support** |
-| Windows x64 | ✅ | ✅ | ✅ |
-| Windows ARM64 | ⚠️ | ⚠️ Untested | ⚠️ Untested |
-| Linux x64 | ✅ | ✅ | ✅ |
-| Linux ARM64 | ⚠️ | ✅ | ✅ |
-| macOS x64 | ✅ | ✅ | ✅ |
-| macOS ARM64 (M1/M2) | ✅ | ✅ | ✅ |
+| Windows x64 | ✅ | ✅ |
+| Windows ARM64 | ⚠️ | ⚠️ Untested |
+| Linux x64 | ✅ | ✅ |
+| Linux ARM64 | ⚠️ | ✅ |
+| macOS x64 | ✅ | ✅ |
+| macOS ARM64 (M1/M2) | ✅ | ✅ |
 | **Deployment** |
-| Pure managed code | ✅ | ❌ | ❌ |
-| Native dependencies | ❌ | ✅ Required | ✅ Required |
-| Self-contained publish | ✅ Easy | ✅ | ✅ |
-| NuGet package | ✅ Official | ⚠️ Local | ⚠️ Local |
+| Pure managed code | ✅ | ❌ |
+| Native dependencies | ❌ | ✅ Required |
+| Self-contained publish | ✅ Easy | ✅ |
+| NuGet package | ✅ Official | ✅ |
 | **Developer Experience** |
-| API documentation | ✅ Official | ✅ | ✅ |
-| IntelliSense support | ✅ | ✅ | ✅ |
-| Error messages | ✅ | ✅ | ✅ |
-| Examples | ⚠️ Limited | ✅ 16 examples | ✅ 10 examples |
-| Test coverage | ⚠️ | ✅ 37+ tests | ✅ |
+| API documentation | ✅ Official | ✅ |
+| IntelliSense support | ✅ | ✅ |
+| Error messages | ✅ | ✅ |
+| Examples | ⚠️ Limited | ✅ 16 examples |
+| Test coverage | ⚠️ | ✅ 2,836+ tests |
 
 ---
 
@@ -90,28 +92,34 @@ Comprehensive comparison of .NET tokenization libraries for machine learning and
 - **Official support** - Part of ML.NET ecosystem
 - **NuGet availability** - Easy installation from official feed
 - **Cross-platform** - Works everywhere .NET runs
-- **Good for basics** - Handles common BERT/GPT-2 use cases
+- **TiktokenTokenizer** - Optimized for OpenAI GPT models
+- **Good for basics** - Handles common BERT/GPT use cases
 
 #### Cons ❌
-- **Limited model coverage** - Missing many modern models (LLaMA, Mistral, etc.)
+- **Limited HuggingFace model coverage** - Missing many modern models (LLaMA, Mistral, etc.)
 - **Fewer features** - No chat templates, limited offset mapping
 - **Less battle-tested** - Newer than HuggingFace tokenizers
-- **Performance** - May be slower than optimized native code
-- **Incomplete parity** - Missing some HuggingFace tokenizer features
+- **Performance** - May be slower than optimized native code for some tasks
 
 #### Best Use Cases
 1. **Pure .NET environments** where native dependencies are prohibited
-2. **Simple tokenization** for BERT/GPT-2 models
-3. **Quick prototyping** without model downloads
-4. **Education** - Learning tokenization concepts
+2. **OpenAI GPT models** (GPT-2, GPT-3, GPT-4) via TiktokenTokenizer
+3. **Simple tokenization** for BERT models
+4. **Quick prototyping** without model downloads
+5. **Education** - Learning tokenization concepts
 
 #### Example Usage
 ```csharp
 using Microsoft.ML.Tokenizers;
 
+// For BERT models
 var tokenizer = new BertTokenizer("vocab.txt", lowerCase: true);
 var tokens = tokenizer.Encode("Hello, world!");
-Console.WriteLine($"Tokens: {string.Join(", ", tokens.Tokens)}");
+
+// For GPT models (recommended)
+var tiktokenizer = TiktokenTokenizer.CreateForModel("gpt-4");
+var tokens = tiktokenizer.EncodeToIds("Hello, world!");
+Console.WriteLine($"Token count: {tokens.Count}");
 ```
 
 ---
@@ -127,12 +135,13 @@ Console.WriteLine($"Tokens: {string.Join(", ", tokens.Tokens)}");
 - **Chat templates** - First-class support for instruction-following models
 - **Rich metadata** - Offsets, word IDs, attention masks, etc.
 - **Production-ready** - Used in real-world ML pipelines
+- **High performance** - Native Rust backend
 
 #### Cons ❌
 - **Native dependencies** - Requires `tokenx_bridge.dll/.so/.dylib`
 - **P/Invoke overhead** - Small latency per call (negligible for batch)
 - **Deployment complexity** - Must bundle native libraries
-- **Local packages** - Not yet on official NuGet (TODO)
+- **Not for OpenAI GPT** - Use Microsoft.ML.Tokenizers instead
 
 #### Best Use Cases
 1. **Production ML/NLP** - Real-world applications with diverse models
@@ -145,6 +154,7 @@ Console.WriteLine($"Tokens: {string.Join(", ", tokens.Tokens)}");
 ```csharp
 using ErgoX.TokenX.HuggingFace;
 
+// Load from local model directory
 using var tokenizer = AutoTokenizer.Load("meta-llama-3-8b-instruct");
 
 // Chat template support
@@ -157,53 +167,9 @@ string prompt = tokenizer.ApplyChatTemplate(messages,
     new ChatTemplateOptions { AddGenerationPrompt = true });
 
 // Rich encoding metadata
-var encoding = tokenizer.Tokenizer.Encode("Machine learning");
+var encoding = tokenizer.Encode("Machine learning");
 Console.WriteLine($"Offsets: {string.Join(", ", encoding.Offsets)}");
 Console.WriteLine($"Attention mask: {string.Join(", ", encoding.AttentionMask)}");
-```
-
----
-
-### 3. ErgoX.TokenX.Tiktoken
-
-**Native Bindings to OpenAI TikToken**
-
-#### Pros ✅
-- **Optimized for GPT** - Fast byte-level BPE
-- **Official OpenAI code** - Same tokenization as OpenAI API
-- **Minimal API** - Simple, focused interface
-- **Cost estimation** - Accurate token counts for billing
-- **UTF-8 byte support** - Handles any valid UTF-8 text
-
-#### Cons ❌
-- **GPT-specific only** - Only BPE encodings (gpt2, cl100k_base, o200k_base)
-- **Limited features** - No padding, truncation, attention masks
-- **No chat templates** - Must format chat manually
-- **Manual batching** - No built-in batch encoding
-
-#### Best Use Cases
-1. **OpenAI API integration** - Token counting before API calls
-2. **Cost estimation** - Calculate GPT-3.5/GPT-4 usage costs
-3. **GPT applications** - When using only OpenAI models
-4. **Minimal dependencies** - Lightweight tokenization
-
-#### Example Usage
-```csharp
-using ErgoX.TokenX.Tiktoken;
-
-var specialTokens = new Dictionary<string, int> { ["<|endoftext|>"] = 50256 };
-using var encoding = TiktokenEncodingFactory.FromTiktokenFile(
-    name: "gpt2",
-    pattern: "...",
-    tiktokenFilePath: "mergeable_ranks.tiktoken",
-    specialTokens: specialTokens);
-
-var tokens = encoding.EncodeOrdinary("Hello, world!");
-int tokenCount = tokens.Count;
-
-// Estimate GPT-4 cost
-decimal cost = (tokenCount / 1000m) * 0.03m;  // $0.03 per 1k tokens
-Console.WriteLine($"Estimated cost: ${cost:F4}");
 ```
 
 ---
@@ -214,10 +180,9 @@ Console.WriteLine($"Estimated cost: ${cost:F4}");
 |---------|---------------|--------------|--------------|-----------------|
 | **Microsoft.ML** | Medium | Low (managed) | Fast | Small (~100KB) |
 | **ErgoX HuggingFace** | Fast (native) | Medium | Medium (load native) | Large (~10-50MB) |
-| **ErgoX TikToken** | Very Fast (BPE) | Low | Fast | Medium (~5MB) |
 
 ### Benchmarking Notes
-- **Encoding speed**: ErgoX libraries win on throughput due to optimized native code
+- **Encoding speed**: ErgoX wins on throughput due to optimized native Rust code
 - **Memory**: Microsoft.ML wins on GC pressure (pure managed)
 - **Startup**: Microsoft.ML wins (no native library loading)
 - **Deployment**: Microsoft.ML wins (smallest package size)
@@ -230,10 +195,11 @@ Console.WriteLine($"Estimated cost: ${cost:F4}");
 
 ### Choose **Microsoft.ML.Tokenizers** if:
 - ✅ You need pure .NET (no native dependencies allowed)
-- ✅ You're tokenizing simple BERT or GPT-2 models
+- ✅ You're using OpenAI GPT models (GPT-2, GPT-3, GPT-4)
+- ✅ You're tokenizing simple BERT models
 - ✅ You want official Microsoft support
 - ✅ Deployment size and startup speed are critical
-- ❌ You don't need advanced features (chat templates, offsets)
+- ❌ You don't need advanced features (chat templates, rich metadata)
 
 ### Choose **ErgoX.TokenX.HuggingFace** if:
 - ✅ You're using open-source models (LLaMA, Mistral, T5, etc.)
@@ -242,13 +208,6 @@ Console.WriteLine($"Estimated cost: ${cost:F4}");
 - ✅ You're building production ML/NLP pipelines
 - ✅ You want compatibility with Python transformers library
 - ❌ You can deploy native dependencies
-
-### Choose **ErgoX.TokenX.Tiktoken** if:
-- ✅ You're using only OpenAI GPT models
-- ✅ You need accurate token counting for OpenAI API
-- ✅ You want minimal API surface
-- ✅ You prioritize encoding speed over features
-- ❌ You don't need advanced tokenization features
 
 ---
 
@@ -273,7 +232,7 @@ foreach (var id in tokens.Ids)
 using ErgoX.TokenX.HuggingFace;
 
 using var tokenizer = AutoTokenizer.Load("bert-base-uncased");
-var encoding = tokenizer.Tokenizer.Encode("Hello, world!");
+var encoding = tokenizer.Encode("Hello, world!");
 foreach (var id in encoding.Ids)
 {
     Console.WriteLine(id);
@@ -297,29 +256,9 @@ print(encoding["offset_mapping"])
 using ErgoX.TokenX.HuggingFace;
 
 using var tokenizer = AutoTokenizer.Load("bert-base-uncased");
-var encoding = tokenizer.Tokenizer.Encode("Hello, world!");
+var encoding = tokenizer.Encode("Hello, world!");
 Console.WriteLine(string.Join(", ", encoding.Ids));
 Console.WriteLine(string.Join(", ", encoding.Offsets));
-```
-
-### From Python TikToken to ErgoX TikToken
-
-**Python:**
-```python
-import tiktoken
-
-enc = tiktoken.get_encoding("gpt2")
-tokens = enc.encode("Hello, world!")
-print(len(tokens))
-```
-
-**C# (ErgoX):**
-```csharp
-using ErgoX.TokenX.Tiktoken;
-
-using var encoding = TiktokenEncodingFactory.FromTiktokenFile(...);
-var tokens = encoding.EncodeOrdinary("Hello, world!");
-Console.WriteLine(tokens.Count);
 ```
 
 ---
@@ -328,23 +267,23 @@ Console.WriteLine(tokens.Count);
 
 ### Model Formats
 
-| Format | Microsoft.ML | ErgoX HuggingFace | ErgoX TikToken |
-|--------|-------------|-------------------|----------------|
-| `tokenizer.json` | ⚠️ Partial | ✅ | ❌ |
-| `vocab.txt` (BERT) | ✅ | ✅ | ❌ |
-| `merges.txt` (GPT-2) | ✅ | ✅ | ❌ |
-| `.tiktoken` files | ❌ | ❌ | ✅ |
-| `tokenizer_config.json` | ❌ | ✅ | ❌ |
-| SentencePiece `.model` | ⚠️ | ✅ | ❌ |
+| Format | Microsoft.ML | ErgoX HuggingFace |
+|--------|-------------|-------------------|
+| `tokenizer.json` | ⚠️ Partial | ✅ |
+| `vocab.txt` (BERT) | ✅ | ✅ |
+| `merges.txt` (GPT-2) | ✅ | ✅ |
+| `.tiktoken` files | ✅ Via TiktokenTokenizer | ❌ Use Microsoft.ML |
+| `tokenizer_config.json` | ❌ | ✅ |
+| SentencePiece `.model` | ⚠️ | ✅ |
 
 ### .NET Versions
 
-| .NET Version | Microsoft.ML | ErgoX HuggingFace | ErgoX TikToken |
-|--------------|-------------|-------------------|----------------|
-| .NET 8.0 | ✅ | ✅ | ✅ |
-| .NET 7.0 | ✅ | ✅ | ✅ |
-| .NET 6.0 | ✅ | ✅ | ✅ |
-| .NET Framework | ❌ | ❌ | ❌ |
+| .NET Version | Microsoft.ML | ErgoX HuggingFace |
+|--------------|-------------|-------------------|
+| .NET 8.0 | ✅ | ✅ |
+| .NET 7.0 | ✅ | ✅ |
+| .NET 6.0 | ✅ | ✅ |
+| .NET Framework | ❌ | ❌ |
 
 ---
 
@@ -352,19 +291,19 @@ Console.WriteLine(tokens.Count);
 
 **No single library is best for every use case.** Choose based on your requirements:
 
-1. **Simplicity + No native deps** → Microsoft.ML.Tokenizers
-2. **Production ML with diverse models** → ErgoX.TokenX.HuggingFace
-3. **OpenAI API integration** → ErgoX.TokenX.Tiktoken
+1. **OpenAI GPT models** → Microsoft.ML.Tokenizers (TiktokenTokenizer)
+2. **Pure .NET + simple BERT** → Microsoft.ML.Tokenizers
+3. **Production ML with diverse HuggingFace models** → ErgoX.TokenX.HuggingFace
 
-For most **production ML/NLP applications**, **ErgoX.TokenX.HuggingFace** offers the best balance of features, compatibility, and performance.
+For most **production ML/NLP applications using HuggingFace models**, **ErgoX.TokenX.HuggingFace** offers the best balance of features, compatibility, and performance.
 
 ---
 
 ## Further Reading
 
 - **[Getting Started Guide](getting-started.md)** - Introduction to tokenization
-- **[HuggingFace Quickstart](../examples/HuggingFace/Quickstart/README.md)** - 16 comprehensive examples
-- **[TikToken Quickstart](../examples/Tiktoken/Quickstart/README.md)** - 10 comprehensive examples
+- **[HuggingFace Quickstart](huggingface/quickstart.md)** - 16 comprehensive examples
+- **[Installation Guide](installation.md)** - Setup and deployment
 - **[Benchmarks](../benchmarks/README.md)** - Performance comparison
 
 ---

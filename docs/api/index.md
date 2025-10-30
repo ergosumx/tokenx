@@ -5,8 +5,10 @@ Comprehensive API documentation for all tokenizer libraries.
 ## Navigation
 
 - [HuggingFace API](#huggingface-api)
-- [SentencePiece API](#sentencepiece-api)
-- [TikToken API](#tiktoken-api)
+- [Common Interfaces](#common-interfaces)
+- [Enumerations](#enumerations)
+
+> **Note**: For OpenAI GPT models, see [Microsoft.ML.Tokenizers](https://www.nuget.org/packages/Microsoft.ML.Tokenizers/) which provides `TiktokenTokenizer`.
 
 ## HuggingFace API
 
@@ -141,96 +143,6 @@ Generation defaults for autoregressive models.
 
 ---
 
-## SentencePiece API
-
-### Core Classes
-
-#### SentencePieceProcessor
-
-Main processor for SentencePiece tokenization.
-
-**Namespace:** `ErgoX.TokenX.SentencePiece.Processing`
-
-**Key Methods:**
-- `Load(string modelPath)` - Load SentencePiece model
-- `Encode(string text, EncodeOptions? options = null)` - Encode to token IDs
-- `EncodeAsTokens(string text, EncodeOptions? options = null)` - Encode to token strings
-- `Decode(int[] ids)` - Decode token IDs to text
-- `DecodeTokens(string[] tokens)` - Decode token strings to text
-- `Sample(string text, int nbest, float alpha)` - Stochastic sampling
-- `GetPieceSize()` - Get vocabulary size
-- `PieceToId(string piece)` - Get token ID
-- `IdToPiece(int id)` - Get token string
-
-#### EncodeOptions
-
-Options for encoding operations.
-
-**Namespace:** `ErgoX.TokenX.SentencePiece.Processing`
-
-**Properties:**
-- `bool AddBos` - Add beginning-of-sequence token
-- `bool AddEos` - Add end-of-sequence token
-- `bool ReverseSentence` - Reverse token order
-- `bool EnableSampling` - Enable stochastic sampling
-- `int NbBestSize` - Number of best candidates for sampling (-1 = all)
-- `float Alpha` - Sampling smoothing parameter
-
-See [SentencePiece Documentation](../sentencepiece/index.md) for complete details.
-
----
-
-## TikToken API
-
-### Core Classes
-
-#### TiktokenEncoding
-
-Main encoding interface for TikToken.
-
-**Namespace:** `ErgoX.TokenX.Tiktoken`
-
-**Key Methods:**
-- `Encode(string text)` - Encode text to token IDs
-- `EncodeOrdinary(string text)` - Encode without special tokens
-- `Decode(int[] tokens)` - Decode token IDs to text
-- `DecodeTokenBytes(int token)` - Get raw bytes for token
-
-**Properties:**
-- `string Name` - Encoding name (e.g., "gpt2", "cl100k_base")
-- `int VocabularySize` - Total vocabulary size
-
-#### TiktokenEncodingFactory
-
-Factory methods for creating encodings.
-
-**Namespace:** `ErgoX.TokenX.Tiktoken`
-
-**Key Methods:**
-- `LoadGpt2()` - Load GPT-2 encoding
-- `LoadCL100kBase()` - Load cl100k_base encoding (GPT-3.5/4)
-- `LoadP50kBase()` - Load p50k_base encoding
-- `LoadR50kBase()` - Load r50k_base encoding
-- `FromTiktokenFile(string name, string pattern, string filepath, IReadOnlyDictionary<string, int> specialTokens)` - Load from file
-- `Create(string name, string pattern, IReadOnlyList<TiktokenMergeableRank> mergeableRanks, IReadOnlyDictionary<string, int> specialTokens)` - Create custom encoding
-
-#### TiktokenMergeableRank
-
-Represents a token and its merge priority.
-
-**Namespace:** `ErgoX.TokenX.Tiktoken`
-
-**Constructor:**
-- `TiktokenMergeableRank(byte[] token, int rank)` - Create mergeable rank
-
-**Properties:**
-- `byte[] Token` - Token bytes
-- `int Rank` - Merge priority (lower = merge earlier)
-
-See [TikToken Documentation](../tiktoken/index.md) for complete details.
-
----
-
 ## Common Interfaces
 
 ### ITokenizer
@@ -247,20 +159,6 @@ Common interface implemented by `Tokenizer` (HuggingFace).
 
 **Properties:**
 - `int VocabularySize`
-
-### ITiktokenEncoding
-
-Common interface for TikToken encodings.
-
-**Namespace:** `ErgoX.TokenX.Tiktoken`
-
-**Key Methods:**
-- `IReadOnlyList<int> Encode(string text)`
-- `IReadOnlyList<int> EncodeOrdinary(string text)`
-- `string Decode(int[] tokens)`
-
-**Properties:**
-- `string Name`
 
 ---
 
@@ -325,8 +223,6 @@ catch (InvalidOperationException ex)
 
 - [Installation Guide](../installation.md) - Setup instructions
 - [HuggingFace Documentation](../huggingface/index.md) - Complete HuggingFace guide
-- [SentencePiece Documentation](../sentencepiece/index.md) - Complete SentencePiece guide
-- [TikToken Documentation](../tiktoken/index.md) - Complete TikToken guide
 - [Examples](../examples.md) - Working code examples
 - [Main Documentation](../index.md) - Overview
 

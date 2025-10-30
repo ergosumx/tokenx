@@ -1,11 +1,12 @@
 # ErgoX TokenX - Getting Started
 
-Welcome to ErgoX TokenX! This guide will help you get started with tokenization for both HuggingFace transformers and OpenAI models.
+Welcome to ErgoX TokenX! This guide will help you get started with tokenization for HuggingFace transformers.
+
+> **Note**: For OpenAI GPT models, we recommend using [Microsoft.ML.Tokenizers](https://www.nuget.org/packages/Microsoft.ML.Tokenizers/) which provides optimized `TiktokenTokenizer` implementation.
 
 ## Quick Links
 
-- **[HuggingFace Tokenizer Quickstart](HuggingFace/quickstart.md)** - 15 comprehensive examples
-- **[TikToken Quickstart](Tiktoken/quickstart.md)** - 10 comprehensive examples
+- **[HuggingFace Tokenizer Quickstart](HuggingFace/quickstart.md)** - 16 comprehensive examples
 - **[Main README](../README.md)** - Project overview and installation
 
 ## What is Tokenization?
@@ -35,7 +36,7 @@ Learn how to:
 - Handle padding and truncation
 - Work with text pairs for classification
 - Use chat templates for instruction-following models
-- Compare different tokenization algorithms (WordPiece, Unigram)
+- Compare different tokenization algorithms (WordPiece, Unigram, BPE)
 
 **Run the examples:**
 ```bash
@@ -47,26 +48,6 @@ Models included:
 - `all-minilm-l6-v2` - Sentence embeddings (WordPiece)
 - `t5-small` - Sequence-to-sequence (Unigram)
 - `meta-llama-3-8b-instruct` - Chat and instruction following
-
-### For OpenAI Models (GPT-2, GPT-3, GPT-4)
-
-**Start here:** [TikToken Quickstart](Tiktoken/quickstart.md)
-
-Learn how to:
-- Tokenize text for GPT models
-- Count tokens for API cost estimation
-- Manage context windows
-- Handle special tokens
-- Work with byte-level encoding
-
-**Run the examples:**
-```bash
-cd examples/Tiktoken/Quickstart
-dotnet run
-```
-
-Model included:
-- `openai-gpt2` - GPT-2 tokenizer (BPE)
 
 ## Next Steps
 
@@ -108,11 +89,11 @@ var mask = encoding.AttentionMask;
 
 ### Context Windows
 Maximum number of tokens a model can process:
-- GPT-2: 1024 tokens
-- GPT-3: 2048 tokens (davinci)
-- GPT-4: 8192 tokens (gpt-4) / 32768 tokens (gpt-4-32k)
 - BERT: 512 tokens
 - T5: 512 tokens (encoder/decoder)
+- RoBERTa: 512 tokens
+- Llama: 2048-4096 tokens (varies by version)
+- Mistral: 8192 tokens
 
 ## Performance Tips
 
@@ -154,12 +135,7 @@ var messages = new[] {
 var prompt = tokenizer.ApplyChatTemplate(messages);
 ```
 
-### Cost Estimation (OpenAI)
-Count tokens before making API calls:
-```csharp
-var tokens = encoding.EncodeOrdinary(text);
-var cost = tokens.Count * pricePerToken;
-```
+
 
 ## Troubleshooting
 
@@ -190,7 +166,6 @@ Apache 2.0 - See [LICENSE](../LICENSE) for details.
 
 Built on top of:
 - [HuggingFace Tokenizers](https://github.com/huggingface/tokenizers) (Apache 2.0)
-- [OpenAI TikToken](https://github.com/openai/tiktoken) (MIT)
 
 ---
 

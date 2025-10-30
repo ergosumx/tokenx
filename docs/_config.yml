@@ -9,12 +9,12 @@ navigation:
     url: /
   - title: HuggingFace
     url: /huggingface/
-  - title: TikToken
-    url: /tiktoken/
   - title: Installation
     url: /installation
   - title: Examples
     url: /examples
+  - title: API Reference
+    url: /api/
 
 # Build settings
 markdown: kramdown
