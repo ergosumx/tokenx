@@ -39,46 +39,86 @@ AutoTokenizer (High-level API)
 
 ## Installation
 
+### Core Package
+
+The main package includes Windows and Linux x64 runtimes by default:
+
 ```bash
+# HuggingFace Tokenizers (includes win-x64 and linux-x64 runtimes)
 dotnet add package ErgoX.TokenX.HuggingFace
+```
+
+### Additional Runtime Packages
+
+For other platforms, install the corresponding runtime package in addition to the core package:
+
+```bash
+# macOS support
+dotnet add package ErgoX.TokenX.HuggingFace.Mac
+
+# iOS support
+dotnet add package ErgoX.TokenX.HuggingFace.iOS
+
+# Android support
+dotnet add package ErgoX.TokenX.HuggingFace.Android
 ```
 
 See [Installation Guide](../installation.md) for detailed setup.
 
 ## Quick Start
 
-### Basic Encoding
+> 💡 **Complete examples**: [Quickstart/Program.cs](https://github.com/ergosumx/tokenx/blob/main/examples/HuggingFace/Quickstart/Program.cs)
+
+### Basic Tokenization
 
 ```csharp
 using ErgoX.TokenX.HuggingFace;
 
-// Load tokenizer from directory
-using var tokenizer = AutoTokenizer.Load("bert-base-uncased");
+// Load tokenizer from local directory
+var modelDirectory = "path/to/bert-base-uncased";
+
+using var tokenizer = AutoTokenizer.Load(modelDirectory, new AutoTokenizerLoadOptions
+{
+    ApplyTokenizerDefaults = true
+});
 
 // Encode text
-var encoding = tokenizer.Encode("Hello, world!");
+string text = "Hello, how are you?";
+var encoding = tokenizer.Tokenizer.Encode(text);
 
-Console.WriteLine($"Tokens: {string.Join(", ", encoding.Tokens)}");
-Console.WriteLine($"IDs: {string.Join(", ", encoding.Ids)}");
+Console.WriteLine($"Text: {text}");
+Console.WriteLine($"Token IDs: [{string.Join(", ", encoding.Ids)}]");
+Console.WriteLine($"Tokens: [{string.Join(", ", encoding.Tokens)}]");
+Console.WriteLine($"Token count: {encoding.Length}");
 
-// Output:
-// Tokens: [CLS], hello, ,, world, !, [SEP]
-// IDs: 101, 7592, 1010, 2088, 999, 102
+// Decode back to text
+var decoded = tokenizer.Tokenizer.Decode(encoding.Ids.ToArray());
+Console.WriteLine($"Decoded: {decoded}");
 ```
 
-### Load from HuggingFace Hub
+📄 **Source**: [examples/HuggingFace/Quickstart/Program.cs#L22-L46](https://github.com/ergosumx/tokenx/blob/main/examples/HuggingFace/Quickstart/Program.cs#L22-L46)
+
+### Batch Processing
 
 ```csharp
-// Download and cache from HuggingFace Hub
-using var tokenizer = AutoTokenizer.LoadFromPretrained("bert-base-uncased");
+var texts = new[]
+{
+    "Machine learning is fascinating.",
+    "Natural language processing enables computers to understand text.",
+    "Transformers revolutionized AI."
+};
 
-// With authentication for private models
-using var tokenizer = AutoTokenizer.LoadFromPretrained(
-    "private-model",
-    authToken: "hf_your_token_here");
+Console.WriteLine("Processing multiple texts:");
+foreach (var text in texts)
+{
+    var encoding = tokenizer.Tokenizer.Encode(text);
+    Console.WriteLine($"  '{text}' → {encoding.Length} tokens");
+}
 ```
 
-### Batch Encoding
+📄 **Source**: [examples/HuggingFace/Quickstart/Program.cs#L48-L70](https://github.com/ergosumx/tokenx/blob/main/examples/HuggingFace/Quickstart/Program.cs#L48-L70)
+
+### Working with Special Tokens
 
 ```csharp
 // Encode multiple texts with padding
@@ -250,13 +290,14 @@ public sealed class EncodingResult
 }
 ```
 
-## Chat Templates
+### Chat Templates
 
 ### Overview
 
 Chat templates format multi-turn conversations for LLM input using Jinja2 templates.
 
 ```csharp
+using ErgoX.TokenX.HuggingFace;
 using ErgoX.TokenX.HuggingFace.Chat;
 
 // Define conversation
@@ -389,7 +430,7 @@ var encoding = tokenizer.Encode("tokenization");
 
 ### Unigram
 
-Used by T5, mT5, ALBERT, and XLNet (via SentencePiece).
+Used by ALBERT and XLNet.
 
 **Features:**
 - Probabilistic subword segmentation
@@ -399,13 +440,12 @@ Used by T5, mT5, ALBERT, and XLNet (via SentencePiece).
 **Example Models:**
 - `albert-base-v2`
 - `xlnet-base-cased`
-- Note: T5/mT5 typically use SentencePiece library directly
 
 ```csharp
 using var tokenizer = AutoTokenizer.Load("albert-base-v2");
 var encoding = tokenizer.Encode("tokenization");
 
-// Output: ▁token, ization (SentencePiece style)
+// Output: ▁token, ization (subword split with space marker)
 ```
 
 ## Advanced Usage
@@ -743,7 +783,6 @@ if (!tokenizer.SupportsChatTemplate)
 
 - [Installation Guide](../installation.md) - Setup and deployment
 - [Examples](../examples.md) - Complete working examples
-- [SentencePiece Documentation](../sentencepiece/index.md) - Alternative tokenizer
-- [TikToken Documentation](../tiktoken/index.md) - OpenAI tokenizer
+- [TikToken Documentation](../tiktoken/index.md) - OpenAI tokenizer for GPT models
 - [Main Documentation](../index.md) - Overview and comparison
 

@@ -1,14 +1,16 @@
-# ErgoX TokenX ML NLP Tokenizers
+# ErgoX VecraX ML NLP Tokenizers
 
-High-performance .NET tokenizer libraries with native interop for HuggingFace Tokenizers, Google SentencePiece, and OpenAI TikToken.
+High-performance .NET tokenizer library with native interop for HuggingFace Tokenizers.
+
+> **⚠️ Beta Status**: This project is currently in beta. Documentation is in progress. However, the packages are production-proven and have been used internally for many months. Please see our [examples](examples.md) for guidance while we complete the documentation.
 
 ## Overview
 
-This repository provides three comprehensive tokenization libraries for .NET applications:
+This repository provides comprehensive tokenization library for .NET applications:
 
 - **[HuggingFace Tokenizers](huggingface/index.md)** - Full-featured tokenization supporting BPE, WordPiece, and Unigram models with multimodal chat capabilities
-- **[Google SentencePiece](sentencepiece/index.md)** - Language-agnostic subword tokenization with lossless round-trip encoding
-- **[OpenAI TikToken](tiktoken/index.md)** - Fast byte-pair encoding optimized for GPT models
+
+> **Note**: For OpenAI GPT models, we recommend using Microsoft.ML.Tokenizers which provides optimized `TiktokenTokenizer` implementation.
 
 ## Key Features
 
@@ -27,30 +29,35 @@ This repository provides three comprehensive tokenization libraries for .NET app
 
 ## Choosing a Tokenizer
 
-| Feature | HuggingFace | SentencePiece | TikToken |
-|---------|-------------|---------------|----------|
-| **Best For** | Transformer models, multimodal chat | Multilingual NLP, seq2seq | GPT models, code generation |
-| **Language Support** | Excellent | Excellent | Good (English-focused) |
-| **Model Types** | BPE, WordPiece, Unigram | Unigram, BPE | BPE (byte-level) |
-| **Special Features** | Chat templates, generation | Sampling, normalization | Fast encoding, special tokens |
-| **Performance** | High | High | Very High |
+### Benchmark Results Summary
+
+✅ **[Complete Performance Benchmarks Available](../benchmarks/ALGORITHM_BENCHMARK.md)**
+
+**Key Findings:**
+- ✅ **ErgoX.HuggingFace**: Broader model support (BPE, WordPiece, Unigram)
+- ✅ **AutoTokenizer**: Seamless loading from HuggingFace Hub
+- ✅ **Chat Templates**: Instruction-tuned model support (Llama, Mistral, Qwen)
+- ✅ **Production-Ready**: 2,500+ tests with byte-to-byte Python parity
+
+[View Full Benchmark Report →](../benchmarks/ALGORITHM_BENCHMARK.md)
 
 ## Getting Started
 
-Each library can be used independently. Install the NuGet package for your chosen tokenizer:
+### Installation
+
+Install the core NuGet package for your chosen tokenizer. Core packages include Windows and Linux x64 runtimes:
 
 ```bash
-# HuggingFace Tokenizers
+# HuggingFace Tokenizers (win-x64 + linux-x64 included)
 dotnet add package ErgoX.TokenX.HuggingFace
-
-# Google SentencePiece
-dotnet add package ErgoX.TokenX.SentencePiece
-
-# OpenAI TikToken
-dotnet add package ErgoX.TokenX.Tiktoken
 ```
 
-See the [Installation Guide](installation.md) for complete setup instructions including native library deployment.
+**Additional Runtimes**: For macOS, iOS, or Android, install the corresponding runtime package:
+- `ErgoX.TokenX.HuggingFace.Mac`
+- `ErgoX.TokenX.HuggingFace.iOS`  
+- `ErgoX.TokenX.HuggingFace.Android`
+
+See the [Installation Guide](installation.md) for complete setup instructions.
 
 ## Quick Start Examples
 
@@ -72,56 +79,14 @@ var decoded = tokenizer.Decode(encoding.Ids);
 Console.WriteLine($"Decoded: {decoded}");
 ```
 
-### Google SentencePiece
 
-```csharp
-using ErgoX.TokenX.SentencePiece.Processing;
-
-// Load SentencePiece model
-using var processor = new SentencePieceProcessor();
-processor.Load("spiece.model");
-
-// Encode to IDs
-var ids = processor.EncodeIds("Tokenization example");
-Console.WriteLine($"IDs: {string.Join(", ", ids)}");
-
-// Encode to pieces (subwords)
-var pieces = processor.EncodePieces("Tokenization example");
-Console.WriteLine($"Pieces: {string.Join(" | ", pieces)}");
-
-// Decode back to text
-var decoded = processor.DecodeIds(ids);
-Console.WriteLine($"Decoded: {decoded}");
-```
-
-### OpenAI TikToken
-
-```csharp
-using ErgoX.TokenX.Tiktoken;
-
-// Load GPT-2 encoding
-using var encoding = TiktokenEncodingFactory.FromTiktokenFile(
-    "gpt2",
-    "'(?:[sdmt]|ll|ve|re)| ?\\p{L}+| ?\\p{N}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+",
-    "mergeable_ranks.tiktoken",
-    new Dictionary<string, int> { ["<|endoftext|>"] = 50256 });
-
-// Encode text
-var tokens = encoding.EncodeOrdinary("Hello, GPT!");
-Console.WriteLine($"Tokens: {string.Join(", ", tokens)}");
-
-// Decode back to text
-var decoded = encoding.Decode(tokens.ToArray());
-Console.WriteLine($"Decoded: {decoded}");
-```
 
 ## Documentation Structure
 
 - **[Installation](installation.md)** - Setup and deployment guide
 - **[HuggingFace](huggingface/index.md)** - Complete HuggingFace Tokenizers documentation
-- **[SentencePiece](sentencepiece/index.md)** - Complete Google SentencePiece documentation
-- **[TikToken](tiktoken/index.md)** - Complete OpenAI TikToken documentation
 - **[Examples](examples.md)** - Practical examples and tutorials
+- **[Performance Benchmarks](../benchmarks/README.md)** - Algorithm performance comparison
 - **[API Reference](api/index.md)** - Detailed API documentation
 
 ## Support

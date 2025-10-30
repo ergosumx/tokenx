@@ -4,7 +4,79 @@
 [![.NET Tests](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml/badge.svg)](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml)
 [![codecov](https://codecov.io/gh/ergosumx/vecrax-hf-tokenizers/branch/main/graph/badge.svg)](https://codecov.io/gh/ergosumx/vecrax-hf-tokenizers)
 
-.NET bindings for HuggingFace Tokenizers and OpenAI TikToken with comprehensive testing and multi-platform support.
+.NET bindings for HuggingFace Tokenizers with comprehensive testing and multi-platform support.
+
+## Why ErgoX.TokenX?
+
+**TL;DR**: Microsoft.ML.Tokenizers requires manual configuration per model. ErgoX.TokenX provides seamless `AutoTokenizer.Load()` with HuggingFace ecosystem compatibility — **2,500+ Python-.NET tests verified** with byte-to-byte Python parity.
+
+### The Problem with Microsoft.ML.Tokenizers
+
+While Microsoft.ML.Tokenizers offers **exceptional raw performance** for GPT models ([see benchmarks](benchmarks/BENCHMARK_REPORT.md)), working with it reveals significant friction:
+
+#### 🔍 **HuggingFace Tokenizer Structure**
+
+When you download a HuggingFace tokenizer (`AutoTokenizer.from_pretrained` in Python), you typically get:
+
+```
+model-name/
+├── tokenizer.json          # Serialized tokenizer (model, pre-tokenizer, normalizer, post-processor)
+├── tokenizer_config.json   # Metadata (model type, special tokens, casing, padding, truncation)
+├── vocab.json              # BPE-based tokenizers (GPT-2, RoBERTa)
+├── merges.txt              # BPE merge rules
+└── special_tokens_map.json # Maps [CLS], [SEP], [PAD], [BOS], [EOS], etc.
+```
+
+**HuggingFace's Python library merges these automatically**. In Microsoft.ML.Tokenizers, **you must be explicit** — manually loading vocabulary files, configuring special tokens, and handling model-specific quirks.
+
+#### ⚠️ **Pain Points Found**
+
+1. **Missing Special Tokens**: Special tokens required by models are not automatically configured. You need manual attention to get it right.
+2. **No AutoTokenizer**: The `AutoTokenizer(...)` pattern was missing, while HuggingFace's ecosystem was rapidly growing. .NET lagged behind.
+3. **No Chat Templates**: Instruction-tuned models (Llama, Mistral, Qwen) require chat templates — outside tokenizer scope in Microsoft.ML, but **essential** for real-world use.
+4. **Limited Pre/Post-Processing**: Advanced tokenization pipelines (preprocessing, postprocessing) are difficult to work with.
+5. **Complex Overflow Handling**: Token overflow scenarios and advanced use cases require significant boilerplate.
+
+#### 📉 **Real-World Impact**
+
+After replacing HuggingFace's tokenizers with Microsoft.ML.Tokenizers in Wave2Vec and Whisper models, **word error ratio decreased** — subtle special token handling differences caused accuracy improvement.
+
+### The ErgoX.TokenX Solution
+
+**Simple approach**: HuggingFace's **Rust implementation** of Tokenizers is ported via **C FFI bindings** into C#.
+
+#### ✅ **What You Get**
+
+- **One-Line Loading**: `AutoTokenizer.Load("model-name")` — works like Python
+- **2,500+ Tests Verified**: Byte-to-byte parity with Python HuggingFace Transformers
+- **SHA256 Hash Verification**: Every token output verified against Python reference (2,500+ test cases)
+- **Chat Templates**: Built-in support for Llama 3, Mistral, Qwen, and custom formats
+- **Multi-Modal Support**: Whisper (ASR), CLIP (vision), LayoutLM (documents), TrOCR (OCR)
+- **Advanced Features**:
+  - Token offsets for NER/question answering
+  - Truncation and padding strategies
+  - Attention masks, type IDs, special token handling
+  - Pre-tokenization and post-processing pipelines
+- **Production-Proven**: Internally used since **May 2024** without revisiting alternatives
+
+```csharp
+// Microsoft.ML.Tokenizers - Manual configuration required
+var vocab = File.ReadAllText("vocab.json");
+var merges = File.ReadAllText("merges.txt");
+var tokenizer = /* ...manual setup... */;
+
+// ErgoX.TokenX - One line
+var tokenizer = AutoTokenizer.Load("bert-base-uncased");
+```
+
+#### ⏱️ **When My Observations May Be Outdated**
+
+This project was developed internally in **May 2025** for key implementations. Microsoft.ML.Tokenizers may have evolved since then, but I never revisited alternatives — **ErgoX.TokenX met all my needs**.
+
+If you're choosing today:
+- ✅ **High-throughput GPT-only services** → Consider Microsoft.ML (accept manual config)
+- ✅ **HuggingFace ecosystem compatibility** → Use ErgoX.TokenX (for productivity)
+- ✅ **Multi-modal models (Whisper, CLIP, etc.)** → Use ErgoX.TokenX (only option)
 
 ## Features
 
@@ -15,58 +87,94 @@
 ✅ **Test reports** - Published with every release  
 ✅ **Code coverage** - Tracked via Codecov  
 ✅ **Sequence decoder combinator** - Compose native decoders from .NET  
+✅ **Performance benchmarks** - [Comprehensive comparison vs Microsoft.ML.Tokenizers](benchmarks/BENCHMARK_REPORT.md)  
 
 ## Quick Start
 
 ### Installation
 
-Download the latest release for your platform:
+#### Option 1: NuGet Package (Recommended)
+
+```bash
+dotnet add package ErgoX.TokenX.HuggingFace
+```
+
+The package includes pre-built native libraries for all supported platforms (Windows, Linux, macOS x64/ARM64).
+
+#### Option 2: Manual Installation from Releases
+
+Download the latest release from [GitHub Releases](https://github.com/ergosumx/vecrax-hf-tokenizers/releases):
 
 - **Windows x64**: `tokenizers-c-win-x64.zip`
 - **Linux x64**: `tokenizers-c-linux-x64.tar.gz`
 - **macOS x64**: `tokenizers-c-osx-x64.tar.gz`
 - **macOS ARM64**: `tokenizers-c-osx-arm64.tar.gz`
 
-Extract the native library to your project's runtime folder:
+Extract and place native libraries in your project:
 
 ```
-runtimes/
-   win-x64/native/tokenx_bridge.dll
-   linux-x64/native/libtokenx_bridge.so
-   osx-x64/native/libtokenx_bridge.dylib
+YourProject/
+└── runtimes/
+    ├── win-x64/native/tokenx_bridge.dll
+    ├── linux-x64/native/libtokenx_bridge.so
+    └── osx-x64/native/libtokenx_bridge.dylib
 ```
 
-### Usage
+### Basic Usage
+
+#### HuggingFace Tokenizers
 
 ```csharp
 using ErgoX.TokenX.HuggingFace;
 
-// Load tokenizer from JSON
-var tokenizer = Tokenizer.FromFile("tokenizer.json");
+// Load tokenizer automatically (like Python's AutoTokenizer)
+using var tokenizer = AutoTokenizer.Load("bert-base-uncased");
 
 // Encode text
-var encoding = tokenizer.Encode("Hello, world!");
+var encoding = tokenizer.Tokenizer.Encode("Hello, world!", addSpecialTokens: true);
 Console.WriteLine($"Tokens: {string.Join(", ", encoding.Tokens)}");
 Console.WriteLine($"IDs: {string.Join(", ", encoding.Ids)}");
 
 // Decode
-var decoded = tokenizer.Decode(encoding.Ids);
+var decoded = tokenizer.Tokenizer.Decode(encoding.Ids, skipSpecialTokens: true);
 Console.WriteLine($"Decoded: {decoded}");
 ```
 
-### Hugging Face Examples
+> **Note**: For OpenAI GPT models, consider using Microsoft.ML.Tokenizers which provides `TiktokenTokenizer` class.
 
-The repository ships ready-to-run console samples that exercise the `AutoTokenizer` pipeline against the archived assets in
-`examples/.models`:
+### Running Examples
 
-- `dotnet run --project examples/HuggingFace/AllMiniLmL6V2Console` – single sentence embedding with `all-minilm-l6-v2`.
-- `dotnet run --project examples/HuggingFace/E5SmallV2Console` – query/passage batching with `e5-small-v2`.
-- `dotnet run --project examples/HuggingFace/MultilingualE5SmallConsole` – multilingual inputs with `multilingual-e5-small`.
-- `dotnet run --project examples/HuggingFace/AutoTokenizerPipelineExplorer` – inspect tokenizer metadata across the models.
-- `dotnet run --project examples/HuggingFace/WhisperTinyConsole` – transcribe `.data/wav` audio snippets with the Whisper Tiny encoder and decoder ONNX pair.
+The repository includes ready-to-run examples with pre-configured models:
 
-Each sample resolves `tokenizer_config.json`, `tokenizer.json`, special tokens, and optional generation defaults directly from the
-local model snapshot so they can be executed offline.
+```bash
+# Clone repository
+git clone https://github.com/ergosumx/vecrax-hf-tokenizers
+cd vecrax-hf-tokenizers
+
+# HuggingFace comprehensive quickstart (16 examples)
+cd examples/HuggingFace/Quickstart
+dotnet run
+
+# Other examples (require model downloads)
+dotnet run --project examples/HuggingFace/AllMiniLmL6V2Console
+dotnet run --project examples/HuggingFace/E5SmallV2Console
+dotnet run --project examples/HuggingFace/AutoTokenizerPipelineExplorer
+```
+
+### Quickstart Examples Overview
+
+#### 📗 HuggingFace Tokenizer Quickstart
+**16 comprehensive examples** demonstrating:
+- Basic tokenization (WordPiece, Unigram, BPE)
+- Padding and truncation strategies
+- Text pair encoding for classification
+- Attention masks, type IDs, offset mapping
+- **Chat template rendering** with Llama 3
+- Vocabulary access, special tokens, batch processing
+
+**Models included:** `all-minilm-l6-v2`, `t5-small`, `meta-llama-3-8b-instruct`
+
+**Documentation**: [Quickstart README](examples/HuggingFace/Quickstart/README.md) | [Full Docs](docs/HuggingFace/quickstart.md)
 
 ## Development
 
@@ -108,14 +216,8 @@ dotnet test --configuration Release
 # Refresh HuggingFace parity fixtures (requires transformers/tokenizers)
 python tests/Py/Huggingface/generate_benchmarks.py
 
-# Refresh TikToken parity fixtures (requires the 'tiktoken' package)
-python -m pip install -q tiktoken
-python tests/Py/OpenAI/Tiktoken/generate_benchmarks.py
+> Ensure the active Python environment includes the `transformers`, `tokenizers`, and `huggingface_hub` packages so the generators can materialize tokenizer pipelines directly from each model asset.
 
-> Ensure the active Python environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `tiktoken` packages so the generators can materialize tokenizer pipelines directly from each model asset.
-
-TikToken fixtures are written to `tests/_testdata_tiktoken/<encoding>` and power the .NET TikToken parity integration tests.
-Current fixtures cover the OpenAI encodings `gpt2`, `r50k_base`, `p50k_base`, `p50k_edit`, `cl100k_base`, `o200k_base`, and `o200k_harmony`.
 ```
 
 Running the .NET parity suite now also emits `dotnet-benchmark.json` alongside the Python fixtures in `tests/_testdata_huggingface/<model>` so you can inspect the full decoded tokens produced by the managed implementation.
@@ -171,9 +273,7 @@ Download from the [Releases](https://github.com/ergosumx/vecrax-hf-tokenizers/re
 ```
 TokenX/
 ├── .ext/
-│   ├── hf_bridge/                      # HuggingFace native bridge crate (Rust)
-│   ├── tiktoken/                       # TikToken native assets
-│   └── tt_bridge/                      # TikToken bridge crate (Rust)
+│   └── hf_bridge/                      # HuggingFace native bridge crate (Rust)
 ├── .github/
 │   ├── workflows/                      # CI/CD workflows
 │   │   ├── test-c-bindings.yml         # Rust tests + coverage
@@ -183,14 +283,53 @@ TokenX/
 │   └── TESTING-CHECKLIST.md            # Quick reference
 ├── src/
 │   ├── Common/                         # Shared utilities and abstractions
-│   ├── HuggingFace/                    # HuggingFace tokenizer bindings
-│   └── OpenAI/
-│       └── Tiktoken/                   # TikToken bindings
+│   └── HuggingFace/                    # HuggingFace tokenizer bindings
 └── tests/
    ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
-   ├── ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken.Tests/
    └── ErgoX.VecraX.ML.NLP.Tokenizers.Testing/   # Shared testing infrastructure
 ```
+
+## Performance Benchmarks
+
+**Comprehensive benchmark suite** comparing ErgoX.TokenX libraries against Microsoft.ML.Tokenizers and measuring performance across different algorithms and text sizes.
+
+### Benchmark Reports
+
+| Report | Focus | Key Findings |
+|--------|-------|--------------|
+| **[Algorithms](benchmarks/ALGORITHM_BENCHMARK.md)** | Microsoft.ML vs ErgoX.HF | ⚠️ MSML ZeroMeasurement warnings; ErgoX broader support |
+
+### Algorithm Benchmark: Microsoft.ML vs ErgoX.HuggingFace
+
+**Latest benchmark** (October 30, 2025) compares BERT WordPiece and RoBERTa BPE tokenization across text sizes (0.5KB - 5KB).
+
+#### Key Results
+
+| Library | BERT Support | RoBERTa Support | Performance | Ecosystem |
+|---------|--------------|-----------------|-------------|-----------|
+| **Microsoft.ML v1.0.3** | ✅ (manual config) | ❌ No compatible API | Sub-nanosecond ⚠️ | Limited |
+| **ErgoX.HuggingFace** | ✅ (auto-load) | ✅ Full support | Nanosecond-level | 2,500+ models |
+
+⚠️ **Critical**: Microsoft.ML produced **ZeroMeasurement warnings** (sub-nanosecond results may be measurement artifacts)
+
+**Recommendation**: Use **ErgoX.HuggingFace** for production — broader model support, reliable measurements, HuggingFace ecosystem compatibility. For OpenAI models, consider **Microsoft.ML.Tokenizers** which provides optimized `TiktokenTokenizer` implementation.
+
+**Full details**: [Algorithm Benchmark Report](benchmarks/ALGORITHM_BENCHMARK.md)
+
+### Running Benchmarks
+
+```bash
+cd benchmarks
+dotnet build -c Release
+dotnet run -c Release --no-build
+```
+
+**Runtime**: ~12-20 minutes depending on benchmark suite
+
+### Documentation
+
+- **[Benchmark README](benchmarks/README.md)** - Setup, running instructions, interpretation guide
+- **[Algorithm Comparison](benchmarks/ALGORITHM_BENCHMARK.md)** - Microsoft.ML vs ErgoX.HuggingFace (BERT, RoBERTa)
 
 ## Test Coverage
 

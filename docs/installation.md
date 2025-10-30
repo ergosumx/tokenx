@@ -1,6 +1,8 @@
 # Installation Guide
 
-This guide covers installation and setup for all three tokenizer libraries.
+This guide covers installation and setup for the HuggingFace tokenizer library.
+
+> **Note:** For OpenAI GPT models, consider using [Microsoft.ML.Tokenizers](https://www.nuget.org/packages/Microsoft.ML.Tokenizers/) which provides optimized `TiktokenTokenizer` implementation.
 
 ## Prerequisites
 
@@ -12,22 +14,26 @@ This guide covers installation and setup for all three tokenizer libraries.
 
 ## NuGet Packages
 
-Install the package for your chosen tokenizer:
+Install the HuggingFace Tokenizers package:
 
 ```bash
-# HuggingFace Tokenizers
+# HuggingFace Tokenizers (includes win-x64 and linux-x64 runtimes)
 dotnet add package ErgoX.TokenX.HuggingFace
+```
 
-# Google SentencePiece
-dotnet add package ErgoX.TokenX.SentencePiece
+### Additional Runtime Packages
 
-# OpenAI TikToken
-dotnet add package ErgoX.TokenX.Tiktoken
+For platforms beyond Windows/Linux x64, install the corresponding runtime package:
+
+```bash
+dotnet add package ErgoX.TokenX.HuggingFace.Mac      # macOS
+dotnet add package ErgoX.TokenX.HuggingFace.iOS      # iOS
+dotnet add package ErgoX.TokenX.HuggingFace.Android  # Android
 ```
 
 ## Native Library Deployment
 
-Each package includes native libraries that are automatically deployed to your runtime folder during build:
+The package includes native libraries that are automatically deployed to your runtime folder during build:
 
 ```
 YourProject/
@@ -37,19 +43,13 @@ YourProject/
 │           └── runtimes/
 │               ├── win-x64/
 │               │   └── native/
-│               │       ├── tokenx_bridge.dll
-│               │       ├── libsentencepiece.dll
-│               │       └── tiktoken.dll
+│               │       └── tokenx_bridge.dll
 │               ├── linux-x64/
 │               │   └── native/
-│               │       ├── libtokenx_bridge.so
-│               │       ├── libsentencepiece.so
-│               │       └── libtiktoken.so
+│               │       └── libtokenx_bridge.so
 │               └── osx-x64/
 │                   └── native/
-│                       ├── libtokenx_bridge.dylib
-│                       ├── libsentencepiece.dylib
-│                       └── libtiktoken.dylib
+│                       └── libtokenx_bridge.dylib
 ```
 
 The .NET runtime automatically loads the correct native library for your platform.
@@ -75,50 +75,7 @@ catch (Exception ex)
 }
 ```
 
-### Verify SentencePiece Installation
 
-```csharp
-using ErgoX.TokenX.SentencePiece.Processing;
-using System;
-
-// Test basic functionality
-try
-{
-    using var processor = new SentencePieceProcessor();
-    Console.WriteLine("✓ Google SentencePiece installed successfully");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"✗ Installation failed: {ex.Message}");
-}
-```
-
-### Verify TikToken Installation
-
-```csharp
-using ErgoX.TokenX.Tiktoken;
-using System;
-
-// Test basic functionality
-try
-{
-    var mergeableRanks = new[] 
-    { 
-        new TiktokenMergeableRank(new byte[] { 104 }, 0)  // 'h'
-    };
-    var specialTokens = new Dictionary<string, int>();
-    using var encoding = TiktokenEncoding.Create(
-        "test", 
-        ".*", 
-        mergeableRanks, 
-        specialTokens);
-    Console.WriteLine("✓ OpenAI TikToken installed successfully");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"✗ Installation failed: {ex.Message}");
-}
-```
 
 ## Model Files
 
@@ -162,25 +119,7 @@ processor.Load("path/to/spiece.model");
 - mT5: `google/mt5-small`, `google/mt5-base`
 - BERT multilingual: Model directories contain `sentencepiece.bpe.model`
 
-### TikToken Vocabularies
 
-Download `.tiktoken` files from the repository or OpenAI:
-
-```csharp
-// Load vocabulary
-using var encoding = TiktokenEncodingFactory.FromTiktokenFile(
-    "gpt2",
-    pattern,
-    "path/to/mergeable_ranks.tiktoken",
-    specialTokens);
-```
-
-**Common Vocabularies:**
-- GPT-2: `gpt2` (50,257 tokens)
-- GPT-3: `r50k_base`, `p50k_base`
-- GPT-3.5/GPT-4: `cl100k_base` (100,277 tokens)
-
-Download from: https://github.com/openai/tiktoken/tree/main/tiktoken_ext
 
 ## Project Setup
 
@@ -195,9 +134,11 @@ Download from: https://github.com/openai/tiktoken/tree/main/tiktoken_ext
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Core package includes win-x64 and linux-x64 runtimes -->
     <PackageReference Include="ErgoX.TokenX.HuggingFace" Version="*" />
-    <PackageReference Include="ErgoX.TokenX.SentencePiece" Version="*" />
-    <PackageReference Include="ErgoX.TokenX.Tiktoken" Version="*" />
+    
+    <!-- Add runtime packages for additional platforms if needed -->
+    <!-- <PackageReference Include="ErgoX.TokenX.HuggingFace.Mac" Version="*" /> -->
   </ItemGroup>
 </Project>
 ```
@@ -212,7 +153,7 @@ Download from: https://github.com/openai/tiktoken/tree/main/tiktoken_ext
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Add tokenizer packages as needed -->
+    <!-- Add tokenizer packages as needed (includes win-x64 and linux-x64 runtimes) -->
     <PackageReference Include="ErgoX.TokenX.HuggingFace" Version="*" />
   </ItemGroup>
 </Project>
@@ -261,8 +202,9 @@ builder.Services.AddSingleton<ITokenizer>(sp =>
 
 ```xml
 <ItemGroup>
+  <!-- Core package includes win-x64 and linux-x64 runtimes -->
   <PackageReference Include="ErgoX.TokenX.HuggingFace" Version="1.0.0" />
-  <PackageReference Include="ErgoX.TokenX.Common" Version="1.0.0" />
+  <!-- Runtime dependencies are included automatically -->
 </ItemGroup>
 ```
 
@@ -398,7 +340,5 @@ Parallel.ForEach(texts, text =>
 ## Next Steps
 
 - [HuggingFace Documentation](huggingface/index.md)
-- [SentencePiece Documentation](sentencepiece/index.md)
-- [TikToken Documentation](tiktoken/index.md)
 - [Examples and Tutorials](examples.md)
 

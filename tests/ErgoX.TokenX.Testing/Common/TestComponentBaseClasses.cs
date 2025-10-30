@@ -17,8 +17,3 @@ public abstract class SentencePieceTestBase
 {
 }
 
-[Trait(TestTraits.Component, TestTraits.Components.Tiktoken)]
-public abstract class TiktokenTestBase
-{
-}
-

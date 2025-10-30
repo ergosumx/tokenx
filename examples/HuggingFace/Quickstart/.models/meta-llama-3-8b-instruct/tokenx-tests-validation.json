@@ -1,0 +1,414 @@
+{
+  "version": 1,
+  "model": "meta-llama-3-8b-instruct",
+  "cases": {
+    "edge-long-en": {
+      "py": {
+        "text-hash": "f08d46d7694fd743d4addc433ea1246fc46ca98d7c42c1deb956b082e81fd552",
+        "encoding-hash": "edffb0ae1f0c31d41d6897fcc6d94647f10bb712f5533239efe25fd04ece40b1"
+      }
+    },
+    "edge-medium-en": {
+      "py": {
+        "text-hash": "2bd80e4aab659ddab497748b31994e2a88fca5c1ece0fb8cc0c471f07a045781",
+        "encoding-hash": "ed56ff7d392d39957cea5b28920bee2a8bdfc97f9abbc8db0950393e2c8c3538"
+      }
+    },
+    "edge-short-en": {
+      "py": {
+        "text-hash": "991604ae5919328f42465d71e2bfe9ab5d99bf826c264845f6c677b316e32197",
+        "encoding-hash": "9b68d1b252bfad2e4d2aaeea1466f4469b74172ae5ff42008ed83c48902a5e99"
+      }
+    },
+    "edge-tiny-en": {
+      "py": {
+        "text-hash": "28f6d3910a5a8da0a6d3f7333c07dda474cfd50486d28f14d4eba583559491aa",
+        "encoding-hash": "8b8d22eb98ef3a68a0e3e01c9256da09f7e2b41a9fadd86cdb6b3229431fedd9"
+      }
+    },
+    "standard-long-de": {
+      "py": {
+        "text-hash": "138d8b5a3a67121df1543e5abe993765adc33c780c2f88766f1fa450723a2244",
+        "encoding-hash": "f2766a62705cc70d7e18d86a3f165f224d046688255f2ca1ae934f7be4c82dbd"
+      }
+    },
+    "standard-long-el": {
+      "py": {
+        "text-hash": "3080633efcfc0867685dde8f369e3bd368a0ae95378217b3ad3ff09ab8ea3324",
+        "encoding-hash": "76544353d3b63fd9f1ad71e6e90ca91952b42ec953c534f0cdce78e01829ffaf"
+      }
+    },
+    "standard-long-en": {
+      "py": {
+        "text-hash": "41be076074bbefe8f1a3f504c264225610bc0fdad7f37c0c593ea5e5c9ed39b5",
+        "encoding-hash": "6b39078f72bf8ba5b7c649c80e95cdb42814e05db26f860b9e0ffa864b461c79"
+      }
+    },
+    "standard-long-es": {
+      "py": {
+        "text-hash": "04ead13e27fea35843bd8e4f63b358a14b82c6dd70c83c18584eb1f78b8172f2",
+        "encoding-hash": "5a0edaf4bfb331de97e2e90c64052af9740e736babbbc81c308f81eaa1a3d43a"
+      }
+    },
+    "standard-long-fr": {
+      "py": {
+        "text-hash": "579feb655b1d53b35254aebebe24f8bc20704ecfbf2187796a3359d96c08d3de",
+        "encoding-hash": "4613a8ecf2718cb55f17c62c87488e915c1aba731cd4fa937cc4ed6670555aee"
+      }
+    },
+    "standard-long-hi": {
+      "py": {
+        "text-hash": "3390c0ba08e5e359249cce51215330527145e39b907dc9a49461257e166e0de8",
+        "encoding-hash": "f73aeb913ce9c1f0e851070ebc864f5ae1a068d2aa9febca020ccad7219ce549"
+      }
+    },
+    "standard-long-it": {
+      "py": {
+        "text-hash": "b24b45780b467fa05946531cd783cfdc3989e36a8753e892b85da0416e277a8e",
+        "encoding-hash": "90db1a6cfa4b4b6f79cb71505f1daead03f83cae64f53b078e2e91893d5077ca"
+      }
+    },
+    "standard-long-ja": {
+      "py": {
+        "text-hash": "4b47763167ac3029e2e4e0a7ebbd1b5006b21f2a5d186f82f4ace432b39c8190",
+        "encoding-hash": "cd0c605a203d915ffe19a843277b85a7817cbb9790b89fcc92877f6c60227e1a"
+      }
+    },
+    "standard-long-ka": {
+      "py": {
+        "text-hash": "edba8959df00396ff20f8d27e5dc61097579ccf6deb418ead9a1f38559556d8c",
+        "encoding-hash": "b0c0d44650d8edd27a21deb767857f6ae788afef4f613b54dbcce26c8b2d7cef"
+      }
+    },
+    "standard-long-ko": {
+      "py": {
+        "text-hash": "3dfa21dca020d02f366281b9f2c96abeb81ef4bdb6db7c82035849dd4fb7a878",
+        "encoding-hash": "ed271b703f73a2b49237cafa84b23c36650d849e8a77312f70c1307a6368c466"
+      }
+    },
+    "standard-long-nl": {
+      "py": {
+        "text-hash": "3bf7446c28cdd887789310a63335a22312c11ab9753b1612c7edd5121a07ec2b",
+        "encoding-hash": "a008b3c17042bbd96f5d0d9abcec4d63a86935dff713627dd8965c6b67221dc0"
+      }
+    },
+    "standard-long-pl": {
+      "py": {
+        "text-hash": "cb8bd12b8f3b355ec438bb45d7b92ad2bd99e13c570034aeab62f1831ef6fa93",
+        "encoding-hash": "84f3355a2d58d033501346d660556552e3000da265353cf7a49433182a94d471"
+      }
+    },
+    "standard-long-pt": {
+      "py": {
+        "text-hash": "f63c60c76798b0b2eabd3e48ffca2edb5931c95edf2a9e6c0a628538bc31851f",
+        "encoding-hash": "0a08d1af488e95e0a334ea57709f59ee9e8a8f6049b2327f41ad210537de044f"
+      }
+    },
+    "standard-long-ta": {
+      "py": {
+        "text-hash": "67a0539ab88be8ca47273d35e0337e8f82c5eb1c256e5e17abf22e99eacf6055",
+        "encoding-hash": "35ddfb6a32779957e6c66e5ef3673320b807a115e40834dd63e5de3cebe777a3"
+      }
+    },
+    "standard-long-te": {
+      "py": {
+        "text-hash": "b24183543ed510715cac4821bd1a90e9dc51f9c467788a846d4b019e95c926c4",
+        "encoding-hash": "6358dc404afe04cfbe190c9b8d44a2e052399ea2b13e87c79bde5b347b9c5594"
+      }
+    },
+    "standard-long-zh": {
+      "py": {
+        "text-hash": "8a6018cbc3b2cc2dd5d8ffd9e664a575c8c0885493d8c24fa0113e34726624a4",
+        "encoding-hash": "9d6af9a14d4b9b139e9a10b580dfaf4f509ddf363be94a89d97afb435ab3e9ec"
+      }
+    },
+    "standard-medium-de": {
+      "py": {
+        "text-hash": "d12da41fd23eafa361a36c5e43351392826f2a0ba1be73065d7168db65df0e44",
+        "encoding-hash": "ae921d0d60afc3fefe28df4511977233a6d5d7ebec99bf2c9e82f890564da98e"
+      }
+    },
+    "standard-medium-el": {
+      "py": {
+        "text-hash": "50b43f1d17e42169593e9289e6390b7a95c2438ce3ef5e6f1e6c4a37ca20cc31",
+        "encoding-hash": "45a1c376f89e1f238e1ef7b684f877c37b169829ed9ddeee52b0989cb1a08d9e"
+      }
+    },
+    "standard-medium-en": {
+      "py": {
+        "text-hash": "051173694e5fe18b63040c24fa87197c67ec65a7ebfbfcaded708638a482b1c0",
+        "encoding-hash": "fe9b5a0882faa87d6b0defc1be7e06e674309c23a5febbfd5cffef7b337e0828"
+      }
+    },
+    "standard-medium-es": {
+      "py": {
+        "text-hash": "18244749106cc9135be65d753fb2e02da1aa54f5dc91a24945c0a90afcb97f06",
+        "encoding-hash": "ee39011a050ca29b4d5a9ad918ffdbafd20bbf10ea15ae51875947561925af6e"
+      }
+    },
+    "standard-medium-fr": {
+      "py": {
+        "text-hash": "812058d7d800dbe329dec738919239eb64cd84a082156d992619d84dde95af67",
+        "encoding-hash": "9c68bc3ffc535d2dd68c921f3e8a3f65b82e8877247a093b69a1d71a386a122c"
+      }
+    },
+    "standard-medium-hi": {
+      "py": {
+        "text-hash": "0623b1ebf70cc363eee0e18a1592b4a17aa696f03760b87e65e02b6110d7d4d2",
+        "encoding-hash": "e2993c7e9f454d47403ada9fce183f050689e4c86557e5ee0e8688f451045eac"
+      }
+    },
+    "standard-medium-it": {
+      "py": {
+        "text-hash": "0c7e74e8c85aafcc210fa669f81f0d3db2c9015f2c7d307a058d3b3d361bf1ac",
+        "encoding-hash": "158264da12804bab3a5260fd005e01bf4ce3d7b43121d4e9ba8871eebb2d5c68"
+      }
+    },
+    "standard-medium-ja": {
+      "py": {
+        "text-hash": "47b1ded6df07cc483775a4241cf1b44f2797ba5870f98f63e0a7682b9a63b619",
+        "encoding-hash": "d62587b6e0c09e0332972c3c18cb47253ccf93393f4a46251d7c6bbcd000e1f1"
+      }
+    },
+    "standard-medium-ka": {
+      "py": {
+        "text-hash": "fa52d85fe1bb9d0d6f9dc2b411dff991d57c0f9bfc81976d3037633bc41ce8d8",
+        "encoding-hash": "7a375fa382b7e24c2b85ec5604ce7b76cb67f4035f939fecab249062980af985"
+      }
+    },
+    "standard-medium-ko": {
+      "py": {
+        "text-hash": "ecdd0af20ce6ed05d3fa1bffc509da44afc647515017833fe9d95b7d96c9f7c4",
+        "encoding-hash": "21ab8e5df4e248d0c568abcb40ec63846cc7db6c69a137bc05d335af70bc6fa1"
+      }
+    },
+    "standard-medium-nl": {
+      "py": {
+        "text-hash": "cfbc151044ce066ca8aba939ceecf532ef576e09c0677630ec42291a7fe36538",
+        "encoding-hash": "aa5d72062fa150c3076551700375e5f397b466196144b388b42ec3203e250ce0"
+      }
+    },
+    "standard-medium-pl": {
+      "py": {
+        "text-hash": "d91b3ce77835b00dd0f7bba701a5796dc3cde0c845ed8b82e32fc8dac634cb07",
+        "encoding-hash": "d9d49c39dbbf1bdcd9f2edf22633a74c7372254fc1bf2f3c7d507375e9a09aa2"
+      }
+    },
+    "standard-medium-pt": {
+      "py": {
+        "text-hash": "18957f8d0d906888b00bb5c6803527e007e352615e1e9e644c8cb4bee449497f",
+        "encoding-hash": "14943ca603d1e256cce498e75ffd0a1396a5763f67302a3eff3b479ab34b0baf"
+      }
+    },
+    "standard-medium-ta": {
+      "py": {
+        "text-hash": "26eec9d7767f6a7741e6929a29e3d89981f3da53edb8a61e10e5446eff61feb3",
+        "encoding-hash": "ced33ec40704116d6cc11f12c27b4098e07e36d0f06e633fc231cb8e7139e141"
+      }
+    },
+    "standard-medium-te": {
+      "py": {
+        "text-hash": "0310d26e198eefca5ad0c7b412791b6ef2bc2e96acdd0b8378ee2e08fcf6756a",
+        "encoding-hash": "2cc1327764a74e567431287f1c7bfc767a2e340811a091895d9bdaf19a33cf3b"
+      }
+    },
+    "standard-medium-zh": {
+      "py": {
+        "text-hash": "8aa7b9e599ca483ed8f4c1078c2e2883383954a4302a3eb36a5a79acbd49925c",
+        "encoding-hash": "c0338f32f1cb84fb9873b0cdb7dec20c737b73e88a33e126bbbb423f2ab0e0fc"
+      }
+    },
+    "standard-short-de": {
+      "py": {
+        "text-hash": "bda8a5fb1396ef1eabe4ff17cc886dfaa343f49d4827960b59b992277a116556",
+        "encoding-hash": "d71e67ad658c28c5af031c1a85774ddaa0ec2e64bb8146666441743c82b0dce6"
+      }
+    },
+    "standard-short-el": {
+      "py": {
+        "text-hash": "ea5d04e244b8bdab39090519cd885e39c056d1976588c04eff31065412af79e0",
+        "encoding-hash": "38acc304d2dda1b9dc8b6e3e0af94f9a442528e3f704a30e0e3573cdc098189e"
+      }
+    },
+    "standard-short-en": {
+      "py": {
+        "text-hash": "f3a453c8f6d932f4241d07f34e41cd151ae2ab3f01b7ea1b454a84865325f154",
+        "encoding-hash": "ec23d268953478b5bb5ac849c4bf1343e4f3fb1a7158854bac28cabd21ad50b5"
+      }
+    },
+    "standard-short-es": {
+      "py": {
+        "text-hash": "7773a10130466c2573ceee21e2c4f6074aacbf17be0f0b613dca0d8330774af2",
+        "encoding-hash": "c1d9ddd6b1bb8ad6e5e328f6f64d3edb099ee18c56f0e6acbaaac30259731602"
+      }
+    },
+    "standard-short-fr": {
+      "py": {
+        "text-hash": "470e4dc16b8ebca221580380a4551c5fa55e4d4ad6b8b5e313bc52cce564ec90",
+        "encoding-hash": "86d8a5b8402ca94c9256f40760c1f612e826062bd1c22ab9d74ed22ce450aaf1"
+      }
+    },
+    "standard-short-hi": {
+      "py": {
+        "text-hash": "1541285e184221139445000a5e4231c551d8c37a1282ad36c7cbd3512fd05034",
+        "encoding-hash": "4b8f04ab383c2762092f147d81530e1d7d172ba7d1ac4f8bbb67af20d7903847"
+      }
+    },
+    "standard-short-it": {
+      "py": {
+        "text-hash": "0761bab7f9cddf744ee5b8327d5df10544528e67dcad8a71919ee8c453f83fee",
+        "encoding-hash": "62264a78dd491cee0b52951b5bf3b6cbb6be929d2d8a8d188a0b7f4ba283d003"
+      }
+    },
+    "standard-short-ja": {
+      "py": {
+        "text-hash": "87eb7a62b4d6784d672be006ab4fd9cf72f6d4e98b68558f7b62f192ed814e51",
+        "encoding-hash": "1e93cb1ff3893e1dcd2622041083ca79540a5df24b02fb7d3a625b74f47ba971"
+      }
+    },
+    "standard-short-ka": {
+      "py": {
+        "text-hash": "1e00e407807b5f92072640ca6d3c380d89075ee379639d28c4e8bec9422f8c89",
+        "encoding-hash": "f9e4a4f3c3e8434cb8399a947eec34bcd46e41c3bb168d1f9878ea98b84c8a16"
+      }
+    },
+    "standard-short-ko": {
+      "py": {
+        "text-hash": "bd8b5311642c69a1bca2540f82ce201dfd805eeb0257a7196cbcb2b7ab10b916",
+        "encoding-hash": "9d3cabf055f044fff3c5f2da8f527d6cc668097761177cbea40126c50e1319dd"
+      }
+    },
+    "standard-short-nl": {
+      "py": {
+        "text-hash": "08ee0cc9a0bf93cb28504130a47fb9f665567dfa7f455d3a826b6dd59c17c794",
+        "encoding-hash": "4054a002e23b728e3ba98318cbf4be4cff525767fcc4350731629b50afc52392"
+      }
+    },
+    "standard-short-pl": {
+      "py": {
+        "text-hash": "0d86e15973ca177ee756233a8b260cdf51546cba43fd15877b411f98edb63d0b",
+        "encoding-hash": "e4d71225fcc6df127ee7d315df8bc3f59819f35bdae695ccb5e89c8dadd8963e"
+      }
+    },
+    "standard-short-pt": {
+      "py": {
+        "text-hash": "b38063adbec79cf03df0de36628919d85972ae9eeb1c59fb6eaed7028816ef83",
+        "encoding-hash": "402425d0459d92000182373d4589df2b8996d31279e4158b74bd16d599f15c3a"
+      }
+    },
+    "standard-short-ta": {
+      "py": {
+        "text-hash": "f47f14bbcdc1efe11d7d6df98423ec74cf65fe6e26582ec79d1ac1dbc9d126b3",
+        "encoding-hash": "5a8c24c947119eb507354d0a98765cf6b340a2cd22ce592498655c26c543b85e"
+      }
+    },
+    "standard-short-te": {
+      "py": {
+        "text-hash": "5196b5e7feef8ad7cc1dfa2a1a1160a16229e397a5b202566291b349072319d6",
+        "encoding-hash": "c4a403508b020ad351a107286d7365ad6ce25a776e89cd6d32ba49e1407105f4"
+      }
+    },
+    "standard-short-zh": {
+      "py": {
+        "text-hash": "e0b7cad594aed63c9982d2615786a052dbf2c12c582cac49ec7ffd3d3564d57c",
+        "encoding-hash": "8a458fcbfce31423c707866168efe46b6ffd4d4fd36b9208fe68573fece587da"
+      }
+    },
+    "standard-tiny-de": {
+      "py": {
+        "text-hash": "7d98199a68f4cba45941c9a97f50f252eceb958cae71c68efeea5c53ed9d6fcb",
+        "encoding-hash": "1b28d62ec76ba7353fa20aafc6b541bd2e8f9708086df7ad248e014cb3b89a2f"
+      }
+    },
+    "standard-tiny-el": {
+      "py": {
+        "text-hash": "418a9f955f9fb79b5c0dfeeeb00e5a8bcd1457c6d0676844ac7a67060877276d",
+        "encoding-hash": "1800029e6b3d22cccafa56d8d1f8f21ac56bda100a865bc0570ec232326c64c1"
+      }
+    },
+    "standard-tiny-en": {
+      "py": {
+        "text-hash": "69da2cd37d5d832a631647fad8a2babd68a22efe0c42fa12343aeef3f424de70",
+        "encoding-hash": "95ac7328059f1b0db44adc1365a935bec9759819d3b57e0632a377f86affaa34"
+      }
+    },
+    "standard-tiny-es": {
+      "py": {
+        "text-hash": "0b0268a4ca7e431f85cb481eac9310534ccd361e34d0bd277dce2fcacf911025",
+        "encoding-hash": "63da289bcd7fcc04888aa93955841f988bc4bcc5a11d2606c3a431f04bb84244"
+      }
+    },
+    "standard-tiny-fr": {
+      "py": {
+        "text-hash": "0c8f56b0e54ce7160d7f55043ed6d51f94b4a0a0ad5de125bd1fabe06622872c",
+        "encoding-hash": "5d576da0293cb7e9ea147c84e2cf2d479a8199a110e3ee79db0bc6d6ffdb074b"
+      }
+    },
+    "standard-tiny-hi": {
+      "py": {
+        "text-hash": "4934896bb3eb6ccfb6419875f344126c89dac40a66c5f399e5153d7f326e453b",
+        "encoding-hash": "3a0e8ed8bf303fce59e16553d92e932426904eefb94e5d356735b6f34689cbd6"
+      }
+    },
+    "standard-tiny-it": {
+      "py": {
+        "text-hash": "f17d2aeb1e5499c5ff687702bbbf9af2e3381b5bbe156b4d31009b3ba3091ec3",
+        "encoding-hash": "f6968a1842305d78a85e49e4b35b62b20422ffe5b94c76cd9509c1290166dbb4"
+      }
+    },
+    "standard-tiny-ja": {
+      "py": {
+        "text-hash": "149df1064cff4b3bc49f11b3f662cd8f3a2c248aaf38816225bf9537876b83c5",
+        "encoding-hash": "e4aa96ad0764a1a6d2585dc3651810a88fc379ebe649dfd776e8580166a9934c"
+      }
+    },
+    "standard-tiny-ka": {
+      "py": {
+        "text-hash": "448275c512100bd422cd2517bbd7bfde1c6b917b1910ca5ee0eec740eccb8bb5",
+        "encoding-hash": "6e520f725eb462d6339ffe50484f0fc2e9c74e3bf31cf6abb97c075affc43b23"
+      }
+    },
+    "standard-tiny-ko": {
+      "py": {
+        "text-hash": "b44def9f209bac971b3f1024a4f6912c7e12fa9aafe163532594f35f5b5d5fb2",
+        "encoding-hash": "9a5fa8e2d625c2c82e3363d05292a226a0a96f08ecf63539d4816794700bc6bc"
+      }
+    },
+    "standard-tiny-nl": {
+      "py": {
+        "text-hash": "e64b8a1cbb4b3c7eb3d5f0744c303e6d40658ee8841904b96ca4567098744d83",
+        "encoding-hash": "dfa903a0a6e1d9dc58fbfb5c45af85d54668ced2ec796c26c2294fe312144781"
+      }
+    },
+    "standard-tiny-pl": {
+      "py": {
+        "text-hash": "1441cb5ed0e431bc16a05495620e7123a07ca57fee8edc51041e1b88f5bca6d0",
+        "encoding-hash": "1d03187372acae72abe71ecb29f24ad4ba0258c1d0ed2611725ffcd764c0d448"
+      }
+    },
+    "standard-tiny-pt": {
+      "py": {
+        "text-hash": "b355fcb302304fdfbf9e3267147ba9bf2700b1e2ed961661373389839325cb76",
+        "encoding-hash": "457f03b477b31deaf24994575ceae21006325cc2d27cc0ebf868500e97d8733a"
+      }
+    },
+    "standard-tiny-ta": {
+      "py": {
+        "text-hash": "d3fec0a7a54a347f081072555916c37deb2725a3ba2f4b558632e30652fbd9a4",
+        "encoding-hash": "93a4b1fd3857553195b68aeb0e946f1f29bca9bf7ea51b9dea665f7a7c9a7d99"
+      }
+    },
+    "standard-tiny-te": {
+      "py": {
+        "text-hash": "79531bca48c552e9eeeb84be83eafbde90e8bc4cbddf0ab5efde8bf800b692a1",
+        "encoding-hash": "610d25272284db5b65ac4108d6c7fb4eefc5c89121e6b0d762138dbd7cff7f42"
+      }
+    },
+    "standard-tiny-zh": {
+      "py": {
+        "text-hash": "8ddaea491b05835862520cb0d816c3fb39c656fb27cd3049bb37b1d302c6c35c",
+        "encoding-hash": "075de0ca25e828cdf455ab9636e39d1f75408db54250dcfdb312795e5a8a4a80"
+      }
+    }
+  }
+}

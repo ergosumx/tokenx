@@ -1,5 +1,5 @@
 theme: jekyll-theme-cayman
-title: ErgoX TokenX Tokenizers
+title: ErgoX VecraX ML NLP Tokenizers
 description: High-performance NLP tokenization for .NET
 show_downloads: false
 
@@ -9,8 +9,6 @@ navigation:
     url: /
   - title: HuggingFace
     url: /huggingface/
-  - title: SentencePiece
-    url: /sentencepiece/
   - title: TikToken
     url: /tiktoken/
   - title: Installation
