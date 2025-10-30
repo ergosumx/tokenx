@@ -4,12 +4,12 @@
 [![.NET Tests](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml/badge.svg)](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml)
 [![codecov](https://codecov.io/gh/ergosumx/vecrax-hf-tokenizers/branch/main/graph/badge.svg)](https://codecov.io/gh/ergosumx/vecrax-hf-tokenizers)
 
-.NET bindings for the HuggingFace Tokenizers library with comprehensive testing and multi-platform support.
+.NET bindings for HuggingFace Tokenizers and OpenAI TikToken with comprehensive testing and multi-platform support.
 
 ## Features
 
 ✅ **Cross-platform** - Linux, Windows, macOS (x64 & ARM64)  
-✅ **185 comprehensive tests** - 184 passing, 1 skipped  
+✅ **Extensive test coverage** across Linux, Windows, and macOS  
 ✅ **Rust FFI bindings** - High-performance C bindings layer  
 ✅ **CI/CD integration** - Automated testing and releases  
 ✅ **Test reports** - Published with every release  
@@ -96,7 +96,7 @@ dotnet build --configuration Release
 
 ```bash
 # Restore sanitized tokenizer fixtures (skips network downloads)
-python tests/Py/Huggingface/restore_test_data.py --force
+python tests/Py/Common/restore_test_data.py --force
 
 # Run Rust tests
 cd .ext/hf_bridge
@@ -105,20 +105,16 @@ cargo test --release
 # Run .NET tests
 dotnet test --configuration Release
 
-# Refresh Python parity fixtures (required when tokenizer assets change)
-# This regenerates the benchmark JSON output using the archived assets.
-\.\.venv\Scripts\python.exe tests\Py\Huggingface\generate_benchmarks.py
+# Refresh HuggingFace parity fixtures (requires transformers/tokenizers)
+python tests/Py/Huggingface/generate_benchmarks.py
 
-# Refresh SentencePiece parity fixtures
-\.\.venv\Scripts\python.exe tests\Py\Google\SentencePeice\generate_benchmarks.py
+# Refresh TikToken parity fixtures (requires the 'tiktoken' package)
+python -m pip install -q tiktoken
+python tests/Py/OpenAI/Tiktoken/generate_benchmarks.py
 
-# Refresh TikToken parity fixtures (requires 'tiktoken' Python package)
-\.\.venv\Scripts\python.exe -m pip install -q tiktoken
-\.\.venv\Scripts\python.exe tests\Py\OpenAI\Tiktoken\generate_benchmarks.py
+> Ensure the active Python environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `tiktoken` packages so the generators can materialize tokenizer pipelines directly from each model asset.
 
-> Ensure the workspace virtual environment includes the `transformers`, `tokenizers`, `huggingface_hub`, and `sentencepiece` packages so the generators can materialize tokenizer pipelines directly from each model asset. The SentencePiece generator scans `tests/_testdata_sentencepeice` for every `*.model` vocabulary and refreshes the parity fixtures in one pass.
-
-TikToken fixtures are written to `tests/_TestData_Tiktoken/<encoding>` and power the .NET TikToken parity integration tests.
+TikToken fixtures are written to `tests/_testdata_tiktoken/<encoding>` and power the .NET TikToken parity integration tests.
 Current fixtures cover the OpenAI encodings `gpt2`, `r50k_base`, `p50k_base`, `p50k_edit`, `cl100k_base`, `o200k_base`, and `o200k_harmony`.
 ```
 
@@ -175,27 +171,25 @@ Download from the [Releases](https://github.com/ergosumx/vecrax-hf-tokenizers/re
 ```
 TokenX/
 ├── .ext/
-│   ├── hf_bridge/               # HuggingFace native bridge crate (Rust)
-│   ├── sentencepiece/           # SentencePiece native bridge crate (Rust)
-│   ├── tiktoken/                # TikToken native assets
-│   └── tt_bridge/               # TikToken bridge crate (Rust)
+│   ├── hf_bridge/                      # HuggingFace native bridge crate (Rust)
+│   ├── tiktoken/                       # TikToken native assets
+│   └── tt_bridge/                      # TikToken bridge crate (Rust)
 ├── .github/
-│   ├── workflows/               # CI/CD workflows
-│   │   ├── test-c-bindings.yml  # Rust tests + coverage
-│   │   ├── test-dotnet.yml      # .NET tests + coverage
-│   │   └── release-c-bindings.yml # Multi-platform release
-│   ├── CI-CD-WORKFLOWS.md       # CI/CD documentation
-│   └── TESTING-CHECKLIST.md     # Quick reference
+│   ├── workflows/                      # CI/CD workflows
+│   │   ├── test-c-bindings.yml         # Rust tests + coverage
+│   │   ├── test-dotnet.yml             # .NET tests + coverage
+│   │   └── release-c-bindings.yml      # Multi-platform release
+│   ├── CI-CD-WORKFLOWS.md              # CI/CD documentation
+│   └── TESTING-CHECKLIST.md            # Quick reference
 ├── src/
-│   ├── Common/                  # Shared utilities and abstractions
-│   ├── HuggingFace/             # HuggingFace tokenizer bindings
-│   ├── SentencePiece/           # SentencePiece bindings
-│   └── Tiktoken/                # TikToken bindings
+│   ├── Common/                         # Shared utilities and abstractions
+│   ├── HuggingFace/                    # HuggingFace tokenizer bindings
+│   └── OpenAI/
+│       └── Tiktoken/                   # TikToken bindings
 └── tests/
-   ├── ErgoX.TokenX.HuggingFace.Tests/
-   ├── ErgoX.TokenX.SentencePiece.Tests/
-   ├── ErgoX.TokenX.Tiktoken.Tests/
-   └── ErgoX.TokenX.Testing/    # Shared testing infrastructure
+   ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
+   ├── ErgoX.VecraX.ML.NLP.Tokenizers.OpenAI.Tiktoken.Tests/
+   └── ErgoX.VecraX.ML.NLP.Tokenizers.Testing/   # Shared testing infrastructure
 ```
 
 ## Test Coverage
@@ -249,18 +243,18 @@ See [TESTING-CHECKLIST.md](.github/TESTING-CHECKLIST.md) for pre-commit checklis
 
 1. **Ensure Rust library is built**:
    ```bash
-   cd .ext/tokenizers/bindings/c
+   cd .ext/hf_bridge
    cargo build --release
    ```
 
 2. **Verify DLL is in runtime folder**:
    ```powershell
-   Test-Path "src/.../runtimes/win-x64/native/tokenx_bridge.dll"
+   Test-Path "src/HuggingFace/runtimes/win-x64/native/tokenx_bridge.dll"
    ```
 
 3. **Check DLL size** (should be ~4.3 MB):
    ```powershell
-   (Get-Item "src/_hf_bridge/target/release/tokenx_bridge.dll").Length / 1MB
+   (Get-Item ".ext/hf_bridge/target/release/tokenx_bridge.dll").Length / 1MB
    ```
 
 ### CI Failures
