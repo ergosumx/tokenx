@@ -42,7 +42,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IncludeEmptyNet8Lib)' == 'true'">
+  <ItemGroup Condition="$([System.String]::Copy('$(IncludeEmptyNet8Lib)').ToLowerInvariant()) == 'true'">
     <None Include=".pack\lib\net8.0\_._" Pack="true" PackagePath="lib/net8.0/_._" Visible="false" />
   </ItemGroup>
 
