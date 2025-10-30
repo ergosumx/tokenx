@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IncludeEmptyNet8Lib)' == 'true'">
-    <None Include=".pack/lib/net8.0/_._" Pack="true" PackagePath="lib/net8.0/_._" Visible="false" />
+    <None Include=".pack\lib\net8.0\_._" Pack="true" PackagePath="lib/net8.0/_._" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
