@@ -1,9 +1,5 @@
 # ErgoX TokenX ML NLP Tokenizers
 
-[![Rust Tests](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-c-bindings.yml/badge.svg)](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-c-bindings.yml)
-[![.NET Tests](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml/badge.svg)](https://github.com/ergosumx/vecrax-hf-tokenizers/actions/workflows/test-dotnet.yml)
-[![codecov](https://codecov.io/gh/ergosumx/vecrax-hf-tokenizers/branch/main/graph/badge.svg)](https://codecov.io/gh/ergosumx/vecrax-hf-tokenizers)
-
 .NET bindings for HuggingFace Tokenizers with comprehensive testing and multi-platform support.
 
 ## Why ErgoX.TokenX?
@@ -50,14 +46,14 @@ After replacing HuggingFace's tokenizers with Microsoft.ML.Tokenizers in Wave2Ve
 - **One-Line Loading**: `AutoTokenizer.Load("model-name")` — works like Python
 - **2,500+ Tests Verified**: Byte-to-byte parity with Python HuggingFace Transformers
 - **SHA256 Hash Verification**: Every token output verified against Python reference (2,500+ test cases)
-- **Chat Templates**: Built-in support for Llama 3, Mistral, Qwen, and custom formats
+- **Chat Templates**: Built-in support for Huggingface chat templates
 - **Multi-Modal Support**: Whisper (ASR), CLIP (vision), LayoutLM (documents), TrOCR (OCR)
 - **Advanced Features**:
   - Token offsets for NER/question answering
   - Truncation and padding strategies
   - Attention masks, type IDs, special token handling
   - Pre-tokenization and post-processing pipelines
-- **Production-Proven**: Internally used since **May 2024** without revisiting alternatives
+- **Production-Proven**: Internally used since **May 2025** without revisiting alternatives
 
 ```csharp
 // Microsoft.ML.Tokenizers - Manual configuration required
@@ -87,7 +83,6 @@ If you're choosing today:
 ✅ **Test reports** - Published with every release  
 ✅ **Code coverage** - Tracked via Codecov  
 ✅ **Sequence decoder combinator** - Compose native decoders from .NET  
-✅ **Performance benchmarks** - [Comprehensive comparison vs Microsoft.ML.Tokenizers](benchmarks/BENCHMARK_REPORT.md)  
 
 ## Quick Start
 
@@ -285,15 +280,6 @@ TokenX/
    └── ErgoX.VecraX.ML.NLP.Tokenizers.Testing/   # Shared testing infrastructure
 ```
 
-## Test Coverage
-
-| Component | Tests | Pass Rate |
-|-----------|-------|-----------|
-| Rust Bridge (tokenx_bridge) | TBD | – |
-| .NET Integration | 37 | 100% ✅ |
-
-**Known Limitation**: 1 test skipped due to Rust library limitation with complex normalizer pipelines.
-
 ## Supported Platforms
 
 | Platform | Architecture | Status |
@@ -310,56 +296,47 @@ TokenX/
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make changes and add tests
-4. Ensure all tests pass locally
-5. Submit a pull request
+We welcome contributions. This project maintains strict 1:1 parity with the upstream HuggingFace Tokenizers Rust implementation. Any change that affects tokenization semantics must preserve byte-for-byte parity with the Python/HuggingFace reference unless explicitly documented and reviewed.
 
-CI will automatically:
-- Run tests on all platforms
-- Generate coverage reports
-- Comment on PR with results
+Primary contribution patterns
+- Routine tokenizer updates (most common): When the upstream Rust tokenizer is updated but the C FFI surface is unchanged, update the Rust crate version and rebuild the native artifacts:
+   1. Fork and create a feature branch.
+   2. Bump the tokenizer crate/Cargo dependency and update Cargo.lock/Cargo.toml as needed.
+   3. Rebuild the native bridge (`.ext/hf_bridge`) and copy the outputs to the appropriate runtimes/ folder.
+   4. Run the full parity suite and unit tests (see Testing section).
+   5. Commit changes and open a PR that references the upstream tokenizer release and lists test results.
 
-See [TESTING-CHECKLIST.md](.github/TESTING-CHECKLIST.md) for pre-commit checklist.
+- FFI or ABI changes (infrequent, higher cost): If upstream changes require modifications to the C FFI or introduce new capabilities, you must:
+   1. Open an issue describing the required change and proposed approach before implementation.
+   2. Fork and create a feature branch.
+   3. Update Rust FFI bindings and the managed interop layer. Mirror native structs exactly and add unit tests asserting sizeof/layout parity where possible.
+   4. Ensure every GCHandle, pinned buffer, and disposable resource has a verified disposal path.
+   5. Add or update end-to-end parity tests, interop smoke tests, and any size/layout assertions.
+   6. Update documentation, CHANGELOG, and bump package/native artifact versions.
+   7. Submit a PR that includes a clear migration note and the downstream test artifacts demonstrating parity.
 
-## Documentation
+Required checks for every PR
+- Run the full test suite locally:
+   - Rust tests: cargo test --release
+   - .NET tests: dotnet test --configuration Release
+   - Parity/fixtures refresh (when applicable): run Python generators only if you are updating parity fixtures and include generated artifacts in the test run.
+- Verify native outputs are placed in runtimes/*/native and referenced artifacts are updated.
+- Ensure Sonar/Analyzer findings are addressed: 0 new security/bug findings, and no build warnings (follow project's coding standards).
+- Add unit tests with >= 80% coverage for new features or changed code paths.
+- Update documentation and any example projects affected.
+- Provide a short PR checklist in the PR description listing the items above and linking to relevant upstream release notes.
 
-- **[CI/CD Workflows](.github/CI-CD-WORKFLOWS.md)** - Complete CI/CD documentation
-- **[Testing Checklist](.github/TESTING-CHECKLIST.md)** - Quick reference for testing and releases
-- **[Coding Standards](.github/instructions/ergox.engineering.coding.standards.instructions.md)** - Project coding standards
-- **[Acceptance Criteria](.github/instructions/ergox.acceptance.instructions.md)** - Quality gates
+Guidelines and best practices
+- Prefer minimal, backward-compatible changes. Maintain byte-for-byte parity unless a breaking change is approved and documented.
+- For large or invasive changes (FFI, memory model, threading), coordinate with maintainers via an issue and include performance/interop tests.
+- Never commit secrets or credentials. Use configuration providers for secrets.
+- Keep changes small and well-tested; include reproducible steps to validate local parity.
 
-## Troubleshooting
+Getting help
+- Open an issue for design discussions or if you are unsure whether a change requires FFI edits.
+- Reference the coding standards and acceptance criteria in your PR to speed review.
 
-### Tests Failing Locally
-
-1. **Ensure Rust library is built**:
-   ```bash
-   cd .ext/hf_bridge
-   cargo build --release
-   ```
-
-2. **Verify DLL is in runtime folder**:
-   ```powershell
-   Test-Path "src/HuggingFace/runtimes/win-x64/native/tokenx_bridge.dll"
-   ```
-
-3. **Check DLL size** (should be ~4.3 MB):
-   ```powershell
-   (Get-Item ".ext/hf_bridge/target/release/tokenx_bridge.dll").Length / 1MB
-   ```
-
-### CI Failures
-
-Check the [Actions](https://github.com/ergosumx/vecrax-hf-tokenizers/actions) tab for detailed logs.
-
-Common issues:
-- **Cache corruption** - Re-run workflow
-- **Network timeouts** - Re-run workflow
-- **Disk space** - Clear caches
-
-See [CI-CD-WORKFLOWS.md](.github/CI-CD-WORKFLOWS.md#troubleshooting) for detailed troubleshooting.
+Please ensure documentation and README sections are updated for any user-visible or behavioral changes introduced by your PR.
 
 ## License
 
