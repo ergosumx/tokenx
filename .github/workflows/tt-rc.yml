@@ -1,0 +1,900 @@
+name: TikToken RC Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      bridge_run_selection:
+        description: Select which TikToken Bridge Artifacts run to consume
+        required: true
+        default: latest-success
+        type: choice
+        options:
+          - latest-success
+          - latest
+          - custom-run-id
+          - custom-run-number
+      bridge_run_id:
+        description: Optional run ID when using custom-run-id
+        required: false
+      bridge_run_number:
+        description: Optional run number when using custom-run-number
+        required: false
+      branch:
+        description: Optional branch filter when locating the run
+        required: false
+
+permissions:
+  actions: read
+  contents: write
+  packages: write
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  CI: true
+
+jobs:
+  prepare:
+    name: Resolve Version & Artifacts
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).version || '' }}
+      artifacts: ${{ steps.resolve.outputs.result != '' && toJSON(fromJSON(steps.resolve.outputs.result).artifacts) || '{}' }}
+      rc_version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcVersion || '' }}
+      rc_tag: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcTag || '' }}
+      rc_number: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcNumber || '' }}
+      run_id: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).runId || '' }}
+      run_number: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).runNumber || '' }}
+      head_sha: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).headSha || '' }}
+      head_branch: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).headBranch || '' }}
+    steps:
+      - name: Resolve metadata
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const selection = core.getInput('bridge_run_selection') || 'latest-success';
+            const customRunIdInput = core.getInput('bridge_run_id');
+            const customRunNumberInput = core.getInput('bridge_run_number');
+            const branchFilter = core.getInput('branch');
+
+            const workflowFile = 'tt-bridge.yml';
+
+            const parsePositiveInt = (value, label) => {
+              const parsed = Number.parseInt(value, 10);
+              if (Number.isNaN(parsed) || parsed <= 0) {
+                core.setFailed(`Invalid ${label}: '${value}'.`);
+                return null;
+              }
+
+              return parsed;
+            };
+
+            let run = null;
+
+            if (selection === 'custom-run-id') {
+              if (!customRunIdInput) {
+                core.setFailed('bridge_run_id input is required when selection is custom-run-id.');
+                return;
+              }
+
+              const runId = parsePositiveInt(customRunIdInput, 'bridge_run_id');
+              if (!runId) {
+                return;
+              }
+
+              try {
+                const { data } = await github.rest.actions.getWorkflowRun({
+                  owner,
+                  repo,
+                  run_id: runId
+                });
+                run = data;
+              } catch (error) {
+                core.setFailed(`Unable to fetch workflow run with id ${customRunIdInput}: ${error.message}`);
+                return;
+              }
+
+              if (run.path !== `.github/workflows/${workflowFile}`) {
+                core.warning(`Selected run belongs to workflow '${run.path}', expected '.github/workflows/${workflowFile}'.`);
+              }
+            } else {
+              const listParams = {
+                owner,
+                repo,
+                workflow_id: workflowFile,
+                per_page: 100
+              };
+
+              if (branchFilter) {
+                listParams.branch = branchFilter;
+              }
+
+              let runs = [];
+              try {
+                runs = await github.paginate(github.rest.actions.listWorkflowRuns, listParams);
+              } catch (error) {
+                core.setFailed(`Unable to list TikToken Bridge Artifacts runs: ${error.message}`);
+                return;
+              }
+
+              if (runs.length === 0) {
+                core.setFailed('No workflow runs found for TikToken Bridge Artifacts.');
+                return;
+              }
+
+              if (selection === 'custom-run-number') {
+                if (!customRunNumberInput) {
+                  core.setFailed('bridge_run_number input is required when selection is custom-run-number.');
+                  return;
+                }
+
+                const desiredRunNumber = parsePositiveInt(customRunNumberInput, 'bridge_run_number');
+                if (!desiredRunNumber) {
+                  return;
+                }
+
+                run = runs.find(item => item.run_number === desiredRunNumber);
+                if (!run) {
+                  core.setFailed(`Unable to locate workflow run number ${desiredRunNumber} for ${workflowFile}.`);
+                  return;
+                }
+              } else if (selection === 'latest') {
+                run = runs.find(item => item.status === 'completed');
+                if (!run) {
+                  core.setFailed('Unable to locate a completed TikToken Bridge Artifacts run.');
+                  return;
+                }
+              } else {
+                run = runs.find(item => item.status === 'completed' && item.conclusion === 'success');
+                if (!run) {
+                  const modeDescription = branchFilter ? ` on branch '${branchFilter}'` : '';
+                  core.setFailed(`Unable to locate a successful TikToken Bridge Artifacts run${modeDescription}.`);
+                  return;
+                }
+              }
+            }
+
+            if (!run) {
+              core.setFailed('No workflow run selected.');
+              return;
+            }
+
+            if (run.status !== 'completed') {
+              core.setFailed(`Selected TikToken Bridge Artifacts run ${run.id} is not completed (status: ${run.status}).`);
+              return;
+            }
+
+            if (run.conclusion !== 'success') {
+              core.setFailed(`Selected TikToken Bridge Artifacts run ${run.id} did not succeed (conclusion: ${run.conclusion}).`);
+              return;
+            }
+
+            if (!run.head_sha) {
+              core.setFailed(`Selected TikToken Bridge Artifacts run ${run.id} is missing head SHA information.`);
+              return;
+            }
+
+            const runId = run.id;
+            core.info(`Using TikToken Bridge Artifacts run ${runId} (run_number ${run.run_number}) on branch '${run.head_branch}' with SHA ${run.head_sha}.`);
+
+            const tagPrefix = 'tt-v';
+            let version = null;
+            if (run.head_branch && run.head_branch.startsWith(tagPrefix)) {
+              version = run.head_branch.substring(tagPrefix.length);
+            }
+
+            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner,
+              repo,
+              run_id: runId,
+              per_page: 100
+            });
+
+            const artifacts = data.artifacts ?? [];
+            const targets = {
+              linux: 'x86_64-unknown-linux-gnu',
+              windows: 'x86_64-pc-windows-msvc',
+              mac_arm64: 'aarch64-apple-darwin',
+              mac_x64: 'x86_64-apple-darwin',
+              android: 'aarch64-linux-android',
+              ios: 'aarch64-apple-ios'
+            };
+
+            const map = {};
+            for (const [key, suffix] of Object.entries(targets)) {
+              const artifact = artifacts.find(item => item.name.startsWith('tokenx-tt-bridge-') && item.name.includes(suffix));
+              if (!artifact) {
+                core.setFailed(`Missing bridge artifact for target ${suffix}.`);
+                return;
+              }
+
+              if (artifact.expired) {
+                core.setFailed(`Artifact ${artifact.name} is expired and cannot be downloaded.`);
+                return;
+              }
+
+              map[key] = { id: artifact.id, name: artifact.name };
+              core.info(`Resolved artifact for ${key}: ${artifact.name} (id ${artifact.id})`);
+            }
+
+            if (!version) {
+              const linuxName = map.linux?.name ?? '';
+              const prefix = 'tokenx-tt-bridge-';
+              const suffix = `-${targets.linux}`;
+              if (linuxName.startsWith(prefix) && linuxName.includes(suffix)) {
+                const extracted = linuxName.substring(prefix.length, linuxName.indexOf(suffix));
+                version = extracted.startsWith('v') ? extracted.substring(1) : extracted;
+              }
+            }
+
+            if (!version) {
+              core.setFailed('Unable to resolve base version.');
+              return;
+            }
+
+            core.info(`Resolved base version: ${version}`);
+
+            const releasePrefix = `tt-${version}-rc.`;
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              owner,
+              repo,
+              per_page: 100
+            });
+
+            let maxRcFromReleases = 0;
+            for (const release of releases) {
+              const tag = release.tag_name ?? '';
+              if (!tag.startsWith(releasePrefix)) {
+                continue;
+              }
+
+              const suffix = tag.substring(releasePrefix.length);
+              const parsed = Number.parseInt(suffix, 10);
+              if (!Number.isNaN(parsed) && parsed > maxRcFromReleases) {
+                maxRcFromReleases = parsed;
+              }
+            }
+
+            const packageNames = [
+              'ErgoX.TokenX.Tiktoken',
+              'ErgoX.TokenX.Tiktoken.Mac',
+              'ErgoX.TokenX.Tiktoken.Android',
+              'ErgoX.TokenX.Tiktoken.iOS'
+            ];
+
+            let maxRcFromPackages = 0;
+            try {
+              const listPackageVersions = async (packageName) => {
+                try {
+                  return await github.paginate(
+                    github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg,
+                    {
+                      package_type: 'nuget',
+                      package_name: packageName,
+                      org: owner,
+                      per_page: 100
+                    }
+                  );
+                } catch (error) {
+                  if (error.status !== 404) {
+                    throw error;
+                  }
+                }
+
+                try {
+                  return await github.paginate(
+                    github.rest.packages.getAllPackageVersionsForPackageOwnedByUser,
+                    {
+                      package_type: 'nuget',
+                      package_name: packageName,
+                      username: owner,
+                      per_page: 100
+                    }
+                  );
+                } catch (error) {
+                  if (error.status !== 404) {
+                    throw error;
+                  }
+                }
+
+                return [];
+              };
+
+              for (const packageName of packageNames) {
+                const versions = await listPackageVersions(packageName);
+                for (const versionInfo of versions) {
+                  const packageVersion = versionInfo.name ?? '';
+                  if (!packageVersion.startsWith(`${version}-rc.`)) {
+                    continue;
+                  }
+                  const suffix = packageVersion.substring(`${version}-rc.`.length);
+                  const parsed = Number.parseInt(suffix, 10);
+                  if (!Number.isNaN(parsed) && parsed > maxRcFromPackages) {
+                    maxRcFromPackages = parsed;
+                  }
+                }
+              }
+            } catch (error) {
+              core.warning(`Unable to list package versions: ${error.message}`);
+            }
+
+            core.info(`Highest RC from releases: ${maxRcFromReleases}`);
+            core.info(`Highest RC from packages: ${maxRcFromPackages}`);
+
+            const maxRc = Math.max(maxRcFromReleases, maxRcFromPackages);
+            const rcNumber = maxRc + 1;
+            const rcVersion = `${version}-rc.${rcNumber}`;
+            const rcTag = `tt-${version}-rc.${rcNumber}`;
+
+            core.info(`Next RC number: ${rcNumber} (${rcVersion})`);
+            core.info(`RC tag: ${rcTag}`);
+
+            return {
+              version,
+              artifacts: map,
+              rcVersion,
+              rcTag,
+              rcNumber,
+              runId: run.id,
+              runNumber: run.run_number,
+              headSha: run.head_sha,
+              headBranch: run.head_branch
+            };
+
+  test-linux:
+    name: Test Linux
+    needs: prepare
+    if: ${{ needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full unzip
+
+      - name: Restore test assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          7z x tests/__templates.7z -otests -aoa
+          7z x tests/_tiktoken.7z -otests -aoa
+
+      - name: Download Linux runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).linux.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/linux
+
+      - name: Stage runtime binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNTIME_DIR="src/Tiktoken/runtimes/linux-x64/native"
+          DOWNLOAD_DIR="bridge_artifacts/linux"
+          archive=$(find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
+          if [ -z "$archive" ]; then
+            echo "Unable to locate runtime archive in ${DOWNLOAD_DIR}" >&2
+            exit 1
+          fi
+          extract_dir="${DOWNLOAD_DIR}/extracted"
+          mkdir -p "$extract_dir"
+          if [[ "$archive" == *.zip ]]; then
+            unzip -o "$archive" -d "$extract_dir"
+          else
+            tar -xzf "$archive" -C "$extract_dir"
+          fi
+          mkdir -p "$RUNTIME_DIR"
+          rm -f "$RUNTIME_DIR"/*
+          copied=0
+          while IFS= read -r file; do
+            cp -f "$file" "$RUNTIME_DIR/"
+            copied=1
+          done < <(find "$extract_dir" -type f)
+          if [ "$copied" -eq 0 ]; then
+            echo "No runtime files copied into ${RUNTIME_DIR}." >&2
+            exit 1
+          fi
+          ls -al "$RUNTIME_DIR"
+
+      - name: Prepare result directories
+        run: mkdir -p artifacts/TestResults
+
+      - name: Restore dependencies
+        run: dotnet restore tests/ErgoX.TokenX.Tiktoken.Tests/ErgoX.TokenX.Tiktoken.Tests.csproj --nologo
+
+      - name: Run TikToken tests (Linux)
+        working-directory: tests/ErgoX.TokenX.Tiktoken.Tests
+        run: |
+          dotnet test --configuration Release --no-restore \
+            --logger "trx;LogFileName=ErgoX.TokenX.Tiktoken.Tests.trx" \
+            --results-directory ../../artifacts/TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tt-rc-test-results-linux-${{ needs.prepare.outputs.version }}
+          path: artifacts/TestResults
+          if-no-files-found: error
+
+  test-windows:
+    name: Test Windows
+    needs: prepare
+    if: ${{ needs.prepare.result == 'success' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
+
+      - name: Install prerequisites
+        shell: pwsh
+        run: choco install 7zip --no-progress -y
+
+      - name: Restore test assets
+        shell: pwsh
+        run: |
+          $sevenZip = Join-Path $env:ProgramFiles '7-Zip\7z.exe'
+          if (-not (Test-Path $sevenZip)) {
+            Write-Error "7-Zip executable not found at $sevenZip"
+            exit 1
+          }
+          & $sevenZip x "tests\__templates.7z" "-otests" -aoa
+          & $sevenZip x "tests\_tiktoken.7z" "-otests" -aoa
+
+      - name: Download Windows runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).windows.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/windows
+
+      - name: Stage runtime binaries
+        shell: pwsh
+        run: |
+          $runtimeDir = "src\Tiktoken\runtimes\win-x64\native"
+          $downloadDir = "bridge_artifacts\windows"
+          $archive = Get-ChildItem -Path $downloadDir -File | Where-Object { $_.Name -like "*.zip" -or $_.Name -like "*.tar.gz" -or $_.Name -like "*.tgz" } | Select-Object -First 1
+          if (-not $archive) {
+            Write-Error "Unable to locate runtime archive in $downloadDir"
+            exit 1
+          }
+          $extractDir = Join-Path $downloadDir "extracted"
+          New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
+          if ($archive.Name -like "*.zip") {
+            Expand-Archive -Path $archive.FullName -DestinationPath $extractDir -Force
+          } else {
+            tar -xzf $archive.FullName -C $extractDir
+          }
+          New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
+          Get-ChildItem -Path $runtimeDir -File | Remove-Item -Force
+          $copied = $false
+          Get-ChildItem -Path $extractDir -Recurse -File | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination $runtimeDir -Force
+            $copied = $true
+          }
+          if (-not $copied) {
+            Write-Error "No runtime files were copied into $runtimeDir"
+            exit 1
+          }
+          Get-ChildItem -Path $runtimeDir
+
+      - name: Prepare result directories
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force -Path "artifacts\TestResults" | Out-Null
+
+      - name: Restore dependencies
+        shell: pwsh
+        run: dotnet restore tests/ErgoX.TokenX.Tiktoken.Tests/ErgoX.TokenX.Tiktoken.Tests.csproj --nologo
+
+      - name: Run TikToken tests (Windows)
+        working-directory: tests/ErgoX.TokenX.Tiktoken.Tests
+        shell: pwsh
+        run: |
+          dotnet test `
+            --configuration Release `
+            --no-restore `
+            --logger "trx;LogFileName=ErgoX.TokenX.Tiktoken.Tests.trx" `
+            --results-directory ..\..\artifacts\TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tt-rc-test-results-windows-${{ needs.prepare.outputs.version }}
+          path: artifacts/TestResults
+          if-no-files-found: error
+
+  test-macos:
+    name: Test macOS
+    needs: prepare
+    if: ${{ needs.prepare.result == 'success' }}
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
+
+      - name: Install prerequisites
+        run: |
+          brew update
+          brew install p7zip
+
+      - name: Restore test assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          7z x tests/__templates.7z -otests -aoa
+          7z x tests/_tiktoken.7z -otests -aoa
+
+      - name: Download macOS runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_arm64.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/macos-arm64
+
+      - name: Stage runtime binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNTIME_DIR="src/Tiktoken/runtimes/osx-arm64/native"
+          DOWNLOAD_DIR="bridge_artifacts/macos-arm64"
+          archive=$(find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
+          if [ -z "$archive" ]; then
+            echo "Unable to locate runtime archive in ${DOWNLOAD_DIR}" >&2
+            exit 1
+          fi
+          extract_dir="${DOWNLOAD_DIR}/extracted"
+          mkdir -p "$extract_dir"
+          if [[ "$archive" == *.zip ]]; then
+            unzip -o "$archive" -d "$extract_dir"
+          else
+            tar -xzf "$archive" -C "$extract_dir"
+          fi
+          mkdir -p "$RUNTIME_DIR"
+          rm -f "$RUNTIME_DIR"/*
+          copied=0
+          while IFS= read -r file; do
+            cp -f "$file" "$RUNTIME_DIR/"
+            copied=1
+          done < <(find "$extract_dir" -type f)
+          if [ "$copied" -eq 0 ]; then
+            echo "No runtime files copied into ${RUNTIME_DIR}." >&2
+            exit 1
+          fi
+          ls -al "$RUNTIME_DIR"
+
+      - name: Prepare result directories
+        run: mkdir -p artifacts/TestResults
+
+      - name: Restore dependencies
+        run: dotnet restore tests/ErgoX.TokenX.Tiktoken.Tests/ErgoX.TokenX.Tiktoken.Tests.csproj --nologo
+
+      - name: Run TikToken tests (macOS)
+        working-directory: tests/ErgoX.TokenX.Tiktoken.Tests
+        run: |
+          dotnet test --configuration Release --no-restore \
+            --logger "trx;LogFileName=ErgoX.TokenX.Tiktoken.Tests.trx" \
+            --results-directory ../../artifacts/TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tt-rc-test-results-macos-${{ needs.prepare.outputs.version }}
+          path: artifacts/TestResults
+          if-no-files-found: error
+
+  package:
+    name: Package TikToken RC
+    needs:
+      - prepare
+      - test-linux
+      - test-windows
+      - test-macos
+    if: ${{ needs.prepare.result == 'success' && needs['test-linux'].result == 'success' && needs['test-windows'].result == 'success' && needs['test-macos'].result == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      BASE_VERSION: ${{ needs.prepare.outputs.version }}
+      RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+      RC_TAG: ${{ needs.prepare.outputs.rc_tag }}
+      RC_NUMBER: ${{ needs.prepare.outputs.rc_number }}
+      WORKFLOW_HEAD_SHA: ${{ needs.prepare.outputs.head_sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.head_sha }}
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full unzip
+
+      - name: Restore test assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          7z x tests/__templates.7z -otests -aoa
+          7z x tests/_tiktoken.7z -otests -aoa
+
+      - name: Download Linux runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).linux.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/linux
+
+      - name: Download Windows runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).windows.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/windows
+
+      - name: Download macOS arm64 runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_arm64.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/macos-arm64
+
+      - name: Download macOS x64 runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_x64.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/macos-x64
+
+      - name: Download Android runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).android.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/android
+
+      - name: Download iOS runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).ios.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/ios
+
+      - name: Stage runtime binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          stage_runtime() {
+            local download_dir="$1"
+            local runtime_dir="$2"
+            local archive
+            archive=$(find "$download_dir" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
+            if [ -z "$archive" ]; then
+              echo "Unable to locate runtime archive in ${download_dir}" >&2
+              exit 1
+            }
+
+            local extract_dir="${download_dir}/extracted"
+            mkdir -p "$extract_dir"
+            if [[ "$archive" == *.zip ]]; then
+              unzip -o "$archive" -d "$extract_dir"
+            else
+              tar -xzf "$archive" -C "$extract_dir"
+            fi
+
+            local target_dir="src/Tiktoken/runtimes/${runtime_dir}"
+            mkdir -p "$target_dir"
+            rm -f "$target_dir"/*
+            local copied=0
+            while IFS= read -r file; do
+              cp -f "$file" "$target_dir/"
+              copied=1
+            done < <(find "$extract_dir" -type f)
+            if [ "$copied" -eq 0 ]; then
+              echo "No runtime files copied into ${target_dir}." >&2
+              exit 1
+            fi
+            ls -al "$target_dir"
+          }
+
+          stage_runtime "bridge_artifacts/linux" "linux-x64/native"
+          stage_runtime "bridge_artifacts/windows" "win-x64/native"
+          stage_runtime "bridge_artifacts/macos-arm64" "osx-arm64/native"
+          stage_runtime "bridge_artifacts/macos-x64" "osx-x64/native"
+          stage_runtime "bridge_artifacts/android" "android-arm64/native"
+          stage_runtime "bridge_artifacts/ios" "ios-arm64/native"
+
+      - name: Restore TikToken project
+        run: dotnet restore src/Tiktoken/ErgoX.TokenX.Tiktoken.csproj --nologo
+
+      - name: Build TikToken project
+        run: dotnet build src/Tiktoken/ErgoX.TokenX.Tiktoken.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
+
+      - name: Prepare artifact staging
+        run: |
+          mkdir -p artifacts/TestResults
+          mkdir -p artifacts/coverage
+          mkdir -p artifacts/packages
+
+      - name: Pack NuGet artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/packages
+          backup_dir=$(mktemp -d)
+          cp -r src/Tiktoken/runtimes "${backup_dir}/runtimes_full"
+
+          restore_runtimes() {
+            rm -rf src/Tiktoken/runtimes
+            cp -r "${backup_dir}/runtimes_full" src/Tiktoken/runtimes
+          }
+
+          pack_default() {
+            rm -rf src/Tiktoken/runtimes/osx-arm64 src/Tiktoken/runtimes/osx-x64 src/Tiktoken/runtimes/android-arm64 src/Tiktoken/runtimes/ios-arm64
+            dotnet pack src/Tiktoken/ErgoX.TokenX.Tiktoken.csproj --configuration Release --no-build --output artifacts/packages /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_mac() {
+            rm -rf src/Tiktoken/runtimes/linux-x64 src/Tiktoken/runtimes/win-x64 src/Tiktoken/runtimes/android-arm64 src/Tiktoken/runtimes/ios-arm64
+            dotnet pack src/Tiktoken/ErgoX.TokenX.Tiktoken.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.Tiktoken.Mac /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_android() {
+            rm -rf src/Tiktoken/runtimes/linux-x64 src/Tiktoken/runtimes/win-x64 src/Tiktoken/runtimes/osx-arm64 src/Tiktoken/runtimes/osx-x64 src/Tiktoken/runtimes/ios-arm64
+            dotnet pack src/Tiktoken/ErgoX.TokenX.Tiktoken.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.Tiktoken.Android /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_ios() {
+            rm -rf src/Tiktoken/runtimes/linux-x64 src/Tiktoken/runtimes/win-x64 src/Tiktoken/runtimes/osx-arm64 src/Tiktoken/runtimes/osx-x64 src/Tiktoken/runtimes/android-arm64
+            dotnet pack src/Tiktoken/ErgoX.TokenX.Tiktoken.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.Tiktoken.iOS /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_default
+          pack_mac
+          pack_android
+          pack_ios
+
+          rm -rf "$backup_dir"
+
+      - name: Restore TikToken tests with package
+        run: |
+          dotnet restore tests/ErgoX.TokenX.Tiktoken.Tests/ErgoX.TokenX.Tiktoken.Tests.csproj --nologo --source "$(pwd)/artifacts/packages" --source https://api.nuget.org/v3/index.json /p:UseTiktokenPackage=true /p:TiktokenPackageVersion=${RC_VERSION}
+
+      - name: Run TikToken tests with coverage (package)
+        working-directory: tests/ErgoX.TokenX.Tiktoken.Tests
+        run: |
+          dotnet test --configuration Release --no-restore --nologo \
+            -p:UseTiktokenPackage=true -p:TiktokenPackageVersion=${RC_VERSION} \
+            --results-directory ../../artifacts/TestResults \
+            --logger "trx;LogFileName=ErgoX.TokenX.Tiktoken.Tests.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Collect coverage report
+        shell: bash
+        run: |
+          set -euo pipefail
+          COVERAGE_FILE=$(find artifacts/TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "Coverage file not found." >&2
+            exit 1
+          fi
+          cp "$COVERAGE_FILE" artifacts/coverage/ErgoX.TokenX.Tiktoken.coverage.cobertura.xml
+
+      - name: Publish packages to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GITHUB_TOKEN}" ]; then
+            echo "GITHUB_TOKEN is required to publish packages." >&2
+            exit 1
+          fi
+          dotnet nuget remove source github >/dev/null 2>&1 || true
+          dotnet nuget add source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json" \
+            --name github \
+            --username "${GITHUB_REPOSITORY_OWNER}" \
+            --password "${GITHUB_TOKEN}" \
+            --store-password-in-clear-text
+
+          shopt -s nullglob
+          pushed=0
+          for package in artifacts/packages/*.nupkg; do
+            dotnet nuget push "$package" --source github --api-key "${GITHUB_TOKEN}" --skip-duplicate
+            pushed=1
+          done
+          if [ "$pushed" -eq 0 ]; then
+            echo "No packages were pushed." >&2
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "A token with 'contents: write' permission is required to create a release." >&2
+            exit 1
+          fi
+          if [ -z "${RC_TAG}" ]; then
+            echo "RC_TAG is required to create a release." >&2
+            exit 1
+          fi
+          shopt -s nullglob
+          files=(artifacts/packages/*.nupkg artifacts/packages/*.snupkg)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No package files available for the release." >&2
+            exit 1
+          fi
+          if gh release view "${RC_TAG}" >/dev/null 2>&1; then
+            echo "Release ${RC_TAG} already exists. Deleting existing release and tag before recreation." >&2
+            gh release delete "${RC_TAG}" --yes --cleanup-tag
+          fi
+          title="TikToken ${BASE_VERSION} RC ${RC_NUMBER} (Update ${RC_NUMBER})"
+          notes="Automated Update ${RC_NUMBER} for base version ${BASE_VERSION}. Packages are published to GitHub Packages."
+          target="${WORKFLOW_HEAD_SHA}"
+          if [ -z "$target" ]; then
+            target="${GITHUB_SHA}"
+          fi
+          if ! gh release create "${RC_TAG}" "${files[@]}" \
+            --title "${title}" \
+            --notes "${notes}" \
+            --prerelease \
+            --target "${target}"; then
+            status=$?
+            echo "gh release create failed. If this was a 403 response, ensure repository Actions > General > Workflow permissions are set to 'Read and write'." >&2
+            exit ${status}
+          fi
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tt-rc-coverage-${{ env.BASE_VERSION }}-rc.${{ env.RC_NUMBER }}
+          path: artifacts/coverage
+          if-no-files-found: error
+
+      - name: Upload RC packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: tt-rc-packages-${{ env.RC_VERSION }}
+          path: artifacts/packages
+          if-no-files-found: error

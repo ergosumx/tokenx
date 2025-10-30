@@ -9,6 +9,7 @@
     <IsTestProject>true</IsTestProject>
 
     <NoWarn>$(NoWarn);IDISP005;MA0032;MA0045;CA2000</NoWarn>
+    <UseTiktokenPackage Condition="'$(UseTiktokenPackage)' == ''">false</UseTiktokenPackage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +26,14 @@
   <ItemGroup>
     <ProjectReference Include="..\ErgoX.TokenX.Testing\ErgoX.TokenX.Testing.csproj" />
     <ProjectReference Include="..\..\src\Common\ErgoX.TokenX.Common.csproj" />
-  <ProjectReference Include="..\..\src\Tiktoken\ErgoX.TokenX.Tiktoken.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseTiktokenPackage)' != 'true'">
+    <ProjectReference Include="..\..\src\Tiktoken\ErgoX.TokenX.Tiktoken.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseTiktokenPackage)' == 'true'">
+    <PackageReference Include="ErgoX.TokenX.Tiktoken" Version="$(TiktokenPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
