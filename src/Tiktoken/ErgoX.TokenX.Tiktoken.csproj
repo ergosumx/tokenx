@@ -23,6 +23,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <IncludeEmptyNet8Lib>false</IncludeEmptyNet8Lib>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,8 +43,8 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition="$([System.String]::Copy('$(IncludeEmptyNet8Lib)').ToLowerInvariant()) == 'true'">
-    <None Include=".pack\lib\net8.0\_._" Pack="true" PackagePath="lib/net8.0/_._" Visible="false" />
+  <ItemGroup Condition="'$(IncludeEmptyNet8Lib)' == 'true'">
+    <None Include=".pack/lib/net8.0/_._" Pack="true" PackagePath="lib/net8.0/_._" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
