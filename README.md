@@ -33,10 +33,6 @@ model-name/
 4. **Limited Pre/Post-Processing**: Advanced tokenization pipelines (preprocessing, postprocessing) are difficult to work with.
 5. **Complex Overflow Handling**: Token overflow scenarios and advanced use cases require significant boilerplate.
 
-#### 📉 **Real-World Impact**
-
-After replacing HuggingFace's tokenizers with Microsoft.ML.Tokenizers in Wave2Vec and Whisper models, **word error ratio decreased** — subtle special token handling differences caused accuracy improvement.
-
 ### The ErgoX.TokenX Solution
 
 **Simple approach**: HuggingFace's **Rust implementation** of Tokenizers is ported via **C FFI bindings** into C#.
