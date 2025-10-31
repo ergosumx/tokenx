@@ -58,11 +58,15 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const rcVersionInput = (core.getInput('rc_version') || '').trim();
+            const rcVersionRaw = core.getInput('rc_version');
+            const rcVersionPayload = context?.payload?.inputs?.rc_version;
+            const rcVersionInput = (rcVersionRaw || rcVersionPayload || '').trim();
             if (!rcVersionInput) {
               core.setFailed('rc_version input is required.');
               return;
             }
+
+            core.info(`Resolved rc_version input: ${rcVersionInput}`);
 
             const match = rcVersionInput.match(/^(\d+\.\d+\.\d+)-rc\.(\d+)$/);
             if (!match) {
