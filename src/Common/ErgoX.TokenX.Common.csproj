@@ -9,6 +9,7 @@
     <AssemblyName>ErgoX.TokenX.Common</AssemblyName>
     <RootNamespace>ErgoX.TokenX.Common</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Version>0.1.0</Version>
 
     <!-- Package metadata -->
     <PackageId>ErgoX.TokenX.Common</PackageId>
@@ -18,6 +19,4 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/vecrax/tokenizers</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
-
-</Project>
+  </PropertyGroup></Project>

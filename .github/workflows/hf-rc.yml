@@ -754,27 +754,27 @@ jobs:
           stage_runtime "bridge_artifacts/android" "android-arm64/native"
           stage_runtime "bridge_artifacts/ios" "ios-arm64/native"
 
-      - name: Restore HuggingFace project
-        run: dotnet restore src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --nologo
-
-      - name: Build HuggingFace project
-        run: dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
-
       - name: Prepare artifact staging
         run: |
           mkdir -p artifacts/TestResults
           mkdir -p artifacts/coverage
           mkdir -p artifacts/packages
 
+      - name: Restore Common project
+        run: dotnet restore src/Common/ErgoX.TokenX.Common.csproj --nologo
+
       - name: Build and pack Common package
         shell: bash
         run: |
           set -euo pipefail
-          # Build Common project
+          # Build Common project with RC version
           dotnet build src/Common/ErgoX.TokenX.Common.csproj \
             --configuration Release \
             --no-restore \
             --nologo \
+            /p:Version=${RC_VERSION} \
+            /p:AssemblyVersion=${RC_VERSION} \
+            /p:FileVersion=${RC_VERSION} \
             /p:ContinuousIntegrationBuild=true
           
           # Pack Common with RC version
@@ -785,6 +785,12 @@ jobs:
             /p:PackageVersion=${RC_VERSION} \
             /p:Version=${RC_VERSION} \
             /p:ContinuousIntegrationBuild=true
+
+      - name: Restore HuggingFace project
+        run: dotnet restore src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --nologo
+
+      - name: Build HuggingFace project
+        run: dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
 
       - name: Pack NuGet artifacts
         shell: bash
