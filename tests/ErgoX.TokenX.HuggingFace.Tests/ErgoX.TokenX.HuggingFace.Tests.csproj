@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ErgoX.TokenX.Testing\ErgoX.TokenX.Testing.csproj" />
-    <ProjectReference Include="..\..\src\Common\ErgoX.TokenX.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseHuggingFacePackage)' != 'true'">

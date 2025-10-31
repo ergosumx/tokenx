@@ -547,7 +547,7 @@ jobs:
             --certificate-path tokenx-signing.pfx \
             --certificate-password "${TOKENX_SIGNING_CERT_PASSWORD}" \
             --hash-algorithm SHA256 \
-            --timestamp-url http://timestamp.digicert.com
+            --timestamp-url https://timestamp.digicert.com
           rm -f tokenx-signing.pfx
 
       - name: Publish packages to GitHub Packages

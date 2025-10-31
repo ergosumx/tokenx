@@ -17,11 +17,11 @@ pub unsafe extern "C" fn tokenizers_decode(
     skip_special_tokens: bool,
     status: *mut c_int,
 ) -> *mut c_char {
-    if tokenizer.is_null() {
+    let Some(tokenizer) = (unsafe { tokenizer.as_ref() }) else {
         store_error("tokenizers_decode received null tokenizer");
         set_status(status, 1);
         return ptr::null_mut();
-    }
+    };
 
     if length > 0 && ids.is_null() {
         store_error("tokenizers_decode received null ids pointer");
@@ -29,7 +29,6 @@ pub unsafe extern "C" fn tokenizers_decode(
         return ptr::null_mut();
     }
 
-    let tokenizer = &*tokenizer;
     let tokens = if length == 0 {
         &[][..]
     } else {
@@ -70,11 +69,11 @@ pub unsafe extern "C" fn tokenizers_decode_batch_flat(
     output: *mut *mut c_char,
     status: *mut c_int,
 ) -> c_int {
-    if tokenizer.is_null() {
+    let Some(tokenizer) = (unsafe { tokenizer.as_ref() }) else {
         store_error("tokenizers_decode_batch_flat received null tokenizer");
         set_status(status, 1);
         return 0;
-    }
+    };
 
     if output.is_null() || lengths.is_null() {
         store_error("tokenizers_decode_batch_flat received null buffer");
@@ -88,7 +87,6 @@ pub unsafe extern "C" fn tokenizers_decode_batch_flat(
         return 0;
     }
 
-    let tokenizer = &*tokenizer;
     let lengths_slice = unsafe { std::slice::from_raw_parts(lengths, count) };
     let output_slice = unsafe { std::slice::from_raw_parts_mut(output, count) };
 

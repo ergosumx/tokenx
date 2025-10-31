@@ -89,25 +89,32 @@ crossbeam_utils/**
 .runtimes
 runtimes/**
 tests/__templates
-tests/_tiktoken
 tests/_huggingface
-tests/_sentencepeice
 
 **/__pycache__/**
+
+# Model files
 *.onnx
+
+# Business critical logic - do not public
 examples/.models/nougat-base
 examples/HuggingFace/NougatBaseGreedyConsole
 examples/HuggingFace/NougatBaseConsole
+
+# Runtime files
 src/HuggingFace/runtimes/**
+
+# Internal test tools
 examples/tools/NugetTests/**
+
+# Ignore certificate files
 .certs/**
  
-# Ignore all downloaded model files under examples/.models but allow README.md in each model folder
-#  - first ignore everything under examples/.models
+# Ignore all downloaded model files under examples/.models but allow each README.md
 examples/.models/**
 !examples/.models/**/
-#  - finally allow README.md files anywhere under examples/.models
 !examples/.models/**/README.md
-!examples/.models/**/
-#  - finally allow README.md files anywhere under examples/.models
-!examples/.models/**/README.md
+
+# Ignore release scripts
+release.ps1
+release.sh

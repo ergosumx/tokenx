@@ -271,8 +271,7 @@ TokenX/
 │   ├── CI-CD-WORKFLOWS.md              # CI/CD documentation
 │   └── TESTING-CHECKLIST.md            # Quick reference
 ├── src/
-│   ├── Common/                         # Shared utilities and abstractions
-│   └── HuggingFace/                    # HuggingFace tokenizer bindings
+│   └── HuggingFace/                    # Managed HuggingFace tokenizer bindings and interop
 └── tests/
    ├── ErgoX.VecraX.ML.NLP.Tokenizers.HuggingFace.Tests/
    └── ErgoX.VecraX.ML.NLP.Tokenizers.Testing/   # Shared testing infrastructure
