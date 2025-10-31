@@ -98,3 +98,4 @@ tests/_sentencepeice
 examples/.models/nougat-base
 examples/HuggingFace/NougatBaseGreedyConsole
 examples/HuggingFace/NougatBaseConsole
+src/HuggingFace/runtimes
