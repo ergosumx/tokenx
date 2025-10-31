@@ -101,3 +101,8 @@ examples/HuggingFace/NougatBaseConsole
 src/HuggingFace/runtimes/**
 examples/tools/NugetTests/**
 .certs/**
+ 
+# Ignore all downloaded model files under examples/.models but allow README.md in each model folder
+/examples/.models/*
+!/examples/.models/**/
+!/examples/.models/**/README.md

@@ -1,3 +1,32 @@
+# openai/whisper-tiny
+
+This folder is intended to hold the model files for `openai/whisper-tiny` (speech recognition / small Whisper model).
+
+How to download
+
+1) Using git (requires git-lfs):
+
+```powershell
+git lfs install
+git clone https://huggingface.co/openai/whisper-tiny examples/.models/whisper-tiny
+```
+
+2) Using Transformers (Python):
+
+```python
+from transformers import WhisperForConditionalGeneration, WhisperProcessor
+processor = WhisperProcessor.from_pretrained('openai/whisper-tiny')
+model = WhisperForConditionalGeneration.from_pretrained('openai/whisper-tiny')
+
+# To load from local folder after cloning:
+# processor = WhisperProcessor.from_pretrained('examples/.models/whisper-tiny')
+# model = WhisperForConditionalGeneration.from_pretrained('examples/.models/whisper-tiny')
+```
+
+Notes
+- Whisper models may require specific audio preprocessing (see model card for examples).
+- If the model is private, run `huggingface-cli login` and authenticate before cloning.
+- Model page: https://huggingface.co/openai/whisper-tiny
 # whisper-tiny - QDQ
 
 **Generated:** 2025-10-12 21:11:30
