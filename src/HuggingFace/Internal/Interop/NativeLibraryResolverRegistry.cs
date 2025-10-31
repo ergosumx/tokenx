@@ -1,12 +1,11 @@
-namespace ErgoX.TokenX.Common.Interop;
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
 
-public static class NativeLibraryResolverRegistry
+internal static class NativeLibraryResolverRegistry
 {
     private static readonly object SyncRoot = new();
     private static readonly Dictionary<Assembly, List<Func<string, Assembly, DllImportSearchPath?, IntPtr>>> ResolverMap = new();
@@ -61,4 +60,3 @@ public static class NativeLibraryResolverRegistry
         return IntPtr.Zero;
     }
 }
-

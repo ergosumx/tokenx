@@ -1,10 +1,9 @@
+namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using ErgoX.TokenX.Common.Interop;
-
-namespace ErgoX.TokenX.HuggingFace.Internal.Interop;
 
 internal static class NativeLibraryLoader
 {

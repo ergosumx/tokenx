@@ -1,0 +1,636 @@
+name: HuggingFace Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      rc_version:
+        description: Release candidate version to promote (e.g. 0.22.1-rc.8)
+        required: true
+      bridge_run_selection:
+        description: Select which HuggingFace Bridge Artifacts run to consume
+        required: true
+        default: latest-success
+        type: choice
+        options:
+          - latest-success
+          - latest
+          - custom-run-id
+          - custom-run-number
+      bridge_run_id:
+        description: Optional run ID when using custom-run-id
+        required: false
+      bridge_run_number:
+        description: Optional run number when using custom-run-number
+        required: false
+      branch:
+        description: Optional branch filter when locating the run
+        required: false
+
+permissions:
+  actions: read
+  contents: write
+  packages: write
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  CI: true
+
+jobs:
+  prepare:
+    name: Resolve Release Inputs
+    runs-on: ubuntu-latest
+    outputs:
+      base_version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).baseVersion || '' }}
+      rc_version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcVersion || '' }}
+      rc_tag: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcTag || '' }}
+      release_version: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).releaseVersion || '' }}
+      release_tag: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).releaseTag || '' }}
+      rc_number: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).rcNumber || '' }}
+      artifacts: ${{ steps.resolve.outputs.result != '' && toJSON(fromJSON(steps.resolve.outputs.result).artifacts) || '{}' }}
+      run_id: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).runId || '' }}
+      run_number: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).runNumber || '' }}
+      head_sha: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).headSha || '' }}
+      head_branch: ${{ steps.resolve.outputs.result != '' && fromJSON(steps.resolve.outputs.result).headBranch || '' }}
+    steps:
+      - name: Resolve metadata
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const rcVersionInput = (core.getInput('rc_version') || '').trim();
+            if (!rcVersionInput) {
+              core.setFailed('rc_version input is required.');
+              return;
+            }
+
+            const match = rcVersionInput.match(/^(\d+\.\d+\.\d+)-rc\.(\d+)$/);
+            if (!match) {
+              core.setFailed(`rc_version '${rcVersionInput}' must match '<major>.<minor>.<patch>-rc.<number>'.`);
+              return;
+            }
+
+            const baseVersion = match[1];
+            const rcNumber = Number.parseInt(match[2], 10);
+            const rcTag = `hf-${rcVersionInput}`;
+            const releaseTag = `hf-v${baseVersion}`;
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const selection = core.getInput('bridge_run_selection') || 'latest-success';
+            const customRunIdInput = core.getInput('bridge_run_id');
+            const customRunNumberInput = core.getInput('bridge_run_number');
+            const branchFilter = core.getInput('branch');
+            const workflowFile = 'hf-bridge.yml';
+
+            const parsePositiveInt = (value, label) => {
+              const parsed = Number.parseInt(value, 10);
+              if (Number.isNaN(parsed) || parsed <= 0) {
+                core.setFailed(`Invalid ${label}: '${value}'.`);
+                return null;
+              }
+
+              return parsed;
+            };
+
+            let run = null;
+
+            if (selection === 'custom-run-id') {
+              if (!customRunIdInput) {
+                core.setFailed('bridge_run_id input is required when selection is custom-run-id.');
+                return;
+              }
+
+              const runId = parsePositiveInt(customRunIdInput, 'bridge_run_id');
+              if (!runId) {
+                return;
+              }
+
+              try {
+                const { data } = await github.rest.actions.getWorkflowRun({
+                  owner,
+                  repo,
+                  run_id: runId
+                });
+                run = data;
+              } catch (error) {
+                core.setFailed(`Unable to fetch workflow run with id ${customRunIdInput}: ${error.message}`);
+                return;
+              }
+            } else if (selection === 'custom-run-number') {
+              if (!customRunNumberInput) {
+                core.setFailed('bridge_run_number input is required when selection is custom-run-number.');
+                return;
+              }
+
+              const runNumber = parsePositiveInt(customRunNumberInput, 'bridge_run_number');
+              if (!runNumber) {
+                return;
+              }
+
+              const request = {
+                owner,
+                repo,
+                workflow_id: workflowFile,
+                per_page: 100
+              };
+
+              if (branchFilter) {
+                request.branch = branchFilter;
+              }
+
+              try {
+                const { data } = await github.rest.actions.listWorkflowRuns(request);
+                run = (data.workflow_runs || []).find(r => r.run_number === runNumber) || null;
+              } catch (error) {
+                core.setFailed(`Unable to list workflow runs: ${error.message}`);
+                return;
+              }
+
+              if (!run) {
+                core.setFailed(`Unable to locate run number ${customRunNumberInput} for ${workflowFile}.`);
+                return;
+              }
+            } else {
+              const request = {
+                owner,
+                repo,
+                workflow_id: workflowFile,
+                per_page: 100
+              };
+
+              if (branchFilter) {
+                request.branch = branchFilter;
+              }
+
+              try {
+                const { data } = await github.rest.actions.listWorkflowRuns(request);
+                const runs = data.workflow_runs || [];
+                if (selection === 'latest-success') {
+                  run = runs.find(r => r.status === 'completed' && r.conclusion === 'success') || null;
+                  if (!run) {
+                    core.setFailed('No successful hf-bridge.yml workflow runs found.');
+                    return;
+                  }
+                } else {
+                  run = runs[0] || null;
+                  if (!run) {
+                    core.setFailed('No hf-bridge.yml workflow runs found.');
+                    return;
+                  }
+                }
+              } catch (error) {
+                core.setFailed(`Unable to list workflow runs: ${error.message}`);
+                return;
+              }
+            }
+
+            if (!run) {
+              core.setFailed('Failed to resolve a hf-bridge workflow run.');
+              return;
+            }
+
+            if (run.path !== `.github/workflows/${workflowFile}`) {
+              core.setFailed(`The selected run (${run.id}) does not belong to ${workflowFile}.`);
+              return;
+            }
+
+            if (run.status !== 'completed') {
+              core.setFailed(`Workflow run ${run.id} is not completed (status: ${run.status}).`);
+              return;
+            }
+
+            if (run.conclusion !== 'success') {
+              core.setFailed(`Workflow run ${run.id} conclusion is ${run.conclusion}, not success.`);
+              return;
+            }
+
+            if (!run.head_sha) {
+              core.setFailed(`Workflow run ${run.id} does not expose head_sha.`);
+              return;
+            }
+
+            if (run.head_branch && run.head_branch.startsWith('hf-v')) {
+              const branchVersion = run.head_branch.substring('hf-v'.length);
+              if (branchVersion !== baseVersion) {
+                core.setFailed(`Bridge run branch version ${branchVersion} does not match base version ${baseVersion}.`);
+                return;
+              }
+            }
+
+            const { data: artifactData } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner,
+              repo,
+              run_id: run.id,
+              per_page: 100
+            });
+
+            const artifacts = artifactData.artifacts || [];
+            const targets = {
+              windows: '-x86_64-pc-windows-msvc',
+              linux: '-x86_64-unknown-linux-gnu',
+              mac_arm64: '-aarch64-apple-darwin',
+              mac_x64: '-x86_64-apple-darwin',
+              android: '-aarch64-linux-android',
+              ios: '-aarch64-apple-ios'
+            };
+
+            const map = {};
+            for (const [key, suffix] of Object.entries(targets)) {
+              const artifact = artifacts.find(item => item.name && item.name.endsWith(suffix));
+              if (!artifact) {
+                core.setFailed(`Unable to locate artifact ending with '${suffix}' in run ${run.id}.`);
+                return;
+              }
+
+              map[key] = {
+                id: artifact.id,
+                name: artifact.name
+              };
+            }
+
+            core.info(`Using hf-bridge run ${run.id} (run_number ${run.run_number}) for RC ${rcVersionInput}.`);
+
+            return {
+              baseVersion,
+              rcVersion: rcVersionInput,
+              releaseVersion: baseVersion,
+              rcTag,
+              releaseTag,
+              rcNumber,
+              artifacts: map,
+              runId: run.id,
+              runNumber: run.run_number,
+              headSha: run.head_sha,
+              headBranch: run.head_branch
+            };
+
+  release:
+    name: Promote Release
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      BASE_VERSION: ${{ needs.prepare.outputs.base_version }}
+      RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+      RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
+      RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
+      WORKFLOW_HEAD_SHA: ${{ needs.prepare.outputs.head_sha }}
+      ASSEMBLY_VERSION: ${{ format('{0}.0', needs.prepare.outputs.base_version) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.WORKFLOW_HEAD_SHA }}
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full unzip
+
+      - name: Restore test assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          7z x tests/__templates.7z -otests -aoa
+          7z x tests/_huggingface.7z -otests -aoa
+
+      - name: Download Linux runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).linux.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/linux
+
+      - name: Download Windows runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).windows.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/windows
+
+      - name: Download macOS arm64 runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_arm64.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/macos-arm64
+
+      - name: Download macOS x64 runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).mac_x64.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/macos-x64
+
+      - name: Download Android runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).android.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/android
+
+      - name: Download iOS runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ fromJSON(needs.prepare.outputs.artifacts).ios.name }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.prepare.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bridge_artifacts/ios
+
+      - name: Stage runtime binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          stage_runtime() {
+            local download_dir="$1"
+            local runtime_dir="$2"
+            local archive
+            archive=$(find "$download_dir" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.tgz' \) | head -n 1)
+            if [ -z "$archive" ]; then
+              echo "Unable to locate runtime archive in ${download_dir}" >&2
+              exit 1
+            fi
+
+            local extract_dir="${download_dir}/extracted"
+            mkdir -p "$extract_dir"
+            if [[ "$archive" == *.zip ]]; then
+              unzip -o "$archive" -d "$extract_dir"
+            else
+              tar -xzf "$archive" -C "$extract_dir"
+            fi
+
+            local target_dir="src/HuggingFace/runtimes/${runtime_dir}"
+            mkdir -p "$target_dir"
+            rm -f "$target_dir"/*
+
+            local copied=0
+            while IFS= read -r file; do
+              cp -f "$file" "$target_dir/"
+              copied=1
+            done < <(find "$extract_dir" -maxdepth 1 -type f)
+
+            if [ "$copied" -eq 0 ]; then
+              echo "No runtime files copied into ${target_dir}." >&2
+              exit 1
+            fi
+            ls -al "$target_dir"
+          }
+
+          stage_runtime "bridge_artifacts/linux" "linux-x64/native"
+          stage_runtime "bridge_artifacts/windows" "win-x64/native"
+          stage_runtime "bridge_artifacts/macos-arm64" "osx-arm64/native"
+          stage_runtime "bridge_artifacts/macos-x64" "osx-x64/native"
+          stage_runtime "bridge_artifacts/android" "android-arm64/native"
+          stage_runtime "bridge_artifacts/ios" "ios-arm64/native"
+
+      - name: Prepare artifact staging
+        run: |
+          mkdir -p artifacts/TestResults
+          mkdir -p artifacts/coverage
+          mkdir -p artifacts/packages
+
+      - name: Restore HuggingFace project
+        run: dotnet restore src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --nologo
+
+      - name: Build HuggingFace project
+        run: |
+          dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+            --configuration Release \
+            --no-restore \
+            --nologo \
+            /p:Version=${RELEASE_VERSION} \
+            /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+            /p:FileVersion=${ASSEMBLY_VERSION} \
+            /p:InformationalVersion=${RELEASE_VERSION} \
+            /p:ContinuousIntegrationBuild=true
+
+      - name: Pack NuGet artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/packages
+          backup_dir=$(mktemp -d)
+          cp -r src/HuggingFace/runtimes "${backup_dir}/runtimes_full"
+
+          restore_runtimes() {
+            rm -rf src/HuggingFace/runtimes
+            cp -r "${backup_dir}/runtimes_full" src/HuggingFace/runtimes
+          }
+
+          pack_default() {
+            rm -rf src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageVersion=${RELEASE_VERSION} \
+              /p:Version=${RELEASE_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RELEASE_VERSION} \
+              /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_mac() {
+            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.Mac \
+              /p:PackageVersion=${RELEASE_VERSION} \
+              /p:Version=${RELEASE_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RELEASE_VERSION} \
+              /p:IncludeBuildOutput=false \
+              /p:IncludeSymbols=false \
+              /p:IncludeEmptyNet8Lib=true \
+              /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_android() {
+            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/ios-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.Android \
+              /p:PackageVersion=${RELEASE_VERSION} \
+              /p:Version=${RELEASE_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RELEASE_VERSION} \
+              /p:IncludeBuildOutput=false \
+              /p:IncludeSymbols=false \
+              /p:IncludeEmptyNet8Lib=true \
+              /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_ios() {
+            rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.iOS \
+              /p:PackageVersion=${RELEASE_VERSION} \
+              /p:Version=${RELEASE_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RELEASE_VERSION} \
+              /p:IncludeBuildOutput=false \
+              /p:IncludeSymbols=false \
+              /p:IncludeEmptyNet8Lib=true \
+              /p:ContinuousIntegrationBuild=true
+            restore_runtimes
+          }
+
+          pack_default
+          pack_mac
+          pack_android
+          pack_ios
+
+          rm -rf "$backup_dir"
+
+      - name: Restore HuggingFace tests with release package
+        run: |
+          dotnet restore tests/ErgoX.TokenX.HuggingFace.Tests/ErgoX.TokenX.HuggingFace.Tests.csproj --nologo --source "$(pwd)/artifacts/packages" --source https://api.nuget.org/v3/index.json /p:UseHuggingFacePackage=true /p:HuggingFacePackageVersion=${RELEASE_VERSION}
+
+      - name: Run HuggingFace tests (release package)
+        working-directory: tests/ErgoX.TokenX.HuggingFace.Tests
+        run: |
+          dotnet test --configuration Release --no-restore --nologo \
+            -p:UseHuggingFacePackage=true -p:HuggingFacePackageVersion=${RELEASE_VERSION} \
+            --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
+            --results-directory ../../artifacts/TestResults
+
+      - name: Prepare signing certificate
+        shell: bash
+        env:
+          TOKENX_SIGNING_CERT_PFX: ${{ secrets.TOKENX_SIGNING_CERT_PFX }}
+          TOKENX_SIGNING_CERT_PASSWORD: ${{ secrets.TOKENX_SIGNING_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${TOKENX_SIGNING_CERT_PFX:-}" ]; then
+            echo "TOKENX_SIGNING_CERT_PFX secret is required." >&2
+            exit 1
+          fi
+          if [ -z "${TOKENX_SIGNING_CERT_PASSWORD:-}" ]; then
+            echo "TOKENX_SIGNING_CERT_PASSWORD secret is required." >&2
+            exit 1
+          fi
+          echo "${TOKENX_SIGNING_CERT_PFX}" | base64 --decode > tokenx-signing.pfx
+
+      - name: Sign NuGet packages
+        env:
+          TOKENX_SIGNING_CERT_PASSWORD: ${{ secrets.TOKENX_SIGNING_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          dotnet nuget sign artifacts/packages/*.nupkg \
+            --certificate-path tokenx-signing.pfx \
+            --certificate-password "${TOKENX_SIGNING_CERT_PASSWORD}" \
+            --hash-algorithm SHA256 \
+            --timestamp-url http://timestamp.digicert.com
+          rm -f tokenx-signing.pfx
+
+      - name: Publish packages to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GITHUB_TOKEN}" ]; then
+            echo "GITHUB_TOKEN is not available." >&2
+            exit 1
+          fi
+          dotnet nuget remove source github >/dev/null 2>&1 || true
+          dotnet nuget add source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json" \
+            --name github \
+            --username "${GITHUB_REPOSITORY_OWNER}" \
+            --password "${GITHUB_TOKEN}" \
+            --store-password-in-clear-text >/dev/null
+
+          shopt -s nullglob
+          pushed=0
+          for package in artifacts/packages/*.nupkg; do
+            dotnet nuget push "$package" --source github --skip-duplicate
+            pushed=1
+          done
+          if [ "$pushed" -eq 0 ]; then
+            echo "No packages were pushed to GitHub Packages." >&2
+            exit 1
+          fi
+
+      - name: Publish packages to NuGet.org
+        env:
+          TOKENX_NUGET_API_KEY: ${{ secrets.TOKENX_NUGET_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${TOKENX_NUGET_API_KEY:-}" ]; then
+            echo "TOKENX_NUGET_API_KEY secret is required." >&2
+            exit 1
+          fi
+          shopt -s nullglob
+          for package in artifacts/packages/*.nupkg; do
+            dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --api-key "${TOKENX_NUGET_API_KEY}" --skip-duplicate
+          done
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "GH_TOKEN is not available." >&2
+            exit 1
+          fi
+          if [ -z "${RELEASE_TAG}" ]; then
+            echo "RELEASE_TAG is empty." >&2
+            exit 1
+          fi
+          shopt -s nullglob
+          files=(artifacts/packages/*.nupkg artifacts/packages/*.snupkg)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No packages found to attach to the release." >&2
+            exit 1
+          fi
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            gh release delete "${RELEASE_TAG}" --yes --cleanup-tag
+          fi
+          title="HuggingFace ${RELEASE_VERSION}"
+          notes="Promotion of RC ${RC_VERSION} to ${RELEASE_VERSION}. Packages are published to NuGet.org and GitHub Packages."
+          target="${WORKFLOW_HEAD_SHA:-${GITHUB_SHA}}"
+          if ! gh release create "${RELEASE_TAG}" "${files[@]}" \
+            --title "${title}" \
+            --notes "${notes}" \
+            --target "${target}"; then
+            status=$?
+            echo "Failed to create release ${RELEASE_TAG} (exit ${status})." >&2
+            exit ${status}
+          fi
+
+      - name: Upload release packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: hf-release-packages-${{ env.RELEASE_VERSION }}
+          path: artifacts/packages
+          if-no-files-found: error

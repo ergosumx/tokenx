@@ -260,7 +260,6 @@ jobs:
             }
 
             const packageNames = [
-              'ErgoX.TokenX.Common',
               'ErgoX.TokenX.HuggingFace',
               'ErgoX.TokenX.HuggingFace.Runtime.Mac',
               'ErgoX.TokenX.HuggingFace.Runtime.Android',
@@ -620,6 +619,7 @@ jobs:
       RC_TAG: ${{ needs.prepare.outputs.rc_tag }}
       RC_NUMBER: ${{ needs.prepare.outputs.rc_number }}
       WORKFLOW_HEAD_SHA: ${{ needs.prepare.outputs.head_sha }}
+      ASSEMBLY_VERSION: ${{ format('{0}.0', needs.prepare.outputs.version) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -720,25 +720,13 @@ jobs:
             mkdir -p "$target_dir"
             rm -f "$target_dir"/*
             
-            # Extract the RID from runtime_dir (e.g., "linux-x64/native" -> "linux-x64")
-            local rid="${runtime_dir%%/*}"
-            
-            # Try to find files in the extracted/{rid}/native/ structure first (from bridge artifacts)
-            # If not found, fall back to flat structure in extracted/ root
-            local source_dir=""
-            if [ -d "$extract_dir/$rid/native" ]; then
-              source_dir="$extract_dir/$rid/native"
-            elif [ -d "$extract_dir/native" ]; then
-              source_dir="$extract_dir/native"
-            else
-              source_dir="$extract_dir"
-            fi
-            
+            # Bridge artifacts are packaged flat (all files directly in archive root)
+            # Copy all files from extract_dir root only, ignoring any subdirectories
             local copied=0
             while IFS= read -r file; do
               cp -f "$file" "$target_dir/"
               copied=1
-            done < <(find "$source_dir" -maxdepth 1 -type f)
+            done < <(find "$extract_dir" -maxdepth 1 -type f)
             
             if [ "$copied" -eq 0 ]; then
               echo "No runtime files copied into ${target_dir}." >&2
@@ -760,37 +748,20 @@ jobs:
           mkdir -p artifacts/coverage
           mkdir -p artifacts/packages
 
-      - name: Restore Common project
-        run: dotnet restore src/Common/ErgoX.TokenX.Common.csproj --nologo
-
-      - name: Build and pack Common package
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Build Common project with RC version
-          dotnet build src/Common/ErgoX.TokenX.Common.csproj \
-            --configuration Release \
-            --no-restore \
-            --nologo \
-            /p:Version=${RC_VERSION} \
-            /p:AssemblyVersion=${RC_VERSION} \
-            /p:FileVersion=${RC_VERSION} \
-            /p:ContinuousIntegrationBuild=true
-          
-          # Pack Common with RC version
-          dotnet pack src/Common/ErgoX.TokenX.Common.csproj \
-            --configuration Release \
-            --no-build \
-            --output artifacts/packages \
-            /p:PackageVersion=${RC_VERSION} \
-            /p:Version=${RC_VERSION} \
-            /p:ContinuousIntegrationBuild=true
-
       - name: Restore HuggingFace project
         run: dotnet restore src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --nologo
 
       - name: Build HuggingFace project
-        run: dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-restore --nologo /p:ContinuousIntegrationBuild=true
+        run: |
+          dotnet build src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+            --configuration Release \
+            --no-restore \
+            --nologo \
+            /p:Version=${RC_VERSION} \
+            /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+            /p:FileVersion=${ASSEMBLY_VERSION} \
+            /p:InformationalVersion=${RC_VERSION} \
+            /p:ContinuousIntegrationBuild=true
 
       - name: Pack NuGet artifacts
         shell: bash
@@ -807,25 +778,73 @@ jobs:
 
           pack_default() {
             rm -rf src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:ContinuousIntegrationBuild=true
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageVersion=${RC_VERSION} \
+              /p:Version=${RC_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RC_VERSION} \
+              /p:ContinuousIntegrationBuild=true
             restore_runtimes
           }
 
           pack_mac() {
             rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/android-arm64 src/HuggingFace/runtimes/ios-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.Mac /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.Mac \
+              /p:PackageVersion=${RC_VERSION} \
+              /p:Version=${RC_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RC_VERSION} \
+              /p:IncludeBuildOutput=false \
+              /p:IncludeSymbols=false \
+              /p:IncludeEmptyNet8Lib=true \
+              /p:ContinuousIntegrationBuild=true
             restore_runtimes
           }
 
           pack_android() {
             rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/ios-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.Android /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.Android \
+              /p:PackageVersion=${RC_VERSION} \
+              /p:Version=${RC_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RC_VERSION} \
+              /p:IncludeBuildOutput=false \
+              /p:IncludeSymbols=false \
+              /p:IncludeEmptyNet8Lib=true \
+              /p:ContinuousIntegrationBuild=true
             restore_runtimes
           }
 
           pack_ios() {
             rm -rf src/HuggingFace/runtimes/linux-x64 src/HuggingFace/runtimes/win-x64 src/HuggingFace/runtimes/osx-arm64 src/HuggingFace/runtimes/osx-x64 src/HuggingFace/runtimes/android-arm64
-            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj --configuration Release --no-build --output artifacts/packages /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.iOS /p:PackageVersion=${RC_VERSION} /p:Version=${RC_VERSION} /p:IncludeBuildOutput=false /p:IncludeSymbols=false /p:IncludeEmptyNet8Lib=true /p:ContinuousIntegrationBuild=true
+            dotnet pack src/HuggingFace/ErgoX.TokenX.HuggingFace.csproj \
+              --configuration Release \
+              --no-build \
+              --output artifacts/packages \
+              /p:PackageId=ErgoX.TokenX.HuggingFace.Runtime.iOS \
+              /p:PackageVersion=${RC_VERSION} \
+              /p:Version=${RC_VERSION} \
+              /p:AssemblyVersion=${ASSEMBLY_VERSION} \
+              /p:FileVersion=${ASSEMBLY_VERSION} \
+              /p:InformationalVersion=${RC_VERSION} \
+              /p:IncludeBuildOutput=false \
+              /p:IncludeSymbols=false \
+              /p:IncludeEmptyNet8Lib=true \
+              /p:ContinuousIntegrationBuild=true
             restore_runtimes
           }
 
