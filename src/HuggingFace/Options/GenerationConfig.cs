@@ -58,9 +58,7 @@ public sealed class GenerationConfig
             ApplyOverrides(snapshot, overrides);
         }
 
-        var bindings = LogitsBindingPlanner.Plan(snapshot);
-        var stoppingCriteria = StoppingCriterionPlanner.Plan(snapshot);
-        return new GenerationSettings(snapshot, bindings, stoppingCriteria);
+        return new GenerationSettings(snapshot, Array.Empty<LogitsBinding>(), Array.Empty<StoppingCriterion>());
     }
 
     /// <summary>

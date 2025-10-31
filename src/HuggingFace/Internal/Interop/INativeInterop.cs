@@ -40,40 +40,6 @@ internal interface INativeInterop
 
     IntPtr IdToToken(IntPtr handle, uint id, out int status);
 
-    IntPtr TokenizersModelFromJson(string json, out int status);
-
-    void TokenizersModelFree(IntPtr model);
-
-    IntPtr TokenizersModelGetType(IntPtr model, out int status);
-
-    IntPtr TokenizersModelToJson(IntPtr model, bool pretty, out int status);
-
-    IntPtr TokenizersModelBpeFromFiles(in NativeBpeModelParameters parameters, out int status);
-
-    IntPtr TokenizersModelWordPieceFromFile(
-        string vocabPath,
-        string unkToken,
-        string? continuingSubwordPrefix,
-        nuint maxInputCharsPerWord,
-        bool hasMaxInputCharsPerWord,
-        out int status);
-
-    IntPtr TokenizersModelUnigramFromFile(string modelPath, out int status);
-
-    int TokenizersTokenizerSetModel(IntPtr tokenizer, IntPtr model, out int status);
-
-    IntPtr TokenizersDecoderFromJson(string json, out int status);
-
-    void TokenizersDecoderFree(IntPtr decoder);
-
-    IntPtr TokenizersDecoderGetType(IntPtr decoder, out int status);
-
-    IntPtr TokenizersDecoderToJson(IntPtr decoder, bool pretty, out int status);
-
-    int TokenizersTokenizerSetDecoder(IntPtr tokenizer, IntPtr decoder, out int status);
-
-    int TokenizersTokenizerClearDecoder(IntPtr tokenizer, out int status);
-
     IntPtr TokenizerGetConfig(IntPtr handle, bool pretty, out int status);
 
     IntPtr TokenizerDecode(IntPtr handle, uint[] ids, nuint length, bool skipSpecialTokens, out int status);
@@ -83,10 +49,6 @@ internal interface INativeInterop
     IntPtr TokenizerApplyChatTemplate(IntPtr handle, string template, string messagesJson, string? variablesJson, bool addGenerationPrompt, out int status);
 
     IntPtr TokenizersNormalizeGenerationConfig(string source, out int status);
-
-    IntPtr TokenizersPlanLogitsProcessors(string source, out int status);
-
-    IntPtr TokenizersPlanStoppingCriteria(string source, out int status);
 
     void FreeString(IntPtr str);
 

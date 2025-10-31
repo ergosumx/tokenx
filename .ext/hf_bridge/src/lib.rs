@@ -17,9 +17,3 @@ pub use encoding::test_support as encoding_test_support;
 
 #[doc(hidden)]
 pub use error::test_support as error_test_support;
-
-#[doc(hidden)]
-pub use ffi::models::test_support as models_test_support;
-
-#[doc(hidden)]
-pub use ffi::decoders::test_support as decoders_test_support;

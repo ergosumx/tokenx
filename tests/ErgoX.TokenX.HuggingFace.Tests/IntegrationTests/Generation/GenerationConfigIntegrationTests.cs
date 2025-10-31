@@ -33,16 +33,9 @@ public sealed class GenerationConfigIntegrationTests : HuggingFaceTestBase
         Assert.Equal(new[] { "<|eot_id|>", "</s>" }, defaults.StopSequences);
         Assert.True(defaults.SkipSpecialTokens);
 
-        var bindings = defaults.LogitsBindings;
-        Assert.Equal(3, bindings.Count);
-        Assert.Contains(bindings, binding => binding.IsWarper && binding.Kind == "temperature" && Math.Abs(binding.Value - 0.7) < 1e-9);
-        Assert.Contains(bindings, binding => binding.IsWarper && binding.Kind == "top_p" && Math.Abs(binding.Value - 0.9) < 1e-9);
-        Assert.Contains(bindings, binding => binding.IsProcessor && binding.Kind == "repetition_penalty" && Math.Abs(binding.Value - 1.1) < 1e-9);
-
-        var stopping = defaults.StoppingCriteria;
-        Assert.Equal(2, stopping.Count);
-        Assert.Contains(stopping, criterion => criterion.IsMaxNewTokens && criterion.Value == 512);
-        Assert.Contains(stopping, criterion => criterion.IsStopSequences && criterion.Sequences!.SequenceEqual(new[] { "<|eot_id|>", "</s>" }));
+        // Planner functionality removed - bindings and criteria are now empty
+        Assert.Empty(defaults.LogitsBindings);
+        Assert.Empty(defaults.StoppingCriteria);
     }
 
     [Fact]
@@ -71,16 +64,9 @@ public sealed class GenerationConfigIntegrationTests : HuggingFaceTestBase
         Assert.True(settings.TryGetRawParameter("custom_parameter", out var customNode));
         Assert.Equal(42, customNode!.GetValue<int>());
 
-        var bindings = settings.LogitsBindings;
-        Assert.Equal(3, bindings.Count);
-        Assert.Contains(bindings, binding => binding.Kind == "temperature" && Math.Abs(binding.Value - 0.2) < 1e-9);
-        Assert.Contains(bindings, binding => binding.Kind == "top_p" && Math.Abs(binding.Value - 0.8) < 1e-9);
-        Assert.Contains(bindings, binding => binding.Kind == "repetition_penalty" && Math.Abs(binding.Value - 1.1) < 1e-9);
-
-        var stopping = settings.StoppingCriteria;
-        Assert.Equal(2, stopping.Count);
-        Assert.Contains(stopping, criterion => criterion.IsMaxNewTokens && criterion.Value == 512);
-        Assert.Contains(stopping, criterion => criterion.IsStopSequences && criterion.Sequences!.SequenceEqual(new[] { "###" }));
+        // Planner functionality removed
+        Assert.Empty(settings.LogitsBindings);
+        Assert.Empty(settings.StoppingCriteria);
     }
 
     [Fact]
@@ -103,16 +89,9 @@ public sealed class GenerationConfigIntegrationTests : HuggingFaceTestBase
     Assert.False(request.Settings.DoSample);
         Assert.Equal(0.7, request.Settings.Temperature);
 
-        var bindings = request.LogitsBindings;
-        Assert.Equal(3, bindings.Count);
-        Assert.Contains(bindings, binding => binding.Kind == "temperature" && Math.Abs(binding.Value - 0.7) < 1e-9);
-        Assert.Contains(bindings, binding => binding.Kind == "top_p" && Math.Abs(binding.Value - 0.9) < 1e-9);
-        Assert.Contains(bindings, binding => binding.Kind == "repetition_penalty" && Math.Abs(binding.Value - 1.1) < 1e-9);
-
-        var stopping = request.StoppingCriteria;
-        Assert.Equal(2, stopping.Count);
-        Assert.Contains(stopping, criterion => criterion.IsMaxNewTokens && criterion.Value == 512);
-        Assert.Contains(stopping, criterion => criterion.IsStopSequences && criterion.Sequences!.SequenceEqual(new[] { "<|eot_id|>", "</s>" }));
+        // Planner functionality removed
+        Assert.Empty(request.LogitsBindings);
+        Assert.Empty(request.StoppingCriteria);
     }
 
     [Fact]
@@ -184,8 +163,9 @@ public sealed class GenerationConfigIntegrationTests : HuggingFaceTestBase
         Assert.NotNull(request.Messages);
         Assert.Equal(2, request.Messages!.Count);
         Assert.True(request.SkipSpecialTokens);
-        Assert.NotEmpty(request.StoppingCriteria);
-        Assert.NotEmpty(request.LogitsBindings);
+        // Planner functionality removed
+        Assert.Empty(request.StoppingCriteria);
+        Assert.Empty(request.LogitsBindings);
     }
 
     private static string GetModelRoot(string model)

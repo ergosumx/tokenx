@@ -79,8 +79,9 @@ public sealed class GenerationContractsUnitTests : HuggingFaceTestBase
         Assert.Same(settings, request.Settings);
         Assert.Equal("prompt", request.Prompt);
         Assert.False(request.SkipSpecialTokens);
+        // Planner functionality removed
         Assert.Same(settings.LogitsBindings, request.LogitsBindings);
-        Assert.Single(request.LogitsBindings);
+        Assert.Empty(request.LogitsBindings);
         Assert.Same(settings.StoppingCriteria, request.StoppingCriteria);
         Assert.Empty(request.StoppingCriteria);
     }

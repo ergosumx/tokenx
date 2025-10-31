@@ -81,64 +81,6 @@ internal static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_id_to_token")]
     internal static partial IntPtr IdToToken(IntPtr handle, uint id, out int status);
 
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_model_from_json", StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial IntPtr TokenizersModelFromJson(string json, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_model_free")]
-    internal static partial void TokenizersModelFree(IntPtr model);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_model_get_type")]
-    internal static partial IntPtr TokenizersModelGetType(IntPtr model, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_model_to_json")]
-    internal static partial IntPtr TokenizersModelToJson(IntPtr model, [MarshalAs(UnmanagedType.Bool)] bool pretty, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_model_bpe_from_files", StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial IntPtr TokenizersModelBpeFromFiles(
-        string vocabPath,
-        string mergesPath,
-        float dropout,
-        [MarshalAs(UnmanagedType.Bool)] bool hasDropout,
-        string? unkToken,
-        string? continuingSubwordPrefix,
-        string? endOfWordSuffix,
-        [MarshalAs(UnmanagedType.Bool)] bool fuseUnknown,
-        [MarshalAs(UnmanagedType.Bool)] bool enableByteFallback,
-        out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_model_wordpiece_from_file", StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial IntPtr TokenizersModelWordPieceFromFile(
-        string vocabPath,
-        string unkToken,
-        string? continuingSubwordPrefix,
-        nuint maxInputCharsPerWord,
-        [MarshalAs(UnmanagedType.Bool)] bool hasMaxInputCharsPerWord,
-        out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_model_unigram_from_file", StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial IntPtr TokenizersModelUnigramFromFile(string modelPath, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_tokenizer_set_model")]
-    internal static partial int TokenizersTokenizerSetModel(IntPtr tokenizer, IntPtr model, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_decoder_from_json", StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial IntPtr TokenizersDecoderFromJson(string json, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_decoder_free")]
-    internal static partial void TokenizersDecoderFree(IntPtr decoder);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_decoder_get_type")]
-    internal static partial IntPtr TokenizersDecoderGetType(IntPtr decoder, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_decoder_to_json")]
-    internal static partial IntPtr TokenizersDecoderToJson(IntPtr decoder, [MarshalAs(UnmanagedType.Bool)] bool pretty, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_tokenizer_set_decoder")]
-    internal static partial int TokenizersTokenizerSetDecoder(IntPtr tokenizer, IntPtr decoder, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_tokenizer_clear_decoder")]
-    internal static partial int TokenizersTokenizerClearDecoder(IntPtr tokenizer, out int status);
-
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_get_config")]
     internal static partial IntPtr TokenizerGetConfig(IntPtr handle, [MarshalAs(UnmanagedType.Bool)] bool pretty, out int status);
 
@@ -172,12 +114,6 @@ internal static partial class NativeMethods
 
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_normalize_generation_config", StringMarshalling = StringMarshalling.Utf8)]
     internal static partial IntPtr TokenizersNormalizeGenerationConfig(string source, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_plan_logits_processors", StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial IntPtr TokenizersPlanLogitsProcessors(string source, out int status);
-
-    [LibraryImport(LibraryName, EntryPoint = "tokenizers_plan_stopping_criteria", StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial IntPtr TokenizersPlanStoppingCriteria(string source, out int status);
 
     [LibraryImport(LibraryName, EntryPoint = "tokenizers_free_string")]
     internal static partial void FreeString(IntPtr str);

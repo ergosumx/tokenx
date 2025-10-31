@@ -37,16 +37,9 @@ public sealed class GenerationSettingsUnitTests : HuggingFaceTestBase
         Assert.Equal(new[] { "END", "STOP" }, settings.StopSequences);
         Assert.True(settings.SkipSpecialTokens);
 
-        Assert.Collection(
-            settings.LogitsBindings,
-            binding => Assert.True(binding.IsWarper && binding.Kind == "temperature"),
-            binding => Assert.True(binding.IsWarper && binding.Kind == "top_p"),
-            binding => Assert.True(binding.IsProcessor && binding.Kind == "repetition_penalty"));
-
-        Assert.Collection(
-            settings.StoppingCriteria,
-            criterion => Assert.True(criterion.IsMaxNewTokens && criterion.Value == 64),
-            criterion => Assert.True(criterion.IsStopSequences && criterion.Sequences!.SequenceEqual(new[] { "END", "STOP" })));
+        // Planner functionality removed - bindings and criteria are now empty
+        Assert.Empty(settings.LogitsBindings);
+        Assert.Empty(settings.StoppingCriteria);
     }
 
     [Fact]
