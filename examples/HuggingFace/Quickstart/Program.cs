@@ -63,7 +63,7 @@ internal static class Program
         Console.WriteLine("--- Example 1: Basic Tokenization ---");
         
         var modelDirectory = ResolveModelDirectory("all-minilm-l6-v2");
-        
+
         using var tokenizer = AutoTokenizer.Load(modelDirectory, new AutoTokenizerLoadOptions
         {
             ApplyTokenizerDefaults = true
