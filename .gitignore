@@ -105,7 +105,9 @@ examples/tools/NugetTests/**
 # Ignore all downloaded model files under examples/.models but allow README.md in each model folder
 #  - first ignore everything under examples/.models
 examples/.models/**
-#  - then re-allow directories so nested README.md exceptions can be matched
+!examples/.models/**/
+#  - finally allow README.md files anywhere under examples/.models
+!examples/.models/**/README.md
 !examples/.models/**/
 #  - finally allow README.md files anywhere under examples/.models
 !examples/.models/**/README.md
