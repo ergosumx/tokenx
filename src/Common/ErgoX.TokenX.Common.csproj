@@ -5,11 +5,19 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
     <AssemblyName>ErgoX.TokenX.Common</AssemblyName>
     <RootNamespace>ErgoX.TokenX.Common</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- Package metadata -->
+    <PackageId>ErgoX.TokenX.Common</PackageId>
+    <Authors>VecraX</Authors>
+    <Description>Common types and utilities for TokenX libraries.</Description>
+    <PackageTags>tokenizer;common;utilities</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/vecrax/tokenizers</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
 </Project>
-
