@@ -541,7 +541,6 @@ jobs:
             --username "${GITHUB_REPOSITORY_OWNER}" \
             --password "${GITHUB_TOKEN}" \
             --store-password-in-clear-text
-
           shopt -s nullglob
           pushed=0
           for package in artifacts/packages/*.nupkg; do
