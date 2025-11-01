@@ -532,7 +532,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${GITHUB_TOKEN}" ]; then
-            echo "GITHUB_TOKEN is not available." >&2
+            echo "GITHUB_TOKEN is required to publish packages." >&2
             exit 1
           fi
           dotnet nuget remove source github >/dev/null 2>&1 || true
@@ -540,16 +540,16 @@ jobs:
             --name github \
             --username "${GITHUB_REPOSITORY_OWNER}" \
             --password "${GITHUB_TOKEN}" \
-            --store-password-in-clear-text >/dev/null
+            --store-password-in-clear-text
 
           shopt -s nullglob
           pushed=0
           for package in artifacts/packages/*.nupkg; do
-            dotnet nuget push "$package" --source github --skip-duplicate
+            dotnet nuget push "$package" --source github --api-key "${GITHUB_TOKEN}" --skip-duplicate
             pushed=1
           done
           if [ "$pushed" -eq 0 ]; then
-            echo "No packages were pushed to GitHub Packages." >&2
+            echo "No packages were pushed." >&2
             exit 1
           fi
 
