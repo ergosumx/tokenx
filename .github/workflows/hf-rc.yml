@@ -787,6 +787,8 @@ jobs:
               /p:AssemblyVersion=${ASSEMBLY_VERSION} \
               /p:FileVersion=${ASSEMBLY_VERSION} \
               /p:InformationalVersion=${RC_VERSION} \
+              /p:IncludeSymbols=false \
+              /p:IncludeSource=false \
               /p:ContinuousIntegrationBuild=true
             restore_runtimes
           }
@@ -922,7 +924,7 @@ jobs:
             exit 1
           fi
           shopt -s nullglob
-          files=(artifacts/packages/*.nupkg artifacts/packages/*.snupkg)
+          files=(artifacts/packages/*.nupkg)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No package files available for the release." >&2
             exit 1
