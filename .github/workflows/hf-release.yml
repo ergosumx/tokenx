@@ -547,11 +547,12 @@ jobs:
           TOKENX_SIGNING_CERT_PASSWORD: ${{ secrets.TOKENX_SIGNING_CERT_PASSWORD }}
         run: |
           set -euo pipefail
+          # devskim: ignore DS137138 -- DigiCert timestamp service exposes only HTTP; HTTPS is unsupported and refused.
           dotnet nuget sign artifacts/packages/*.nupkg \
             --certificate-path tokenx-signing.pfx \
             --certificate-password "${TOKENX_SIGNING_CERT_PASSWORD}" \
             --hash-algorithm SHA256 \
-            --timestamper https://timestamp.digicert.com
+            --timestamper http://timestamp.sectigo.com/qualified
           rm -f tokenx-signing.pfx
 
       - name: Publish packages to GitHub Packages
