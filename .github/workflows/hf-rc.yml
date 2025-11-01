@@ -889,18 +889,17 @@ jobs:
             echo "GITHUB_TOKEN is required to publish packages." >&2
             exit 1
           fi
-          # Note: GITHUB_TOKEN or a PAT with 'packages: write' (and 'repo' for private repos) is required.
-          # If using a personal access token (PAT), set it in repository secrets as TOKENX_GITHUB_PAT and
-          # replace GITHUB_TOKEN below with ${TOKENX_GITHUB_PAT} as needed.
-          # Push directly to the GitHub Packages feed URL and pass the API key explicitly.
-          # Using the full URL avoids issues where the named source doesn't pick up the API key on some runners.
+          dotnet nuget remove source github >/dev/null 2>&1 || true
+          dotnet nuget add source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json" \
+            --name github \
+            --username "${GITHUB_REPOSITORY_OWNER}" \
+            --password "${GITHUB_TOKEN}" \
+            --store-password-in-clear-text
+
           shopt -s nullglob
           pushed=0
           for package in artifacts/packages/*.nupkg; do
-            dotnet nuget push "$package" \
-              --source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json" \
-              --api-key "${GITHUB_TOKEN}" \
-              --skip-duplicate
+            dotnet nuget push "$package" --source github --api-key "${GITHUB_TOKEN}" --skip-duplicate
             pushed=1
           done
           if [ "$pushed" -eq 0 ]; then
