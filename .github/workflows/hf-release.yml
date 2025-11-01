@@ -525,36 +525,6 @@ jobs:
             --logger "trx;LogFileName=ErgoX.TokenX.HuggingFace.Tests.trx" \
             --results-directory ../../artifacts/TestResults
 
-      - name: Prepare signing certificate
-        shell: bash
-        env:
-          TOKENX_SIGNING_CERT_PFX: ${{ secrets.TOKENX_SIGNING_CERT_PFX }}
-          TOKENX_SIGNING_CERT_PASSWORD: ${{ secrets.TOKENX_SIGNING_CERT_PASSWORD }}
-        run: |
-          set -euo pipefail
-          if [ -z "${TOKENX_SIGNING_CERT_PFX:-}" ]; then
-            echo "TOKENX_SIGNING_CERT_PFX secret is required." >&2
-            exit 1
-          fi
-          if [ -z "${TOKENX_SIGNING_CERT_PASSWORD:-}" ]; then
-            echo "TOKENX_SIGNING_CERT_PASSWORD secret is required." >&2
-            exit 1
-          fi
-          echo "${TOKENX_SIGNING_CERT_PFX}" | base64 --decode > tokenx-signing.pfx
-
-      - name: Sign NuGet packages
-        env:
-          TOKENX_SIGNING_CERT_PASSWORD: ${{ secrets.TOKENX_SIGNING_CERT_PASSWORD }}
-        run: |
-          set -euo pipefail
-          # devskim: ignore DS137138 -- DigiCert timestamp service exposes only HTTP; HTTPS is unsupported and refused.
-          dotnet nuget sign artifacts/packages/*.nupkg \
-            --certificate-path tokenx-signing.pfx \
-            --certificate-password "${TOKENX_SIGNING_CERT_PASSWORD}" \
-            --hash-algorithm SHA256 \
-            --timestamper http://timestamp.sectigo.com/qualified
-          rm -f tokenx-signing.pfx
-
       - name: Publish packages to GitHub Packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,7 +1,7 @@
 ## Remediated
 
 - Addressed CodeQL `rust/access-invalid-pointer` by converting the raw tokenizer handle to a safe reference with `Pointer::as_ref()` guards before use, preventing unchecked dereferences in `.ext/hf_bridge/src/ffi/decode.rs`.
-- `.github/workflows/hf-release.yml` now uses DigiCert's standard timestamp service (`http://timestamp.digicert.com`) with an inline suppression for DevSkim `DS137138`, documenting that DigiCert does not provide an HTTPS endpoint.
+- Removed NuGet package signing from `.github/workflows/hf-release.yml`, eliminating the previous DevSkim `DS137138` timestamp finding entirely.
 
 ## Outstanding DevSkim Notes
 
